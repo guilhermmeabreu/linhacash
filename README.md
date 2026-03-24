@@ -1,36 +1,171 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LinhaCash
 
-## Getting Started
+O LinhaCash é uma plataforma que estou construindo com foco em análise de props da NBA.
 
-First, run the development server:
+A ideia surgiu de um problema simples: quem aposta ou analisa jogadores precisa ficar abrindo vários sites, conferindo estatísticas manualmente e organizando tudo na cabeça. Isso toma tempo e gera erro.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+O objetivo aqui é concentrar tudo em um único lugar, com uma interface rápida, limpa e feita pra uso diário.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧠 Proposta
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+O produto não é uma casa de apostas e nem entrega “palpites”.
 
-## Learn More
+A proposta é ser uma ferramenta de apoio baseada em dados, mostrando:
 
-To learn more about Next.js, take a look at the following resources:
+- desempenho recente do jogador
+- consistência em relação à linha
+- histórico de acertos (over/under)
+- contexto básico da partida
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Tudo de forma visual, simples e sem poluição.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ⚙️ Como funciona (visão geral)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+O fluxo principal da aplicação:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Usuário entra na plataforma (login/registro)
+2. Visualiza os jogos do dia
+3. Seleciona um jogo
+4. Vê a lista de jogadores disponíveis
+5. Clica em um jogador
+6. Analisa os dados detalhados antes de tomar decisão
+
+---
+
+## 📊 Dados exibidos
+
+Para cada jogador, a plataforma vai mostrar:
+
+### 📈 Períodos
+- L5 (últimos 5 jogos)
+- L10
+- L15
+- L20
+- Season (temporada completa)
+
+### 🎯 Métricas
+- Pontos (PTS)
+- Rebotes (REB)
+- Assistências (AST)
+- Combinações (P+R, P+A, etc.)
+
+### 📉 Linha ajustável
+O usuário pode alterar a linha manualmente e ver:
+
+- média no período
+- taxa de acerto
+- comportamento recente
+
+### 📊 Gráfico
+- histórico jogo a jogo
+- identificação visual de hits/miss
+- comparação com a linha atual
+
+### 🧩 Contexto (planejado)
+- adversário
+- histórico contra o time (H2H)
+- minutos por jogo
+
+---
+
+## 👤 Sistema de usuário
+
+### Gratuito
+- acesso limitado
+- poucos jogos por dia
+- poucos jogadores por time
+- stats básicas
+
+### Pro (planejado)
+- acesso completo
+- todos os jogos
+- todos os jogadores
+- todas as métricas
+- períodos avançados
+
+---
+
+## 🧱 Estrutura atual
+
+O projeto hoje já tem:
+
+- layout completo (mobile + desktop)
+- sistema de navegação entre telas
+- telas principais estruturadas:
+  - autenticação
+  - jogos do dia
+  - lista de jogadores
+  - detalhe do jogador
+  - perfil
+- base pronta pra integração com backend
+
+---
+
+## 🔌 Integrações
+
+### Banco e autenticação
+- Supabase (auth + database)
+
+### Dados esportivos
+- API Sports (NBA)
+
+A ideia é buscar:
+- jogos do dia
+- estatísticas de jogadores
+- histórico de partidas
+
+---
+
+## 💻 Stack
+
+- Next.js (frontend)
+- Supabase (backend)
+- API Sports (dados)
+- CSS custom (sem framework pesado)
+
+---
+
+## 🚧 Status atual
+
+Em desenvolvimento.
+
+O foco no momento é:
+- adaptar o layout para Next.js corretamente
+- organizar componentes
+- conectar com banco de dados
+- iniciar integração com API
+
+---
+
+## 🛣️ Próximos passos
+
+- [ ] Converter todo frontend para React (Next.js)
+- [ ] Conectar Supabase (login real)
+- [ ] Integrar API da NBA
+- [ ] Implementar lógica de cálculo (médias, hit rate)
+- [ ] Criar sistema de planos
+- [ ] Implementar pagamento
+- [ ] Criar trial gratuito (2 dias)
+- [ ] Otimizar performance
+
+---
+
+## 🎯 Objetivo do projeto
+
+Construir uma ferramenta simples, rápida e confiável para análise de props, que realmente ajude no dia a dia — sem excesso de informação e sem depender de vários sites ao mesmo tempo.
+
+---
+
+## 🌐 Deploy
+
+https://linhacash1.vercel.app
+
+---
+
+## 📌 Observação
+
+Projeto sendo desenvolvido do zero, ainda em evolução.
