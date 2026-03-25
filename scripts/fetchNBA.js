@@ -10,7 +10,8 @@ const supabase = createClient(
 
 const API_KEY = process.env.NBA_API_KEY;
 const BASE_URL = 'v2.nba.api-sports.io';
-const SEASON = 2025;
+const SEASON = 2025; // jogos
+const SEASON_STATS = 2024; // stats e jogadores (limite do plano gratuito)
 
 function apiGet(path) {
   return new Promise((resolve, reject) => {
@@ -31,9 +32,10 @@ function apiGet(path) {
 }
 
 async function fetchGames() {
-  const today = new Date().toISOString().split('T')[0];
+  const today = process.env.NBA_DATE || new Date().toISOString().split('T')[0];
   console.log('Buscando jogos do dia:', today);
-  const data = await apiGet(`/games?date=${today}&league=12&season=${SEASON}`);
+  const data = await apiGet(`/games?date=${today}`);
+  console.log('Resposta da API:', JSON.stringify(data).slice(0, 300));
   if (!data.response || data.response.length === 0) {
     console.log('Nenhum jogo hoje.');
     return [];
@@ -54,7 +56,8 @@ async function fetchGames() {
 }
 
 async function fetchPlayers(teamId) {
-  const data = await apiGet(`/players?team=${teamId}&season=${SEASON}`);
+  const data = await apiGet(`/players?team=${teamId}&season=${SEASON_STATS}`);
+  console.log(`Time ${teamId} - total:`, data.results);
   if (!data.response) return [];
   const players = data.response.map(p => ({
     api_id: p.id,
@@ -70,7 +73,7 @@ async function fetchPlayers(teamId) {
 }
 
 async function fetchPlayerStats(playerId, apiPlayerId) {
-  const data = await apiGet(`/players/statistics?id=${apiPlayerId}&season=${SEASON}`);
+  const data = await apiGet(`/players/statistics?id=${apiPlayerId}&season=${SEASON_STATS}`);
   if (!data.response || data.response.length === 0) return;
   const stats = data.response.slice(0, 20).map(s => ({
     player_id: playerId,
