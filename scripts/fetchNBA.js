@@ -46,6 +46,8 @@ async function fetchGames() {
     away_team: g.teams.visitors.name,
     home_team_id: g.teams.home.id,
     away_team_id: g.teams.visitors.id,
+    home_logo: g.teams.home.logo,
+    away_logo: g.teams.visitors.logo,
     game_time: g.date.start,
     status: g.status.long
   }));
