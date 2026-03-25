@@ -675,79 +675,47 @@ body{min-height:100dvh}
 </div>
 
 <script>
-// ═══ DADOS ═══════════════════════════════════════════════════════════════════
-const CLR={LAL:'#552583',GSW:'#1D428A',BOS:'#007A33',MIA:'#98002E',PHX:'#1D1160',DEN:'#0E2240',OKC:'#007AC1',MIL:'#00471B',DAL:'#00538C',NYK:'#F58426',CHI:'#CE1141'};
-const GAMES=[
-  {id:1,home:'BOS',away:'NYK',ht:'Boston Celtics',at:'New York Knicks',time:'13:00'},
-  {id:2,home:'MIA',away:'CHI',ht:'Miami Heat',at:'Chicago Bulls',time:'15:30'},
-  {id:3,home:'GSW',away:'LAL',ht:'Golden State Warriors',at:'Los Angeles Lakers',time:'18:00'},
-  {id:4,home:'OKC',away:'DEN',ht:'Oklahoma City Thunder',at:'Denver Nuggets',time:'20:30'},
-  {id:5,home:'DAL',away:'PHX',ht:'Dallas Mavericks',at:'Phoenix Suns',time:'21:00'},
-];
-const PBG={
-  1:[
-    {id:10,name:'Jayson Tatum',  team:'BOS',pos:'SF',clr:'#007A33',line:24.5,pts:[24,19,28,22,31,18,26,23,29,21],reb:[8,6,10,7,9,5,8,7,11,6],ast:[4,3,6,4,5,2,4,3,5,4],pm3:[2,1,3,2,4,1,2,2,3,1]},
-    {id:11,name:'Jaylen Brown',  team:'BOS',pos:'SG',clr:'#007A33',line:22.5,pts:[25,20,18,27,22,19,24,21,23,26],reb:[5,4,6,5,4,3,5,4,6,5],ast:[3,2,4,3,2,3,3,2,4,3],pm3:[2,1,2,3,2,1,2,1,3,2]},
-    {id:12,name:'Al Horford',    team:'BOS',pos:'C', clr:'#007A33',line:10.5,pts:[12,9,14,8,11,13,10,12,9,11],reb:[9,7,11,8,10,12,9,8,10,9],ast:[3,2,4,3,3,4,3,2,4,3],pm3:[1,0,2,1,2,1,1,0,2,1]},
-    {id:13,name:'Jalen Brunson', team:'NYK',pos:'PG',clr:'#F58426',line:26.5,pts:[28,24,31,22,27,30,25,28,20,29],reb:[4,3,5,4,3,5,4,3,4,4],ast:[7,6,9,5,8,7,6,8,5,9],pm3:[3,2,4,2,3,3,2,3,2,4]},
-    {id:14,name:'RJ Barrett',    team:'NYK',pos:'SG',clr:'#F58426',line:19.5,pts:[21,17,23,19,15,22,18,20,24,16],reb:[6,5,7,5,4,6,5,6,7,5],ast:[3,2,4,3,2,3,2,3,4,2],pm3:[2,1,3,1,1,2,1,2,2,1]},
-    {id:15,name:'K-A Towns',     team:'NYK',pos:'C', clr:'#F58426',line:23.5,pts:[26,22,28,24,20,27,25,21,29,23],reb:[12,10,14,11,9,13,11,10,13,12],ast:[3,2,4,3,2,4,3,2,4,3],pm3:[2,1,3,2,1,3,2,1,3,2]},
-  ],
-  2:[
-    {id:20,name:'Jimmy Butler',  team:'MIA',pos:'SF',clr:'#98002E',line:22.5,pts:[24,20,26,18,22,28,21,23,19,25],reb:[6,5,7,5,6,8,5,6,5,7],ast:[5,4,6,5,4,6,5,5,4,6],pm3:[1,0,2,1,1,2,1,1,0,2]},
-    {id:21,name:'Bam Adebayo',   team:'MIA',pos:'C', clr:'#98002E',line:18.5,pts:[20,17,22,19,16,21,18,20,23,17],reb:[10,9,12,10,8,11,9,10,12,9],ast:[3,2,4,3,2,4,3,3,4,3],pm3:[0,0,1,0,0,1,0,0,1,0]},
-    {id:22,name:'Tyler Herro',   team:'MIA',pos:'SG',clr:'#98002E',line:20.5,pts:[22,18,24,19,21,17,23,20,16,22],reb:[4,3,5,4,3,4,4,3,5,4],ast:[5,4,6,4,5,4,5,4,4,5],pm3:[3,2,4,2,3,2,3,2,2,3]},
-    {id:23,name:'DeMar DeRozan', team:'CHI',pos:'SF',clr:'#CE1141',line:24.5,pts:[26,23,28,22,25,20,27,24,21,26],reb:[5,4,6,4,5,4,5,4,5,5],ast:[5,4,6,4,5,4,5,4,4,5],pm3:[0,0,1,0,0,0,0,0,1,0]},
-    {id:24,name:'Zach LaVine',   team:'CHI',pos:'SG',clr:'#CE1141',line:23.5,pts:[25,21,27,20,24,19,26,22,28,21],reb:[5,4,6,4,5,4,5,4,6,4],ast:[4,3,5,4,4,3,5,4,5,3],pm3:[3,2,4,2,3,2,4,2,3,2]},
-    {id:25,name:'N. Vucevic',    team:'CHI',pos:'C', clr:'#CE1141',line:17.5,pts:[19,16,21,18,15,20,17,19,22,16],reb:[11,9,13,10,8,12,10,9,12,10],ast:[3,2,4,3,2,3,2,3,4,2],pm3:[1,0,2,1,0,1,1,0,2,0]},
-  ],
-  3:[
-    {id:30,name:'Stephen Curry', team:'GSW',pos:'PG',clr:'#1D428A',line:26.5,pts:[29,24,31,22,28,19,27,25,30,23],reb:[5,4,6,4,5,4,5,4,6,4],ast:[6,5,8,5,6,4,7,5,7,5],pm3:[5,3,6,3,5,2,5,4,6,3]},
-    {id:31,name:'Draymond Green',team:'GSW',pos:'PF',clr:'#1D428A',line:7.5, pts:[9,6,11,7,8,10,9,7,6,8],reb:[8,6,10,7,8,9,7,8,6,9],ast:[7,5,9,6,7,8,7,6,6,8],pm3:[0,0,1,0,0,1,0,0,0,0]},
-    {id:32,name:'Klay Thompson', team:'GSW',pos:'SG',clr:'#1D428A',line:17.5,pts:[19,14,22,16,18,12,20,17,15,21],reb:[4,3,5,3,4,2,4,3,4,4],ast:[2,1,3,2,2,1,2,2,2,2],pm3:[4,2,5,3,4,1,4,3,3,4]},
-    {id:33,name:'LeBron James',  team:'LAL',pos:'SF',clr:'#552583',line:25.5,pts:[27,24,29,22,26,31,23,28,25,24],reb:[8,7,9,7,8,9,7,8,8,7],ast:[7,6,9,7,8,8,7,7,7,7],pm3:[2,1,3,2,2,3,1,2,2,2]},
-    {id:34,name:'Anthony Davis', team:'LAL',pos:'C', clr:'#552583',line:26.5,pts:[28,25,30,27,24,29,26,28,31,25],reb:[13,11,15,12,10,14,12,11,14,12],ast:[3,2,4,3,2,4,3,2,4,3],pm3:[1,0,2,1,0,1,1,0,2,1]},
-    {id:35,name:"D'A. Russell",  team:'LAL',pos:'PG',clr:'#552583',line:15.5,pts:[17,13,19,14,16,11,18,15,12,17],reb:[4,3,5,3,4,3,4,3,3,4],ast:[6,5,7,5,6,5,6,5,5,6],pm3:[3,2,4,2,3,1,3,2,2,3]},
-  ],
-  4:[
-    {id:40,name:'Shai G-Alexander',team:'OKC',pos:'PG',clr:'#007AC1',line:31.5,pts:[35,31,21,29,35,55,30,23,31,31],reb:[5,4,6,4,5,5,4,4,5,5],ast:[6,5,7,5,6,6,5,4,6,5],pm3:[3,2,4,2,3,3,2,2,3,3]},
-    {id:41,name:'Chet Holmgren',team:'OKC',pos:'C', clr:'#007AC1',line:16.5,pts:[18,14,20,15,17,19,16,18,13,17],reb:[9,7,11,8,9,10,8,9,7,9],ast:[2,1,3,2,2,3,2,2,2,2],pm3:[2,1,3,1,2,2,1,2,1,2]},
-    {id:42,name:'Josh Giddey',  team:'OKC',pos:'PG',clr:'#007AC1',line:13.5,pts:[15,12,17,13,14,16,12,15,11,14],reb:[7,6,8,6,7,8,6,7,5,7],ast:[6,5,7,5,6,7,5,6,5,6],pm3:[1,0,2,1,1,1,0,1,0,1]},
-    {id:43,name:'Nikola Jokic', team:'DEN',pos:'C', clr:'#0E2240',line:26.5,pts:[28,24,31,26,22,29,27,25,30,24],reb:[13,11,15,12,10,14,12,11,14,12],ast:[9,8,11,9,8,10,9,8,10,9],pm3:[1,0,1,1,0,1,1,0,1,1]},
-    {id:44,name:'Jamal Murray', team:'DEN',pos:'PG',clr:'#0E2240',line:21.5,pts:[23,19,25,20,22,18,24,21,17,23],reb:[5,4,6,4,5,4,5,4,4,5],ast:[6,5,7,5,6,5,6,5,5,6],pm3:[3,2,4,2,3,2,3,2,2,3]},
-    {id:45,name:'M. Porter Jr', team:'DEN',pos:'SF',clr:'#0E2240',line:16.5,pts:[18,14,20,15,17,13,19,16,21,14],reb:[7,6,8,6,7,5,7,6,8,6],ast:[2,1,3,2,2,1,2,2,3,2],pm3:[2,1,3,2,2,1,2,2,3,1]},
-  ],
-  5:[
-    {id:50,name:'Luka Doncic',  team:'DAL',pos:'PG',clr:'#00538C',line:32.5,pts:[35,30,38,28,33,40,29,34,31,36],reb:[9,8,11,8,9,10,8,9,8,9],ast:[9,8,11,8,9,10,8,9,8,10],pm3:[4,3,5,3,4,4,3,4,3,4]},
-    {id:51,name:'Kyrie Irving', team:'DAL',pos:'PG',clr:'#00538C',line:23.5,pts:[25,21,27,20,24,28,22,26,19,25],reb:[4,3,5,4,4,5,3,4,4,4],ast:[5,4,6,5,5,6,4,5,4,5],pm3:[3,2,4,2,3,3,2,3,2,3]},
-    {id:52,name:'P.J. Washington',team:'DAL',pos:'PF',clr:'#00538C',line:13.5,pts:[15,11,17,12,14,10,16,13,18,12],reb:[6,5,7,5,6,4,6,5,7,5],ast:[2,1,3,2,2,1,2,2,3,2],pm3:[2,1,3,1,2,1,2,1,2,1]},
-    {id:53,name:'Kevin Durant',  team:'PHX',pos:'PF',clr:'#1D1160',line:27.5,pts:[29,25,32,26,28,23,30,27,25,29],reb:[7,6,8,6,7,5,7,6,7,7],ast:[4,3,5,4,4,3,4,4,4,4],pm3:[2,1,3,2,2,1,2,2,2,2]},
-    {id:54,name:'Devin Booker',  team:'PHX',pos:'SG',clr:'#1D1160',line:26.5,pts:[28,24,30,25,27,22,29,26,23,28],reb:[5,4,6,4,5,4,5,4,5,5],ast:[5,4,6,5,5,4,5,5,4,5],pm3:[3,2,4,2,3,2,3,2,3,3]},
-    {id:55,name:'Bradley Beal',  team:'PHX',pos:'SG',clr:'#1D1160',line:18.5,pts:[20,16,22,17,19,14,21,18,15,20],reb:[4,3,5,4,4,3,4,3,4,4],ast:[4,3,5,4,4,3,4,4,4,4],pm3:[2,1,3,1,2,1,2,1,2,2]},
-  ],
+// ═══ SUPABASE CONFIG ══════════════════════════════════════════════════════════
+const SUPABASE_URL='https://hhtpbajmkowohsnmozak.supabase.co';
+const SUPABASE_KEY='sb_publishable_Ne7eoE0mmPov0v_Ten2d3A_lWi5E36Bl3e0Ow';
+
+async function sbGet(table, query=''){
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/${table}${query}`,{
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'}
+  });
+  return res.json();
+}
+
+// ═══ CORES ═══════════════════════════════════════════════════════════════════
+const CLR={
+  'Los Angeles Lakers':'#552583','Golden State Warriors':'#1D428A','Boston Celtics':'#007A33',
+  'Miami Heat':'#98002E','Phoenix Suns':'#1D1160','Denver Nuggets':'#0E2240',
+  'Oklahoma City Thunder':'#007AC1','Dallas Mavericks':'#00538C','New York Knicks':'#F58426',
+  'Chicago Bulls':'#CE1141','Milwaukee Bucks':'#00471B','Philadelphia 76ers':'#006BB6',
+  'Atlanta Hawks':'#E03A3E','Brooklyn Nets':'#333','Charlotte Hornets':'#1D1160',
+  'Cleveland Cavaliers':'#860038','Detroit Pistons':'#C8102E','Indiana Pacers':'#002D62',
+  'Memphis Grizzlies':'#5D76A9','Minnesota Timberwolves':'#0C2340','New Orleans Pelicans':'#002B5C',
+  'Orlando Magic':'#0077C0','Sacramento Kings':'#5A2D81','San Antonio Spurs':'#888',
+  'Toronto Raptors':'#CE1141','Utah Jazz':'#002B5C','Washington Wizards':'#002B5C',
+  'Houston Rockets':'#CE1141','Los Angeles Clippers':'#C8102E','Portland Trail Blazers':'#E03A3E',
 };
-const STATS=['PTS','AST','REB','3PM','P+A','P+R'];
-const SFREE=['PTS','REB'];
-const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers','P+A':'Pts+Ast','P+R':'Pts+Reb'};
-const OPPS=['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'];
+function getClr(t){return CLR[t]||'#2a2a2a';}
 
 // ═══ STATE ════════════════════════════════════════════════════════════════════
+let GAMES=[],PBG={},METRICS={};
 let cGame=null,cPlayer=null,cStat='PTS',cPeriod='L10',cLine=null;
 let stack=['sAuth'];
 let plan='free',dark=true;
 let uName='Usuário',uEmail='usuario@email.com';
+let supabaseUser=null;
+const STATS=['PTS','AST','REB','3PM','P+A','P+R'];
+const SFREE=['PTS','REB'];
+const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers','P+A':'Pts+Ast','P+R':'Pts+Reb'};
+const OPPS=['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'];
 let otpInt=null,pendEmail='';
-
-// ═══ HELPERS ══════════════════════════════════════════════════════════════════
 function half(n){return Math.round(n*2)/2;}
 function ini(n){return n.split(' ').map(c=>c[0]).join('').slice(0,2).toUpperCase();}
 function pro(){return plan==='pro';}
-function getArr(p,s){
-  if(s==='AST')return p.ast;if(s==='REB')return p.reb;if(s==='3PM')return p.pm3;
-  if(s==='P+A')return p.pts.map((v,i)=>v+(p.ast[i]||0));
-  if(s==='P+R')return p.pts.map((v,i)=>v+(p.reb[i]||0));
-  return p.pts;
-}
 function defLine(p,s){
   let r=p.line;
   if(s==='AST')r=p.line*.25;else if(s==='REB')r=p.line*.35;
@@ -781,29 +749,62 @@ function authTab(t){
   document.getElementById('fLogin').style.display=t==='login'?'block':'none';
   document.getElementById('fReg').style.display=t==='reg'?'block':'none';
 }
-function doLogin(){
+async function doLogin(){
   const e=document.getElementById('lEmail').value.trim();
   const p=document.getElementById('lPass').value;
   if(!e||!p){toast('Preencha email e senha.');return;}
-  uName=e.split('@')[0];uEmail=e;
+  toast('Entrando...');
+  const res=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:e,password:p})
+  });
+  const data=await res.json();
+  if(data.error){toast('Email ou senha incorretos.');return;}
+  supabaseUser=data.user;
+  uEmail=e;uName=e.split('@')[0];
+  const prof=await sbGet('profiles',`?id=eq.${data.user.id}`);
+  if(prof&&prof[0]){uName=prof[0].name||uName;plan=prof[0].plan||'free';}
   enterApp();
 }
-function doRegister(){
+
+async function doRegister(){
   const n=document.getElementById('rName').value.trim();
   const e=document.getElementById('rEmail').value.trim();
   const p=document.getElementById('rPass').value;
   if(!n){toast('Digite seu nome.');return;}
   if(!e||!e.includes('@')){toast('Email inválido.');return;}
   if(p.length<6){toast('Senha com mínimo 6 caracteres.');return;}
-  uName=n;uEmail=e;pendEmail=e;
-  document.getElementById('otpEmail').textContent=e;
-  ['o1','o2','o3','o4','o5','o6'].forEach(id=>document.getElementById(id).value='');
-  stack.push('sOtp');show('sOtp',false);
-  startTimer();
+  toast('Criando conta...');
+  const res=await fetch(`${SUPABASE_URL}/auth/v1/signup`,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:e,password:p})
+  });
+  const data=await res.json();
+  if(data.error){toast(data.error.message||'Erro ao criar conta.');return;}
+  // Salvar perfil
+  if(data.user){
+    await fetch(`${SUPABASE_URL}/rest/v1/profiles`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({id:data.user.id,name:n,email:e,plan:'free'})
+    });
+    supabaseUser=data.user;uName=n;uEmail=e;
+    enterApp();toast('Conta criada com sucesso! 🎉');
+  } else {
+    toast('Verifique seu email para confirmar a conta!');
+  }
 }
-function doForgot(){
+
+async function doForgot(){
   const e=document.getElementById('lEmail').value.trim();
   if(!e){toast('Digite seu email primeiro.');return;}
+  await fetch(`${SUPABASE_URL}/auth/v1/recover`,{
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({email:e})
+  });
   toast('Link de recuperação enviado! ✉️');
 }
 function onOtp(el,nextId){
@@ -843,97 +844,124 @@ function enterApp(){
 }
 
 // ═══ S1: JOGOS ════════════════════════════════════════════════════════════════
-function renderGames(){
+async function renderGames(){
   const d=new Date();
   document.getElementById('dlabel').textContent='Hoje · '+d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+  document.getElementById('glist').innerHTML='<div style="padding:32px;text-align:center;color:var(--mt)">Carregando jogos...</div>';
+  const today=d.toISOString().split('T')[0];
+  const data=await sbGet('games',`?game_date=eq.${today}&order=game_time`);
+  GAMES=data||[];
+  if(GAMES.length===0){
+    document.getElementById('glist').innerHTML='<div style="padding:32px;text-align:center;color:var(--mt)">Nenhum jogo hoje ainda.<br><span style="font-size:12px">O sync roda automaticamente às 11h</span></div>';
+    return;
+  }
   const vis=pro()?GAMES:GAMES.slice(0,1);
   const lkd=pro()?[]:GAMES.slice(1);
   document.getElementById('glist').innerHTML=
     vis.map(g=>{
-      const hc=CLR[g.home]||'#444',ac=CLR[g.away]||'#444';
+      const hc=getClr(g.home_team),ac=getClr(g.away_team);
+      const time=new Date(g.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
       return `<div class="gcard" onclick="openGame(${g.id})">
-        <div class="gctop"><span class="gtime">${g.time}</span></div>
+        <div class="gctop"><span class="gtime">${time}</span></div>
         <div class="gteams">
-          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${g.away}</div><div class="tabbr">${g.away}</div><div class="tcity">${g.at.split(' ').slice(-1)[0]}</div></div>
+          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${awayIni}</div><div class="tabbr">${awayIni}</div><div class="tcity">${g.away_team.split(' ').slice(-1)[0]}</div></div>
           <div class="gvs">×</div>
-          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${g.home}</div><div class="tabbr">${g.home}</div><div class="tcity">${g.ht.split(' ').slice(-1)[0]}</div></div>
+          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${homeIni}</div><div class="tabbr">${homeIni}</div><div class="tcity">${g.home_team.split(' ').slice(-1)[0]}</div></div>
         </div>
-        <div class="gfoot"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>${(PBG[g.id]||[]).length} jogadores disponíveis</div>
+        <div class="gfoot"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Ver jogadores</div>
       </div>`;
     }).join('')+
     lkd.map(g=>{
-      const hc=CLR[g.home]||'#444',ac=CLR[g.away]||'#444';
+      const hc=getClr(g.home_team),ac=getClr(g.away_team);
+      const time=new Date(g.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
       return `<div class="gcard lk">
-        <div class="gctop"><span class="gtime" style="background:var(--s4);border-color:var(--bd);color:var(--mt)">${g.time}</span><span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span></div>
+        <div class="gctop"><span class="gtime" style="background:var(--s4);border-color:var(--bd);color:var(--mt)">${time}</span><span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span></div>
         <div class="gteams">
-          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${ac}44,${ac}22)">${g.away}</div><div class="tabbr">${g.away}</div><div class="tcity">${g.at.split(' ').slice(-1)[0]}</div></div>
+          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${ac}44,${ac}22)">${awayIni}</div><div class="tabbr">${awayIni}</div><div class="tcity">${g.away_team.split(' ').slice(-1)[0]}</div></div>
           <div class="gvs">×</div>
-          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${hc}44,${hc}22)">${g.home}</div><div class="tabbr">${g.home}</div><div class="tcity">${g.ht.split(' ').slice(-1)[0]}</div></div>
+          <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${hc}44,${hc}22)">${homeIni}</div><div class="tabbr">${homeIni}</div><div class="tcity">${g.home_team.split(' ').slice(-1)[0]}</div></div>
         </div>
       </div>`;
     }).join('');
 }
 
 // ═══ S2: JOGADORES ════════════════════════════════════════════════════════════
-function openGame(id){
+async function openGame(id){
   cGame=GAMES.find(g=>g.id===id);cStat='PTS';
-  document.getElementById('s2ttl').textContent=cGame.away+' × '+cGame.home;
-  const hc=CLR[cGame.home]||'#444',ac=CLR[cGame.away]||'#444';
+  document.getElementById('s2ttl').textContent=ini(cGame.away_team)+' × '+ini(cGame.home_team);
+  const hc=getClr(cGame.home_team),ac=getClr(cGame.away_team);
+  const time=new Date(cGame.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
   document.getElementById('gbanner').innerHTML=
     `<div class="gbanner">
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="gbav" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${cGame.away}</div>
+        <div class="gbav" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${ini(cGame.away_team)}</div>
         <span style="font-size:12px;color:var(--mt)">×</span>
-        <div class="gbav" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${cGame.home}</div>
-        <span style="font-size:13px;font-weight:700;margin-left:4px">${cGame.away} vs ${cGame.home}</span>
+        <div class="gbav" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${ini(cGame.home_team)}</div>
+        <span style="font-size:13px;font-weight:700;margin-left:4px">${cGame.away_team} vs ${cGame.home_team}</span>
       </div>
-      <span style="font-size:13px;font-weight:600;color:var(--green)">${cGame.time}</span>
+      <span style="font-size:13px;font-weight:600;color:var(--green)">${time}</span>
     </div>
     <div class="schips" id="s2chips">
       ${STATS.map(s=>{const lk=!pro()&&!SFREE.includes(s);return`<div class="schip ${s==='PTS'?'on':''} ${lk?'lk':''}" data-stat="${s}" data-lk="${lk?'1':'0'}">${s}${lk?' 🔒':''}</div>`;}).join('')}
     </div>
     <div class="sectitle">${pro()?'Jogadores':'Jogadores · <span style="color:var(--amber);font-size:10px">1 por time — Gratuito</span>'}</div>`;
-  // bind chip clicks
   document.querySelectorAll('#s2chips .schip').forEach(function(el){
     el.addEventListener('click',function(){
       if(el.dataset.lk==='1'){openPro();return;}
       document.querySelectorAll('#s2chips .schip').forEach(function(c){c.classList.remove('on');});
-      el.classList.add('on');
-      cStat=el.dataset.stat;
-      renderPRows();
+      el.classList.add('on');cStat=el.dataset.stat;renderPRows();
     });
   });
-  renderPRows();nav(2);
+  // Buscar jogadores dos dois times no Supabase
+  document.getElementById('plist').innerHTML='<div style="padding:24px;text-align:center;color:var(--mt)">Carregando jogadores...</div>';
+  const data=await sbGet('players',`?team_id=in.(${cGame.home_team_id},${cGame.away_team_id})&order=name`);
+  PBG[id]=data||[];
+  renderPRows();
+  nav(2);
 }
+
 function setS2Stat(s,el){
   cStat=s;document.querySelectorAll('.schip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderPRows();
 }
-function renderPRows(){
+
+async function renderPRows(){
   let ps=PBG[cGame.id]||[];
   if(!pro()){const seen={};ps=ps.filter(p=>{if(seen[p.team])return false;seen[p.team]=true;return true;});}
+  // Buscar métricas para stat atual
+  const statMap={PTS:'points',AST:'assists',REB:'rebounds','3PM':'three_pointers','P+A':'points','P+R':'points'};
+  const sbStat=statMap[cStat]||'points';
   document.getElementById('plist').innerHTML=ps.map(p=>{
-    const a=getArr(p,cStat),ln=defLine(p,cStat);
-    const hr=Math.round(a.slice(0,5).filter(v=>v>ln).length/Math.min(a.length,5)*100);
+    const clr=getClr(p.team);
+    const m=METRICS[p.id]?METRICS[p.id][sbStat]:null;
+    const ln=m?half(m.line):0;
+    const hr=m?Math.round(m.avg_l10/ln*50):0;
     const cls=hr>=65?'g':hr>=50?'a':'r';
     return `<div class="prow2" onclick="openPlayer(${p.id})">
-      <div class="prav" style="background:linear-gradient(135deg,${p.clr}cc,${p.clr}66)">${ini(p.name)}</div>
-      <div style="flex:1;min-width:0"><div class="prnm">${p.name}</div><div class="prmt">${p.pos} · ${p.team}</div></div>
-      <div class="prrt"><div class="prln">${ln}</div><div class="prhr ${cls}">${hr}%</div></div>
+      <div class="prav" style="background:linear-gradient(135deg,${clr}cc,${clr}66)">${ini(p.name)}</div>
+      <div style="flex:1;min-width:0"><div class="prnm">${p.name}</div><div class="prmt">${p.position||''} · ${p.team}</div></div>
+      <div class="prrt"><div class="prln">${ln||'—'}</div>${m?`<div class="prhr ${cls}">${hr}%</div>`:''}</div>
     </div>`;
   }).join('');
 }
 
 // ═══ S3: DETALHE ══════════════════════════════════════════════════════════════
-function openPlayer(id){
-  const all=Object.values(PBG).flat();
-  cPlayer=all.find(p=>p.id===id);if(!cPlayer)return;
+async function openPlayer(id){
+  const allPlayers=Object.values(PBG).flat();
+  cPlayer=allPlayers.find(p=>p.id===id);if(!cPlayer)return;
   cStat='PTS';cPeriod='L10';cLine=null;
   document.getElementById('s3ttl').textContent=cPlayer.name;
   document.getElementById('stabs').innerHTML=STATS.map(s=>{
     const lk=!pro()&&!SFREE.includes(s);
     return `<div class="stab ${s==='PTS'?'on':''} ${lk?'lk':''}" onclick="${lk?'openPro()':'changeTab(\''+s+'\',this)'}">${s}${lk?' 🔒':''}</div>`;
   }).join('');
-  renderDetail();nav(3);
+  // Buscar métricas do jogador no Supabase
+  const data=await sbGet('player_metrics',`?player_id=eq.${id}`);
+  METRICS[id]={};
+  if(data) data.forEach(m=>{ METRICS[id][m.stat]=m; });
+  renderDetail();
+  nav(3);
 }
 function changeTab(s,el){
   cStat=s;cLine=null;document.querySelectorAll('.stab').forEach(t=>t.classList.remove('on'));el.classList.add('on');renderDetail();
@@ -947,113 +975,111 @@ function adjLine(d){
   const sc=document.getElementById('s3').querySelector('.scrl');const top=sc?sc.scrollTop:0;renderDetail();if(sc)sc.scrollTop=top;
 }
 function renderDetail(){
-  const p=cPlayer,a=getArr(p,cStat),line=cLine!==null?cLine:defLine(p,cStat),slbl=SLBL[cStat]||cStat;
-  const seed=p.id*17;
-  const l20=[...a,...a.map((v,i)=>Math.max(0,Math.round(v+((seed*(i+1))%5)-2)))];
-  // H2H: somente jogos cujo opp seja o adversário atual do jogador no jogo
-  const opp=cGame?(cGame.home===p.team?cGame.away:cGame.home):'OPP';
-  const h2hGames=p.pts.map((_,i)=>({
-    pts:p.pts[i],reb:p.reb[i],ast:p.ast[i],pm3:p.pm3[i],
-    opp:['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'][i]||'OPP'
-  })).filter(g=>g.opp.replace('@','')=== opp || g.opp===opp || g.opp==='@'+opp);
-  const h2hArr=h2hGames.length>0
-    ? h2hGames.map(g=>getArr({pts:Array(10).fill(g.pts),reb:Array(10).fill(g.reb),ast:Array(10).fill(g.ast),pm3:Array(10).fill(g.pm3)},cStat)[0])
-    : a.slice(0,3); // fallback se não tiver h2h
-  const pmap={'2025':a,'H2H':h2hArr,'L5':a.slice(0,5),'L10':a,'L20':l20};
-  const active=pmap[cPeriod]||a;
-  const avg=(active.reduce((s,v)=>s+v,0)/active.length).toFixed(1);
-  const dr=((p.id*7)%30)+1;
-  const hrf=active.filter(v=>v>line).length/active.length;
+  const p=cPlayer;
+  const statMap={PTS:'points',AST:'assists',REB:'rebounds','3PM':'three_pointers'};
+  const sbStat=statMap[cStat]||'points';
+  const m=METRICS[p.id]?METRICS[p.id][sbStat]:null;
+  const slbl=SLBL[cStat]||cStat;
+  const line=cLine!==null?cLine:(m?half(m.line):0);
+  const opp=cGame?(cGame.home_team===p.team?cGame.away_team:cGame.home_team):'OPP';
+  const time=cGame?new Date(cGame.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'--:--';
+  const clr=getClr(p.team);
+
+  if(!m){
+    document.getElementById('pdetail').innerHTML=`
+      <div class="hero">
+        <div class="heav" style="background:linear-gradient(135deg,${clr}cc,${clr}55)">${ini(p.name)}</div>
+        <div style="flex:1;min-width:0"><div class="henm">${p.name}</div><div class="hesb">${p.position||''}, ${p.team}</div></div>
+      </div>
+      <div style="padding:32px;text-align:center;color:var(--mt)">Sem dados para esta stat ainda.<br><span style="font-size:12px">Aguarde o próximo sync</span></div>`;
+    return;
+  }
+
+  const avg=m.avg_l10;
+  const hrf=line>0?Math.min(1,avg/line*0.5):0;
   const grade=hrf>=.7?'A+':hrf>=.6?'A-':hrf>=.5?'B+':'B-';
-  const C=2*Math.PI*22,dash=C*(1-hrf);
-  const periods=[{l:'2025',p:a},{l:'H2H',p:h2hArr},{l:'L5',p:a.slice(0,5)},{l:'L10',p:a},{l:'L20',p:l20}]
-    .map(x=>({l:x.l,hr:Math.round(x.p.filter(v=>v>line).length/x.p.length*100),on:cPeriod===x.l}));
-  const CH=160,cpts=active.slice(0,20),maxV=Math.max(...cpts,line,1);
-  const barsH=([...cpts].reverse()).map(v=>{
-    const bh=Math.max(Math.round((v/maxV)*CH),4);
-    const cls=v>line?'hit':v===line?'tie':'miss';
-    return `<div class="ccol"><div class="cbar ${cls}" style="height:${bh}px"><span class="cbarv">${v}</span></div></div>`;
-  }).join('');
-  const datesH=([...cpts].reverse()).map((_,i)=>{
-    const idx=cpts.length-1-i,d=new Date();d.setDate(d.getDate()-idx*3);
-    return `<div class="cdate">${d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}<br>${OPPS[idx]||'OPP'}</div>`;
-  }).join('');
-  // ── Dados extras calculados ──
-  // Casa × Fora (simula alternando jogos pares=casa, ímpares=fora)
-  const homeGames = a.filter((_,i)=>i%2===0);
-  const awayGames = a.filter((_,i)=>i%2!==0);
-  const avgHome = (homeGames.reduce((s,v)=>s+v,0)/homeGames.length).toFixed(1);
-  const avgAway = (awayGames.reduce((s,v)=>s+v,0)/awayGames.length).toFixed(1);
-  // vs Top 10 defesas (simula: pega jogos onde opp rank < 10)
-  const top10Games = a.slice(0,4); // simulado
-  const avgTop10 = (top10Games.reduce((s,v)=>s+v,0)/top10Games.length).toFixed(1);
-  const diffTop10 = (avgTop10 - avg).toFixed(1);
-  // Minutos recentes L5
-  const minL5 = (p.pts.slice(0,5).map((_,i)=>28+Math.round((p.id+i*3)%10)).reduce((a,b)=>a+b,0)/5).toFixed(1);
-  // Próximo jogo
-  const nextOpp = opp;
-  const nextTime = cGame?cGame.time:'--:--';
-  const refPx = Math.max(1,Math.round((line/maxV)*CH));
+  const C=2*Math.PI*22,dash=C*(1-Math.min(1,hrf));
+  const dr=((p.id*7)%30)+1;
+
+  const periods=[
+    {l:'L5',val:m.avg_l5},{l:'L10',val:m.avg_l10},
+    {l:'L20',val:m.avg_l20},{l:'Casa',val:m.avg_home},{l:'Fora',val:m.avg_away}
+  ].map(x=>({...x,on:cPeriod===x.l}));
 
   document.getElementById('pdetail').innerHTML=`
     <div class="hero">
-      <div class="heav" style="background:linear-gradient(135deg,${p.clr}cc,${p.clr}55)">${ini(p.name)}</div>
-      <div style="flex:1;min-width:0"><div class="henm">${p.name}</div><div class="hesb">${p.pos}, ${p.team}</div><div class="helv"><span class="hdot"></span>${line} ${slbl}</div></div>
-      <div class="mbox"><div class="mboxl">MATCHUP</div><div class="ringw"><svg class="rsvg" viewBox="0 0 52 52"><circle class="rbg" cx="26" cy="26" r="22"/><circle class="rfill" cx="26" cy="26" r="22" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}"/></svg><div class="rgrade">${grade}</div></div></div>
+      <div class="heav" style="background:linear-gradient(135deg,${clr}cc,${clr}55)">${ini(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="henm">${p.name}</div>
+        <div class="hesb">${p.position||''}, ${p.team}</div>
+        <div class="helv"><span class="hdot"></span>${line} ${slbl}</div>
+      </div>
+      <div class="mbox">
+        <div class="mboxl">MATCHUP</div>
+        <div class="ringw">
+          <svg class="rsvg" viewBox="0 0 52 52"><circle class="rbg" cx="26" cy="26" r="22"/><circle class="rfill" cx="26" cy="26" r="22" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${dash.toFixed(1)}"/></svg>
+          <div class="rgrade">${grade}</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Próximo jogo -->
     <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:var(--s1);border-bottom:1px solid var(--bd)">
       <div style="display:flex;align-items:center;gap:8px">
-        <svg width="13" height="13" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <svg width="13" height="13" fill="none" stroke="var(--green)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
         <span style="font-size:12px;font-weight:600;color:var(--mt)">PRÓXIMO JOGO</span>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:13px;font-weight:700">vs ${nextOpp}</span>
-        <span style="font-size:12px;color:var(--green);font-weight:600;background:var(--gdim);padding:2px 8px;border-radius:6px">${nextTime}</span>
+        <span style="font-size:13px;font-weight:700">vs ${opp}</span>
+        <span style="font-size:12px;color:var(--green);font-weight:600;background:var(--gdim);padding:2px 8px;border-radius:6px">${time}</span>
       </div>
     </div>
 
     <div class="istrip">
       <div class="isit"><div class="islbl">OPP</div><div class="isval">vs ${opp}</div></div>
       <div class="isit"><div class="islbl">DEF RANK</div><div class="isval ${dr>15?'gv':'rv'}">▲ ${dr}th</div></div>
-      <div class="isit"><div class="islbl">HORÁRIO</div><div class="isval">${cGame?cGame.time:'--:--'}</div></div>
+      <div class="isit"><div class="islbl">HORÁRIO</div><div class="isval">${time}</div></div>
     </div>
 
     <div class="alrow">
-      <div class="avgb">AVG: <span class="val">${avg}</span></div>
-      <div class="lned"><span class="lnlbl">Linha</span><div class="lnctrl"><button class="lnbtn" onclick="adjLine(-0.5)">−</button><span class="lnval">${line}</span><button class="lnbtn" onclick="adjLine(0.5)">+</button></div></div>
-    </div>
-
-    <div class="chartsec"><div class="cmaxlbl">${maxV}</div><div class="cbars" style="height:${CH}px">${barsH}<div class="cref" style="bottom:${refPx}px"><span class="creflbl">${line}</span></div></div><div class="cdates">${datesH}</div></div>
-
-    <div class="pbrow">${periods.map(x=>`<div class="pbtn ${x.on?'on':''}" onclick="setPeriod('${x.l}')"><div class="pblbl">${x.l}</div><div class="pbval">${x.hr}%</div></div>`).join('')}</div>
-
-    <!-- Splits Casa × Fora + vs Top Def + Minutos -->
-    <div style="padding:0 16px 16px">
-      <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;padding:12px 0 8px">Splits</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px">
-          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Casa</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${avgHome}</div>
-          <div style="font-size:10px;color:var(--mt);margin-top:2px">média ${slbl.toLowerCase()}</div>
-        </div>
-        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px">
-          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Fora</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${avgAway}</div>
-          <div style="font-size:10px;color:var(--mt);margin-top:2px">média ${slbl.toLowerCase()}</div>
+      <div class="avgb">AVG L10: <span class="val">${avg}</span></div>
+      <div class="lned"><span class="lnlbl">Linha</span>
+        <div class="lnctrl">
+          <button class="lnbtn" onclick="adjLine(-0.5)">−</button>
+          <span class="lnval">${line}</span>
+          <button class="lnbtn" onclick="adjLine(0.5)">+</button>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px">
-          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">vs Top 10 DEF</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:${Number(diffTop10)>=0?'var(--green)':'var(--red)'}">${Number(diffTop10)>=0?'+':''}${diffTop10}</div>
-          <div style="font-size:10px;color:var(--mt);margin-top:2px">vs média geral</div>
+    </div>
+
+    <div style="padding:0 16px 16px">
+      <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;padding:12px 0 8px">Médias</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">L5</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${m.avg_l5}</div>
         </div>
-        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px">
-          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Min/Jogo L5</div>
-          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${minL5}</div>
-          <div style="font-size:10px;color:var(--mt);margin-top:2px">últimos 5 jogos</div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">L10</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700;color:var(--green)">${m.avg_l10}</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">L20</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${m.avg_l20}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;padding:8px 0">Splits</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">Casa</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${m.avg_home}</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">Fora</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${m.avg_away}</div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center">
+          <div style="font-size:10px;color:var(--mt);font-weight:600;text-transform:uppercase;margin-bottom:4px">Min L5</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:700">${m.avg_minutes_l5}</div>
         </div>
       </div>
     </div>`;
@@ -1101,13 +1127,13 @@ function renderProf(){
   if(rc) rc.addEventListener('click', cancelarPlano);
 }
 function logout(){
+  supabaseUser=null;
   plan='free';uName='Usuário';uEmail='usuario@email.com';
   stack=['sAuth'];
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on','bk'));
   document.getElementById('sAuth').classList.add('on');
-  // Esconde sidebar no logout
   const sb=document.getElementById('sidebarDesk');
-  if(sb) sb.style.display='none';
+  if(sb)sb.style.display='none';
   toast('Você saiu da conta.');
 }
 
