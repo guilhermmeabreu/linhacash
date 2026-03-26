@@ -2,9 +2,25 @@ import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
   try {
-    const { plan } = await req.json();
+    const { plan, referral_code } = await req.json();
     const price = plan === 'anual' ? 197.00 : 24.90;
     const title = plan === 'anual' ? 'LinhaCash Pro Anual' : 'LinhaCash Pro Mensal';
+
+    const body: any = {
+      items: [{ title, quantity: 1, currency_id: 'BRL', unit_price: price }],
+      back_urls: {
+        success: `${process.env.NEXT_PUBLIC_URL}/app.html?status=success`,
+        failure: `${process.env.NEXT_PUBLIC_URL}/app.html?status=failure`,
+        pending: `${process.env.NEXT_PUBLIC_URL}/app.html?status=pending`
+      },
+      auto_return: 'approved',
+      notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mp`
+    };
+
+    // Salva o código de referência no metadata
+    if (referral_code) {
+      body.metadata = { referral_code };
+    }
 
     const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
@@ -12,16 +28,7 @@ export async function POST(req: Request) {
         'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        items: [{ title, quantity: 1, currency_id: 'BRL', unit_price: price }],
-        back_urls: {
-          success: `${process.env.NEXT_PUBLIC_URL}/app.html?status=success`,
-          failure: `${process.env.NEXT_PUBLIC_URL}/app.html?status=failure`,
-          pending: `${process.env.NEXT_PUBLIC_URL}/app.html?status=pending`
-        },
-        auto_return: 'approved',
-        notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mp`
-      })
+      body: JSON.stringify(body)
     });
 
     const data = await res.json();
@@ -31,7 +38,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ url: data.init_point });
-  } catch (e) {
+  } catch (e: any) {
     console.error(e);
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 });
   }

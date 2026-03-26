@@ -9,35 +9,56 @@ const supabase = createClient(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log('Webhook MP:', body);
 
     if (body.type === 'payment') {
       const paymentId = body.data?.id;
       if (!paymentId) return NextResponse.json({ ok: true });
 
-      // Buscar detalhes do pagamento no MP
       const res = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
         headers: { 'Authorization': `Bearer ${process.env.MP_ACCESS_TOKEN}` }
       });
       const payment = await res.json();
-      console.log('Payment status:', payment.status);
 
       if (payment.status === 'approved') {
         const email = payment.payer?.email;
+        const referralCode = payment.metadata?.referral_code || null;
+
         if (email) {
-          // Buscar usuário pelo email e atualizar para Pro
-          const { data: users } = await supabase
+          const { data: profile } = await supabase
             .from('profiles')
             .select('id')
             .eq('email', email)
             .single();
 
-          if (users) {
+          if (profile) {
             await supabase
               .from('profiles')
-              .update({ plan: 'pro' })
-              .eq('id', users.id);
-            console.log('Usuário atualizado para Pro:', email);
+              .update({ plan: 'pro', referral_code_used: referralCode })
+              .eq('id', profile.id);
+
+            if (referralCode) {
+              // Incrementa contador de usos
+              const { data: refData } = await supabase
+                .from('referral_codes')
+                .select('uses')
+                .eq('code', referralCode)
+                .single();
+
+              if (refData) {
+                await supabase
+                  .from('referral_codes')
+                  .update({ uses: (refData.uses || 0) + 1 })
+                  .eq('code', referralCode);
+              }
+
+              // Salva uso detalhado
+              await supabase.from('referral_uses').insert({
+                code: referralCode,
+                user_id: profile.id,
+                payment_id: String(paymentId),
+                created_at: new Date().toISOString()
+              });
+            }
           }
         }
       }

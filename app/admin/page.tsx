@@ -86,6 +86,16 @@ export default function AdminPage() {
     setReferrals(r => r.map(x => x.id === id ? { ...x, active: !active } : x));
   }
 
+  async function deleteReferral(id: number) {
+    if (!confirm('Tem certeza que quer apagar esse código?')) return;
+    await fetch('/api/admin/referrals', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    });
+    setReferrals(r => r.filter(x => x.id !== id));
+  }
+
   async function logout() {
     await fetch('/api/admin/auth', { method: 'DELETE' });
     router.push('/admin/login');
@@ -204,6 +214,7 @@ export default function AdminPage() {
                   </div>
                   <span style={{ ...S.tag(r.active ? 'pro' : 'free') }}>{r.active ? 'Ativo' : 'Inativo'}</span>
                   <button onClick={() => toggleReferral(r.id, r.active)} style={S.btnSec}>{r.active ? 'Pausar' : 'Ativar'}</button>
+                  <button onClick={() => deleteReferral(r.id)} style={S.btnDanger}>✕</button>
                 </div>
               ))}
               {referrals.length === 0 && <div style={{ padding: 24, textAlign: 'center', color: '#888' }}>Nenhum código criado ainda</div>}

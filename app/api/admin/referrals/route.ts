@@ -34,3 +34,11 @@ export async function PATCH(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(req: Request) {
+  if (!await checkAuth()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { id } = await req.json();
+  const { error } = await supabase.from('referral_codes').delete().eq('id', id);
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}

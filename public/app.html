@@ -1209,10 +1209,11 @@ function closePro(){document.getElementById('mPro').style.display='none';}
 async function activatePro(){
   toast('Redirecionando para pagamento...');
   try{
+    const refCode=document.getElementById('cupomInput')?.value.trim().toUpperCase()||'';
     const res=await fetch('/api/checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({plan:planType})
+      body:JSON.stringify({plan:planType, referral_code:refCode||null})
     });
     const data=await res.json();
     if(data.url) window.location.href=data.url;
