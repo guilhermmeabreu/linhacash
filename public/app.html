@@ -714,6 +714,7 @@ const SFREE=['PTS','REB'];
 const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers','P+A':'Pts+Ast','P+R':'Pts+Reb'};
 const OPPS=['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'];
 let otpInt=null,pendEmail='';
+let planType='anual';
 function half(n){return Math.round(n*2)/2;}
 function ini(n){return n.split(' ').map(c=>c[0]).join('').slice(0,2).toUpperCase();}
 function pro(){return plan==='pro';}
