@@ -752,8 +752,16 @@ function authTab(t){
   document.getElementById('fReg').style.display=t==='reg'?'block':'none';
 }
 async function doLogin(){
-  const e=document.getElementById('lEmail').value.trim()||'teste@teste.com';
+  const e=document.getElementById('lEmail').value.trim();
+  const p=document.getElementById('lPass').value;
+  if(!e||!p){toast('Preencha email e senha.');return;}
+  toast('Entrando...');
+  const {data,error}=await sb.auth.signInWithPassword({email:e,password:p});
+  if(error){toast('Email ou senha incorretos.');return;}
+  supabaseUser=data.user;
   uEmail=e;uName=e.split('@')[0];
+  const {data:prof}=await sb.from('profiles').select('*').eq('id',data.user.id).single();
+  if(prof){uName=prof.name||uName;plan=prof.plan||'free';}
   enterApp();
 }
 
@@ -769,10 +777,10 @@ async function doRegister(){
   if(error){toast(error.message||'Erro ao criar conta.');return;}
   if(data.user){
     await sb.from('profiles').insert({id:data.user.id,name:n,email:e,plan:'free'});
-    supabaseUser=data.user;uName=n;uEmail=e;
-    enterApp();toast('Conta criada! 🎉');
+    supabaseUser=data.user;uName=n;uEmail=e;plan='free';
+    enterApp();toast('Conta criada! Bem-vindo ao LinhaCash 🎉');
   } else {
-    toast('Verifique seu email para confirmar!');
+    toast('Erro ao criar conta. Tente novamente.');
   }
 }
 
@@ -1113,14 +1121,15 @@ function renderProf(){
   const rc = document.getElementById('rowCancel');
   if(rc) rc.addEventListener('click', cancelarPlano);
 }
-function logout(){
+async function logout(){
+  await sb.auth.signOut();
   supabaseUser=null;
   plan='free';uName='Usuário';uEmail='usuario@email.com';
   stack=['sAuth'];
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on','bk'));
   document.getElementById('sAuth').classList.add('on');
-  const sb=document.getElementById('sidebarDesk');
-  if(sb)sb.style.display='none';
+  const sideEl=document.getElementById('sidebarDesk');
+  if(sideEl)sideEl.style.display='none';
   toast('Você saiu da conta.');
 }
 
@@ -1315,12 +1324,32 @@ window.addEventListener('resize', updateSidebar);
 
 // ═══ INIT ═════════════════════════════════════════════════════════════════════
 const urlParams=new URLSearchParams(window.location.search);
-if(urlParams.get('status')==='success'){
-  plan='pro';
-  setTimeout(()=>toast('Pagamento aprovado! Bem-vindo ao Pro ⚡'),1000);
-}
-show('sAuth',false);
-updateSidebar();
+
+// Verificar sessão existente
+sb.auth.getSession().then(async ({data})=>{
+  if(data.session?.user){
+    supabaseUser=data.session.user;
+    uEmail=data.session.user.email||'';
+    uName=uEmail.split('@')[0];
+    const {data:prof}=await sb.from('profiles').select('*').eq('id',data.session.user.id).single();
+    if(prof){uName=prof.name||uName;plan=prof.plan||'free';}
+    // Se voltou de pagamento aprovado, atualiza para Pro
+    if(urlParams.get('status')==='success'){
+      await sb.from('profiles').update({plan:'pro'}).eq('id',data.session.user.id);
+      plan='pro';
+      setTimeout(()=>toast('Pagamento aprovado! Bem-vindo ao Pro ⚡'),500);
+    }
+    enterApp();
+  } else {
+    if(urlParams.get('status')==='success'){
+      show('sAuth',false);
+      setTimeout(()=>toast('Pagamento aprovado! Faça login para acessar o Pro ⚡'),500);
+    } else {
+      show('sAuth',false);
+    }
+  }
+  updateSidebar();
+});
 </script>
 </body>
 </html>
