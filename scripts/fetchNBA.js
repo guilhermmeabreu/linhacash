@@ -106,16 +106,30 @@ async function calcMetrics(playerId) {
     const all = stats.map(s => s[stat]);
     const home = stats.filter(s => s.is_home).map(s => s[stat]);
     const away = stats.filter(s => !s.is_home).map(s => s[stat]);
+    const avg_l5 = calc(all.slice(0, 5));
+    const avg_l10 = calc(all.slice(0, 10));
+    const avg_l20 = calc(all);
+    const avg_home = calc(home);
+    const avg_away = calc(away);
+    const line = avg_l10;
+    const hit_rate = line > 0 ? parseFloat((all.slice(0, 10).filter(v => v > line).length / Math.min(all.length, 10) * 100).toFixed(1)) : 0;
+
+    // Salvar em player_metrics (compatibilidade)
     await supabase.from('player_metrics').upsert({
       player_id: playerId,
       stat,
-      avg_l5: calc(all.slice(0, 5)),
-      avg_l10: calc(all.slice(0, 10)),
-      avg_l20: calc(all),
-      avg_home: calc(home),
-      avg_away: calc(away),
+      avg_l5, avg_l10, avg_l20, avg_home, avg_away,
       avg_minutes_l5: calc(stats.slice(0, 5).map(s => s.minutes)),
-      line: calc(all.slice(0, 10)),
+      line,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'player_id,stat' });
+
+    // Salvar em player_props_cache (cache otimizado)
+    await supabase.from('player_props_cache').upsert({
+      player_id: playerId,
+      stat,
+      line, avg_l5, avg_l10, avg_l20, avg_home, avg_away,
+      hit_rate,
       updated_at: new Date().toISOString()
     }, { onConflict: 'player_id,stat' });
   }
