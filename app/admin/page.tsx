@@ -36,25 +36,33 @@ export default function AdminPage() {
   const [planFilter, setPlanFilter] = useState<'all' | 'pro' | 'free'>('all');
   const [selectedRef, setSelectedRef] = useState<string | null>(null);
 
-  useEffect(() => { loadAll(); }, []);
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
+    if (!token) { router.push('/admin/login'); return; }
+    loadAll();
+  }, []);
+
+  function getHeaders() {
+    const token = localStorage.getItem('admin_token') || '';
+    return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` };
+  }
 
   async function loadAll() {
     setLoading(true);
     try {
+      const headers = { 'Authorization': `Bearer ${localStorage.getItem('admin_token') || ''}` };
       const [statsRes, usersRes, refRes, refUsesRes] = await Promise.all([
-        fetch('/api/admin/stats'),
-        fetch('/api/admin/users'),
-        fetch('/api/admin/referrals'),
-        fetch('/api/admin/referral-uses')
+        fetch('/api/admin/stats', { headers }),
+        fetch('/api/admin/users', { headers }),
+        fetch('/api/admin/referrals', { headers }),
+        fetch('/api/admin/referral-uses', { headers })
       ]);
       const [s, u, r, ru] = await Promise.all([statsRes.json(), usersRes.json(), refRes.json(), refUsesRes.json()]);
+      if (s?.error === 'Unauthorized') { localStorage.removeItem('admin_token'); router.push('/admin/login'); return; }
       if (s && !s.error) setStats(s);
       if (Array.isArray(u)) setUsers(u);
       if (Array.isArray(r)) setReferrals(r);
       if (Array.isArray(ru)) setReferralUses(ru);
-      if (s?.error === 'Unauthorized' || u?.error === 'Unauthorized') {
-        router.push('/admin/login');
-      }
     } catch (e) { console.error(e); }
     setLoading(false);
   }
@@ -63,7 +71,7 @@ export default function AdminPage() {
     const newPlan = currentPlan === 'pro' ? 'free' : 'pro';
     await fetch('/api/admin/users', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ id: userId, plan: newPlan })
     });
     setUsers(u => u.map(x => x.id === userId ? { ...x, plan: newPlan } : x));
@@ -74,7 +82,7 @@ export default function AdminPage() {
     if (!confirm('Tem certeza? Isso vai apagar o usuário permanentemente.')) return;
     await fetch('/api/admin/users', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ id: userId })
     });
     setUsers(u => u.filter(x => x.id !== userId));
@@ -83,7 +91,7 @@ export default function AdminPage() {
   async function resetPassword(email: string) {
     await fetch('/api/admin/users', {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ email })
     });
     alert(`Email de reset enviado para ${email}`);
@@ -103,7 +111,7 @@ export default function AdminPage() {
     if (!newCode || !newInfluencer) return;
     await fetch('/api/admin/referrals', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ code: newCode.toUpperCase(), influencer_name: newInfluencer })
     });
     setNewCode(''); setNewInfluencer('');
@@ -113,7 +121,7 @@ export default function AdminPage() {
   async function toggleReferral(id: number, active: boolean) {
     await fetch('/api/admin/referrals', {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ id, active: !active })
     });
     setReferrals(r => r.map(x => x.id === id ? { ...x, active: !active } : x));
@@ -123,14 +131,14 @@ export default function AdminPage() {
     if (!confirm('Apagar este código?')) return;
     await fetch('/api/admin/referrals', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getHeaders(),
       body: JSON.stringify({ id })
     });
     setReferrals(r => r.filter(x => x.id !== id));
   }
 
   async function logout() {
-    await fetch('/api/admin/auth', { method: 'DELETE' });
+    localStorage.removeItem('admin_token'); localStorage.removeItem('admin_email');
     router.push('/admin/login');
   }
 

@@ -9,22 +9,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  const response = NextResponse.json({ ok: true });
-  response.cookies.set({
-    name: 'admin_auth',
-    value: email,
-    httpOnly: true,
-    secure: true,
-    maxAge: 60 * 60 * 24 * 7,
-    path: '/',
-    sameSite: 'none'
-  });
-
-  return response;
+  // Retorna token para ser salvo no localStorage
+  const token = Buffer.from(`${email}:${Date.now()}`).toString('base64');
+  return NextResponse.json({ ok: true, token, email });
 }
 
 export async function DELETE() {
-  const response = NextResponse.json({ ok: true });
-  response.cookies.delete('admin_auth');
-  return response;
+  return NextResponse.json({ ok: true });
 }
