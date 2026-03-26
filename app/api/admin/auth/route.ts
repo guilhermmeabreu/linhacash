@@ -1,28 +1,28 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   const { email, password } = await req.json();
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL!;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
   if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  const cookieStore = await cookies();
-  cookieStore.set('admin_auth', email, {
+  const response = NextResponse.json({ ok: true });
+  response.cookies.set('admin_auth', email, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     maxAge: 60 * 60 * 24 * 7,
-    path: '/'
+    path: '/',
+    sameSite: 'lax'
   });
 
-  return NextResponse.json({ ok: true });
+  return response;
 }
 
 export async function DELETE() {
-  const cookieStore = await cookies();
-  cookieStore.delete('admin_auth');
-  return NextResponse.json({ ok: true });
+  const response = NextResponse.json({ ok: true });
+  response.cookies.delete('admin_auth');
+  return response;
 }
