@@ -888,12 +888,18 @@ async function openGame(id){
   document.getElementById('s2ttl').textContent=ini(cGame.away_team)+' × '+ini(cGame.home_team);
   const hc=getClr(cGame.home_team),ac=getClr(cGame.away_team);
   const time=new Date(cGame.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  const awayAvatar=cGame.away_logo
+    ?`<img src="${cGame.away_logo}" style="width:28px;height:28px;object-fit:contain;border-radius:50%">`
+    :`<div class="gbav" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${ini(cGame.away_team)}</div>`;
+  const homeAvatar=cGame.home_logo
+    ?`<img src="${cGame.home_logo}" style="width:28px;height:28px;object-fit:contain;border-radius:50%">`
+    :`<div class="gbav" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${ini(cGame.home_team)}</div>`;
   document.getElementById('gbanner').innerHTML=
     `<div class="gbanner">
       <div style="display:flex;align-items:center;gap:8px">
-        <div class="gbav" style="background:linear-gradient(135deg,${ac}dd,${ac}77)">${ini(cGame.away_team)}</div>
+        ${awayAvatar}
         <span style="font-size:12px;color:var(--mt)">×</span>
-        <div class="gbav" style="background:linear-gradient(135deg,${hc}dd,${hc}77)">${ini(cGame.home_team)}</div>
+        ${homeAvatar}
         <span style="font-size:13px;font-weight:700;margin-left:4px">${cGame.away_team} vs ${cGame.home_team}</span>
       </div>
       <span style="font-size:13px;font-weight:600;color:var(--green)">${time}</span>
