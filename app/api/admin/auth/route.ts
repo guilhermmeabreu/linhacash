@@ -2,10 +2,11 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
-  const { email } = await req.json();
+  const { email, password } = await req.json();
   const ADMIN_EMAIL = process.env.ADMIN_EMAIL!;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD!;
 
-  if (email !== ADMIN_EMAIL) {
+  if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 

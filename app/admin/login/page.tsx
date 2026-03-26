@@ -4,20 +4,22 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
   async function handleLogin() {
+    if (!email || !password) { setError('Preencha todos os campos.'); return; }
     const res = await fetch('/api/admin/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email })
+      body: JSON.stringify({ email, password })
     });
     const data = await res.json();
     if (data.ok) {
       router.push('/admin');
     } else {
-      setError('Email não autorizado.');
+      setError('Email ou senha incorretos.');
     }
   }
 
@@ -32,8 +34,18 @@ export default function AdminLogin() {
             type="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
             placeholder="seu@email.com"
+            style={{ width: '100%', background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, padding: '11px 13px', fontSize: 14, color: '#fff', fontFamily: 'Inter, sans-serif', outline: 'none' }}
+          />
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Senha</div>
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+            placeholder="••••••••"
             style={{ width: '100%', background: '#1a1a1a', border: '1px solid #333', borderRadius: 10, padding: '11px 13px', fontSize: 14, color: '#fff', fontFamily: 'Inter, sans-serif', outline: 'none' }}
           />
         </div>
