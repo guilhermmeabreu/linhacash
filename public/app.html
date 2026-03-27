@@ -1273,20 +1273,62 @@ function closeFaq(){ document.getElementById('mFaq').style.display='none'; }
 
 function openContato(){ document.getElementById('mContato').style.display='flex'; }
 function closeContato(){ document.getElementById('mContato').style.display='none'; }
-function enviarContato(){
+async function enviarContato(){
   const msg = document.getElementById('contatoMsg').value.trim();
   if(!msg){ toast('Descreva sua dúvida.'); return; }
-  closeContato();
-  toast('Mensagem enviada! Retornaremos em até 24h ✉️');
+  toast('Enviando...');
+  try{
+    const res = await fetch('/api/support',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name: uName,
+        email: uEmail,
+        subject: 'Dúvida/Suporte',
+        message: msg
+      })
+    });
+    const data = await res.json();
+    if(data.ok){
+      closeContato();
+      document.getElementById('contatoMsg').value='';
+      toast('Mensagem enviada! Retornaremos em até 24h ✉️');
+    } else {
+      toast(data.error||'Erro ao enviar. Tente novamente.');
+    }
+  }catch(e){
+    toast('Erro ao enviar. Verifique sua conexão.');
+  }
 }
 
 function openBug(){ document.getElementById('mBug').style.display='flex'; }
 function closeBug(){ document.getElementById('mBug').style.display='none'; }
-function enviarBug(){
+async function enviarBug(){
   const desc = document.getElementById('bugDesc').value.trim();
   if(!desc){ toast('Descreva o problema.'); return; }
-  closeBug();
-  toast('Problema reportado! Obrigado 🙏');
+  toast('Enviando...');
+  try{
+    const res = await fetch('/api/support',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        name: uName,
+        email: uEmail,
+        subject: '🐛 Reporte de Problema',
+        message: desc
+      })
+    });
+    const data = await res.json();
+    if(data.ok){
+      closeBug();
+      document.getElementById('bugDesc').value='';
+      toast('Problema reportado! Obrigado 🙏');
+    } else {
+      toast(data.error||'Erro ao enviar. Tente novamente.');
+    }
+  }catch(e){
+    toast('Erro ao enviar. Verifique sua conexão.');
+  }
 }
 
 function cancelarPlano(){

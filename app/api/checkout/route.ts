@@ -1,8 +1,20 @@
 import { NextResponse } from 'next/server';
+import { rateLimit, getIP } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
+  // Rate limit: máx 5 checkouts por minuto por IP
+  if (!rateLimit(getIP(req), 5, 60000)) {
+    return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 minuto.' }, { status: 429 });
+  }
+
   try {
     const { plan, referral_code } = await req.json();
+
+    // Validação
+    if (!['mensal', 'anual'].includes(plan)) {
+      return NextResponse.json({ error: 'Plano inválido' }, { status: 400 });
+    }
+
     const price = plan === 'anual' ? 197.00 : 24.90;
     const title = plan === 'anual' ? 'LinhaCash Pro Anual' : 'LinhaCash Pro Mensal';
 
@@ -17,8 +29,7 @@ export async function POST(req: Request) {
       notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mp`
     };
 
-    // Salva o código de referência no metadata
-    if (referral_code) {
+    if (referral_code && /^[A-Z0-9]{2,20}$/.test(referral_code)) {
       body.metadata = { referral_code };
     }
 
