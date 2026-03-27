@@ -1,11 +1,9 @@
-const CACHE_NAME = 'linhacash-v1';
+const CACHE_NAME = 'linhacash-v2';
 const STATIC_ASSETS = [
-  '/app.html',
   '/logo.png',
   '/manifest.json'
 ];
 
-// Instala e faz cache dos assets estáticos
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
@@ -13,7 +11,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Ativa e limpa caches antigos
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -23,16 +20,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estratégia: Network first, cache fallback
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // APIs sempre vão para a rede
-  if (url.pathname.startsWith('/api/')) {
+  // APIs e app.html sempre vão para a rede (sem cache)
+  if (url.pathname.startsWith('/api/') || url.pathname.includes('app.html')) {
     return;
   }
 
-  // Assets estáticos: cache first
+  // Logo e manifest: cache first
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached;
