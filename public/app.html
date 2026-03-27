@@ -1426,9 +1426,16 @@ sb.auth.getSession().then(async ({data})=>{
 
 // ═══ PWA: Service Worker ══════════════════════════════════════════════════════
 if('serviceWorker' in navigator){
+  // Limpa todos os caches antigos primeiro
+  if('caches' in window){
+    caches.keys().then(keys=>keys.forEach(k=>caches.delete(k)));
+  }
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js')
-      .then(()=>console.log('SW registrado'))
+      .then(reg=>{
+        reg.update();
+        console.log('SW registrado');
+      })
       .catch(e=>console.log('SW erro:',e));
   });
 }
