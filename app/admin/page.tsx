@@ -162,26 +162,27 @@ export default function AdminPage() {
 
  const usesForCode = (code: string) => referralUses.filter(u => u.code === code);
 
- function SyncHistory() {
+ function SyncHistory({ dark }: { dark: boolean }) {
  const [logs, setLogs] = useState<any[]>([]);
  useEffect(() => {
  const token = localStorage.getItem('admin_token') || '';
  fetch('/api/admin/sync-logs', { headers: { 'Authorization': `Bearer ${token}` } })
  .then(r => r.json()).then(d => { if (Array.isArray(d)) setLogs(d); });
  }, []);
+ const cardStyle = { background: dark?'#0f0f0f':'#fdfcfa', border: `1px solid ${dark?'#1e1e1e':'#cac7c0'}`, borderLeft: `3px solid ${dark?'#00e676':'#00b359'}`, borderRadius: 0, padding: '16px 20px' };
  return (
- <div style={S.card}>
- <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Histórico de syncs</div>
- {logs.length === 0 && <div style={{ color: d?'#888':'#555', fontSize: 13 }}>Nenhum sync registrado ainda</div>}
+ <div style={cardStyle}>
+ <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12, color: dark?'#f0f0f0':'#111' }}>Histórico de syncs</div>
+ {logs.length === 0 && <div style={{ color: dark?'#888':'#555', fontSize: 13 }}>Nenhum sync registrado ainda</div>}
  {logs.map((l, i) => (
- <div key={i} style={{ padding: '10px 0', borderBottom: i < logs.length - 1 ? `1px solid ${d?'#2a2a2a':'#cac7c0'}` : 'none' }}>
+ <div key={i} style={{ padding: '10px 0', borderBottom: i < logs.length - 1 ? `1px solid ${dark?'#2a2a2a':'#cac7c0'}` : 'none' }}>
  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
- <span style={{ fontSize: 13, fontWeight: 600, color: l.status === 'success' ? (d?'#00e676':'#00955a') : l.status === 'error' ? '#ff4d4d' : (d?'#888':'#555') }}>
- {l.status === 'success' ? '' : l.status === 'error' ? '' : ''} {l.status}
+ <span style={{ fontSize: 13, fontWeight: 600, color: l.status === 'success' ? (dark?'#00e676':'#00955a') : l.status === 'error' ? '#ff4d4d' : (dark?'#888':'#555') }}>
+ {l.status}
  </span>
- <span style={{ fontSize: 11, color: '#888' }}>{new Date(l.created_at).toLocaleString('pt-BR')}</span>
+ <span style={{ fontSize: 11, color: dark?'#888':'#555' }}>{new Date(l.created_at).toLocaleString('pt-BR')}</span>
  </div>
- <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>{l.games_synced} jogos · {l.errors ? 'com erros' : 'sem erros'}</div>
+ <div style={{ fontSize: 12, color: dark?'#888':'#555', marginTop: 2 }}>{l.games_synced} jogos · {l.errors ? 'com erros' : 'sem erros'}</div>
  </div>
  ))}
  </div>
@@ -398,7 +399,7 @@ export default function AdminPage() {
  <div style={{ fontSize: 14, fontWeight: 600 }}>Todo dia às 04:00 (horário de Brasília)</div>
  <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>schedule: "0 7 * * *" (UTC)</div>
  </div>
- <SyncHistory />
+ <SyncHistory dark={darkMode} />
  </div>
  )}
 
