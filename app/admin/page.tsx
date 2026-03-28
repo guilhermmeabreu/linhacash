@@ -183,8 +183,8 @@ export default function AdminPage() {
  }
 
  return (
- <div style={S.bg}>
- <div style={S.hdr}>
+ <div style={S.bg(darkMode)}>
+ <div style={S.hdr(darkMode)}>
  <div style={{ fontSize: 18, fontWeight: 800 }}>Linha<span style={{ color: '#00e676' }}>Cash</span> <span style={{ fontSize: 13, color: '#888', fontWeight: 400 }}>Admin</span></div>
  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
  <span style={{ fontSize: 12, color: '#888' }}>
