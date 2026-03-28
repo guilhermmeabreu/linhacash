@@ -299,6 +299,20 @@ body{min-height:100dvh}
   .drawer,.drawer-overlay{display:none!important}
 }
 
+
+/* Logos de times com fundo escuro no dark mode */
+.tcirc img{
+  filter: drop-shadow(0 0 0 transparent);
+  transition: filter .2s;
+}
+body:not(.lt) .tcirc img{
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,.8)) brightness(1.05) contrast(1.1);
+}
+/* Times com logo preta — inverter no dark mode */
+body:not(.lt) .logo-dark-team{
+  filter: invert(1) brightness(2) !important;
+}
+
 /* SCREENS */
 .scr{display:none;flex-direction:column;height:100%;position:absolute;inset:0;background:var(--bg)}
 .scr.on{display:flex;animation:sIn .2s ease}
@@ -486,7 +500,7 @@ body{min-height:100dvh}
 
 <!-- SIDEBAR DESKTOP (visível só no PC) -->
 <div class="sidebar-desk" id="sidebarDesk" style="display:none">
- <div class="sd-logo"><img src="/logo.png" style="width:28px;height:28px;object-fit:contain;margin-right:8px;vertical-align:middle">Linha<em>Cash</em></div>
+ <div class="sd-logo" style="display:flex;align-items:center;gap:8px"><img src="/logo.png" style="width:26px;height:26px;object-fit:contain;flex-shrink:0">Linha<em>Cash</em></div>
  <div class="sd-nav">
  <div class="sd-item on" id="sdJogos" onclick="sdNav('jogos')">
  <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -600,7 +614,7 @@ body{min-height:100dvh}
  <button class="hburguer" onclick="openDrawer()">
   <span></span><span></span><span></span>
  </button>
- <div class="htl" style="display:flex;align-items:center;justify-content:center"><img src="/logo.png" style="width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 0 6px rgba(0,230,118,.3))"/></div>
+ <div class="htl"></div>
  <div class="hact">
  <button class="hico" onclick="nav(4)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
  <button class="hico" onclick="toggleTheme()"><svg id="thico" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button>
@@ -1117,8 +1131,14 @@ async function renderGames(){
  const hc=getClr(g.home_team),ac=getClr(g.away_team);
  const time=new Date(g.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
  const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
- const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:56px;height:56px;object-fit:contain;background:transparent" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
- const homeImg=g.home_logo?`<img src="${g.home_logo}" style="width:56px;height:56px;object-fit:contain;background:transparent" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
+ 
+const darkLogoTeams = ['Spurs','Bulls','Nets','Heat','Brooklyn','Oklahoma','Thunder','Jazz','Timberwolves','Bucks'];
+function isDarkLogoTeam(name){
+  return darkLogoTeams.some(t => name.includes(t));
+}
+
+const awayImg=g.away_logo?`<img src="${g.away_logo}" class="${isDarkLogoTeam(g.away_team)?'logo-dark-team':''}" style="width:56px;height:56px;object-fit:contain;background:transparent" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
+ const homeImg=g.home_logo?`<img src="${g.home_logo}" class="${isDarkLogoTeam(g.home_team)?'logo-dark-team':''}" style="width:56px;height:56px;object-fit:contain;background:transparent" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
  return `<div class="gcard" onclick="openGame(${g.id})">
  <div class="gctop"><span class="gtime">${time}</span></div>
  <div class="gteams">
