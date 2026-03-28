@@ -26,8 +26,8 @@ export async function DELETE(req: Request) {
     // 2. Deleta usos de referral
     await supabase.from('referral_uses').delete().eq('user_id', userId);
 
-    // 3. Deleta favoritos se existir
-    await supabase.from('favorites').delete().eq('user_id', userId).throwOnError().then(() => {}).catch(() => {});
+    // 3. Deleta favoritos se existir (ignora erro se tabela não existir)
+    try { await supabase.from('favorites').delete().eq('user_id', userId); } catch (_) {}
 
     // 4. Deleta o usuário do Supabase Auth
     const { error } = await supabase.auth.admin.deleteUser(userId);
