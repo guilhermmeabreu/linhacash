@@ -66,14 +66,6 @@ async function fetchGames() {
 
   log(`Encontrados ${unique.length} jogos no total, ${filtered.length} são do dia ${brDate} BRT`);
 
-  // Log detalhado para debug
-  unique.slice(0, 5).forEach((g: any) => {
-    const gameTimeBR = new Date(new Date(g.date.start).getTime() + brOffset);
-    const gameDateBR = gameTimeBR.toISOString().split('T')[0];
-    const gameHourBR = gameTimeBR.toISOString().slice(11, 16);
-    log(`  Jogo: ${g.teams.home.name} vs ${g.teams.visitors.name} | UTC: ${g.date.start} | BRT: ${gameDateBR} ${gameHourBR} | Match: ${gameDateBR === brDate}`);
-  });
-
   if (filtered.length === 0) { log('Nenhum jogo hoje (BR).'); return []; }
 
   const games = filtered.map((g: any) => ({
