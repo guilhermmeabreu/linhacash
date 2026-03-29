@@ -12,7 +12,31 @@ function checkAuth(req: Request) {
 
 export async function GET(req: Request) {
   if (!checkAuth(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const { data } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  // Buscar de auth.users para pegar usuários Google que não criaram profile ainda
+  const { data: authUsers } = await supabase.auth.admin.listUsers();
+  const { data: profiles } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
+  
+  // Merge: profiles tem prioridade, auth.users preenche os que faltam
+  const profileMap = new Map((profiles || []).map((p: any) => [p.id, p]));
+  const data = (authUsers?.users || []).map((u: any) => {
+    if (profileMap.has(u.id)) return profileMap.get(u.id);
+    // Usuário existe no auth mas não tem profile (ex: Google OAuth) — criar profile automaticamente
+    supabase.from('profiles').upsert({
+      id: u.id,
+      name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'Usuário',
+      email: u.email,
+      plan: 'free',
+      created_at: u.created_at
+    }).then(() => {});
+    return {
+      id: u.id,
+      name: u.user_metadata?.full_name || u.email?.split('@')[0] || 'Usuário',
+      email: u.email,
+      plan: 'free',
+      created_at: u.created_at,
+      provider: u.app_metadata?.provider || 'email'
+    };
+  }).sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   return NextResponse.json(data || []);
 }
 
