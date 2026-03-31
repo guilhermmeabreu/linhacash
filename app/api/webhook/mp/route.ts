@@ -66,10 +66,11 @@ export async function POST(req: Request) {
     await supabase.from('profiles').update({ plan: 'pro', referral_code_used: referralCode }).eq('id', userId);
 
     if (referralCode) {
-      await supabase.rpc('increment_referral_use', { referral_code: referralCode }).catch(async () => {
+      const { error: incrementError } = await supabase.rpc('increment_referral_use', { referral_code: referralCode });
+      if (incrementError) {
         const { data: refData } = await supabase.from('referral_codes').select('uses').eq('code', referralCode).single();
         await supabase.from('referral_codes').update({ uses: (refData?.uses || 0) + 1 }).eq('code', referralCode);
-      });
+      }
       await supabase.from('referral_uses').insert({ code: referralCode, user_id: userId, payment_id: paymentId, created_at: new Date().toISOString() });
     } else {
       await supabase.from('referral_uses').insert({ code: null, user_id: userId, payment_id: paymentId, created_at: new Date().toISOString() });
