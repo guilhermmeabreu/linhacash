@@ -1009,7 +1009,7 @@ if (location.hostname !== 'localhost') {
 let GAMES=[],PBG={},METRICS={};
 let cGame=null,cPlayer=null,cStat='PTS',cPeriod='L10',cLine=null;
 let stack=['sAuth'];
-let plan='free',dark=true;
+let plan='free',dark=true,billingState=null;
 let uName='Usuário',uEmail='usuario@email.com';
 let supabaseUser=null;
 const STATS=['PTS','AST','REB','3PM','P+A','P+R','A+R','FG2A','FG3A'];
@@ -1075,6 +1075,7 @@ async function doLogin(){
  authToken=loginRes.token;
  supabaseUser={id:loginRes.user.id};
  plan=loginRes.user.plan||'free';
+ billingState=loginRes.billing||null;
  uName=loginRes.user.name||e.split('@')[0];
  uEmail=loginRes.user.email||e;
  if(loginRes.user.theme){const sd=loginRes.user.theme==='dark';if(sd!==dark)toggleTheme();}
@@ -1451,7 +1452,7 @@ function renderProf(){
  <div class="ptop">
  <div class="pav">${uName[0].toUpperCase()}</div>
  <div style="text-align:center"><div class="pnm">${uName}</div><div class="pem">${uEmail}</div></div>
- <div class="plantag">${ip?'Plano Pro':'Plano Gratuito'}</div>
+ <div class="plantag">${ip?(billingState?.isManualPro?'Pro concedido pela equipe':'Plano Pro pago'):'Plano Gratuito'}</div>
  </div>
  <div class="psec"><div class="psectitle">Planos</div>
  <div class="pplancard">
@@ -1578,7 +1579,7 @@ async function activatePro(){
  const res=await fetch('/api/checkout',{
  method:'POST',
  headers:{'Content-Type':'application/json'},
- body:JSON.stringify({plan:planType, referral_code:refCode||null})
+ body:JSON.stringify({plan:selectedPlan, referral_code:refCode||null})
  });
  const data=await res.json();
  if(data.url) window.location.href=data.url;
@@ -1737,13 +1738,19 @@ async function confirmarCancelamento(){
  if(!supabaseUser){ toast('Erro: usuário não identificado.'); return; }
  toast('Cancelando...');
  try{
- const {error}=await api('/api/profile', { method: 'PATCH', body: JSON.stringify({ plan: 'free' }) });
- if(error){ toast('Erro ao cancelar. Tente novamente.'); return; }
- plan='free';
+ const res=await api('/api/billing/cancel', { method: 'POST' });
+ if(res.error){ toast('Erro ao cancelar. Tente novamente.'); return; }
  closeCancel();
+ const session=await api('/api/auth');
+ if(session && !session.error){ plan=session.user?.plan||'free'; }
  renderProf();
  updateSidebar();
- toast('Assinatura cancelada. Seu acesso Pro continua até o fim do período pago.');
+ if(res.data?.cancelled){
+   const until=res.data.accessUntil?new Date(res.data.accessUntil).toLocaleDateString('pt-BR'):'fim do período atual';
+   toast('Cancelamento confirmado. Acesso Pro ativo até '+until+'.');
+ }else{
+   toast(res.data?.message||'Nenhuma assinatura paga ativa para cancelar.');
+ }
  }catch(e){
  toast('Erro ao cancelar. Tente novamente.');
  }
@@ -1830,6 +1837,7 @@ const urlParams=new URLSearchParams(window.location.search);
      uEmail = prof.email || '';
      uName = prof.name || uEmail.split('@')[0];
      plan = prof.plan || 'free';
+     billingState = sessData.billing || null;
      if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
      enterApp();
      updateSidebar();
@@ -1864,10 +1872,10 @@ const urlParams=new URLSearchParams(window.location.search);
  uEmail = prof.email || '';
  uName = prof.name || uEmail.split('@')[0];
  plan = prof.plan || 'free';
+ billingState = sessData.billing || null;
  if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
  if(urlParams.get('status')==='success'){
-   plan='pro';
-   setTimeout(()=>toast('Pagamento aprovado! Bem-vindo ao Pro 🏆'),500);
+   setTimeout(()=>toast('Pagamento aprovado! A confirmação final ocorre via webhook. Atualize em alguns segundos.'),500);
  }
  enterApp();
  updateSidebar();

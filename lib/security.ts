@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit, getIP } from './rate-limit';
 import * as crypto from 'crypto';
+import { getBillingState } from '@/lib/services/billing-service';
 
 // ── Supabase server client — NUNCA exposto ao frontend ──────────────────────
 export function getSupabaseServer() {
@@ -33,18 +34,13 @@ export async function validateSession(req: Request): Promise<{
     return { valid: false, error: 'Token inválido ou expirado' };
   }
 
-  // Buscar plano do usuário
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('plan')
-    .eq('id', user.id)
-    .single();
+  const billing = await getBillingState(user.id);
 
   return {
     valid: true,
     userId: user.id,
     email: user.email,
-    plan: profile?.plan || 'free'
+    plan: billing.hasProAccess ? 'pro' : 'free'
   };
 }
 

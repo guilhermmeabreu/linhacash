@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { validateSession, sanitizeProfile, errorResponse, okResponse, corsHeaders } from '@/lib/security';
+import { getBillingState } from '@/lib/services/billing-service';
 import { rateLimit, getIP } from '@/lib/rate-limit';
 
 const supabase = createClient(
@@ -22,7 +23,11 @@ export async function GET(req: Request) {
 
   if (!profile) return errorResponse('Perfil não encontrado', 404);
 
-  return okResponse({ profile: sanitizeProfile(profile) });
+  const billing = await getBillingState(session.userId!);
+  return okResponse({
+    profile: sanitizeProfile({ ...profile, plan: billing.hasProAccess ? 'pro' : 'free' }),
+    billing,
+  });
 }
 
 // PATCH /api/profile — atualizar nome, email ou tema

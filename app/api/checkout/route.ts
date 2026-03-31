@@ -17,6 +17,8 @@ export async function POST(req: Request) {
     const price = plan === 'anual' ? 197.0 : 24.9;
     const title = plan === 'anual' ? 'LinhaCash Pro Anual' : 'LinhaCash Pro Mensal';
 
+    const externalReference = `${user.id}:${Date.now()}:${plan}`;
+
     const body: Record<string, unknown> = {
       items: [{ title, quantity: 1, currency_id: 'BRL', unit_price: price }],
       back_urls: {
@@ -26,8 +28,8 @@ export async function POST(req: Request) {
       },
       auto_return: 'approved',
       notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mp`,
-      metadata: { referral_code: referralCode, plan, user_id: user.id },
-      external_reference: user.id,
+      metadata: { referral_code: referralCode, plan, user_id: user.id, external_reference: externalReference },
+      external_reference: externalReference,
       payer: { email: user.email },
     };
 
