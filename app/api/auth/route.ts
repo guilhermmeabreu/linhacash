@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
-import { rateLimit, getIP } from '@/lib/rate-limit';
-import { loginRateLimit, errorResponse, okResponse, sanitizeProfile } from '@/lib/security';
+import { rateLimit, getIP, deploymentNamespace } from '@/lib/rate-limit';
+import { hashEmail, loginRateLimit, errorResponse, okResponse, sanitizeProfile } from '@/lib/security';
 import { getBillingState } from '@/lib/services/billing-service';
 import { assertAllowedOrigin, assertJsonRequest } from '@/lib/http/request-guards';
 
@@ -57,13 +57,18 @@ export async function POST(req: Request) {
     if (!name || !email || !password) return errorResponse('Dados incompletos');
     if (password.length < 6) return errorResponse('Senha muito curta');
 
-    // Rate limit no registro
-    if (!await rateLimit(`register:${ip}`, 3, 3600000)) {
-      return errorResponse('Muitos cadastros. Aguarde 1 hora.', 429);
+    // Rate limit no registro (escopo por ambiente/deploy + IP + email hash)
+    const registerWindowMs = process.env.VERCEL_ENV === 'production' ? 60 * 60 * 1000 : 10 * 60 * 1000;
+    const registerKey = `register:${deploymentNamespace()}:${ip}:${hashEmail(email)}`;
+    if (!await rateLimit(registerKey, 5, registerWindowMs)) {
+      const waitMessage = registerWindowMs >= 60 * 60 * 1000
+        ? 'Muitos cadastros. Aguarde 1 hora.'
+        : 'Muitos cadastros. Aguarde alguns minutos.';
+      return errorResponse(waitMessage, 429);
     }
 
     const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return errorResponse('Erro ao criar conta. Tente novamente.');
+    if (error) return errorResponse(error.message || 'Erro ao criar conta. Tente novamente.', 400);
 
     if (data.user) {
       await supabase.from('profiles').upsert({

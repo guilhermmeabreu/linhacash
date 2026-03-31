@@ -29,7 +29,7 @@ async function rateLimitRedis(key: string, limit: number, windowMs: number): Pro
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify([
         ['INCR', key],
-        ['EXPIRE', key, windowSec]
+        ['EXPIRE', key, windowSec, 'NX']
       ])
     });
     const data = await res.json();
@@ -44,6 +44,12 @@ async function rateLimitRedis(key: string, limit: number, windowMs: number): Pro
 export async function rateLimit(ip: string, limit: number = 30, windowMs: number = 60000): Promise<boolean> {
   const key = `rl:${ip}:${windowMs}`;
   return rateLimitRedis(key, limit, windowMs);
+}
+
+export function deploymentNamespace(): string {
+  const environment = process.env.VERCEL_ENV || process.env.NODE_ENV || 'development';
+  const deploymentId = process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_URL || 'local';
+  return `${environment}:${deploymentId}`;
 }
 
 // Versão síncrona para compatibilidade (usa só memória)
