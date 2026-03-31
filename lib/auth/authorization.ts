@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { AuthenticationError, AuthorizationError } from '@/lib/http/errors';
 import { requireAdminSession } from '@/lib/auth/admin-session';
+import { getBillingState } from '@/lib/services/billing-service';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -18,12 +19,15 @@ export async function requireAuthenticatedUser(req: Request) {
 
   if (error || !user) throw new AuthenticationError();
 
-  const { data: profile } = await supabase.from('profiles').select('id,email,plan,name').eq('id', user.id).single();
+  const { data: profile } = await supabase.from('profiles').select('id,email,name').eq('id', user.id).single();
+  const billing = await getBillingState(user.id);
+
   return {
     id: user.id,
     email: user.email || profile?.email || '',
     name: profile?.name || '',
-    plan: profile?.plan || 'free',
+    plan: billing.hasProAccess ? 'pro' : 'free',
+    billing,
   };
 }
 
@@ -35,7 +39,7 @@ export async function requireAdminUser(req: Request) {
 
 export async function requireProUser(req: Request) {
   const user = await requireAuthenticatedUser(req);
-  if (user.plan !== 'pro') throw new AuthorizationError('Pro plan required');
+  if (!user.billing.hasProAccess) throw new AuthorizationError('Pro plan required');
   return user;
 }
 

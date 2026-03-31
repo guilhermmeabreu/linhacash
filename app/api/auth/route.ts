@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit, getIP } from '@/lib/rate-limit';
 import { loginRateLimit, errorResponse, okResponse, sanitizeProfile } from '@/lib/security';
+import { getBillingState } from '@/lib/services/billing-service';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,10 +40,12 @@ export async function POST(req: Request) {
       .eq('id', data.user.id)
       .single();
 
+    const billing = await getBillingState(data.user.id);
     return okResponse({
       token: data.session?.access_token,
       expiresAt: data.session?.expires_at,
-      user: sanitizeProfile(profile || { id: data.user.id, email, plan: 'free' })
+      user: sanitizeProfile({ ...(profile || { id: data.user.id, email }), plan: billing.hasProAccess ? 'pro' : 'free' }),
+      billing,
     });
   }
 
@@ -66,6 +69,9 @@ export async function POST(req: Request) {
         name: name.trim().slice(0, 100), // sanitizar comprimento
         email,
         plan: 'free',
+        plan_status: 'none',
+        plan_source: 'free',
+        billing_status: 'none',
         referral_code_used: referralCode || null,
       });
 
@@ -141,7 +147,9 @@ export async function GET(req: Request) {
     .eq('id', user.id)
     .single();
 
+  const billing = await getBillingState(user.id);
   return okResponse({
-    user: sanitizeProfile(profile || { id: user.id, email: user.email, plan: 'free' })
+    user: sanitizeProfile({ ...(profile || { id: user.id, email: user.email }), plan: billing.hasProAccess ? 'pro' : 'free' }),
+    billing,
   });
 }

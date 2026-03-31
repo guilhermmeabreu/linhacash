@@ -2,6 +2,8 @@ import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import { auditLog } from '@/lib/services/audit-log-service';
 import { acquireIdempotencyKey } from '@/lib/services/idempotency-service';
+import { activatePaidPro } from '@/lib/services/billing-service';
+import { validateCheckoutPlan } from '@/lib/validators/billing-validator';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
@@ -22,6 +24,13 @@ function validateSignature(req: Request, paymentId: string): boolean {
   const manifest = `id:${paymentId};request-id:${requestId};ts:${ts};`;
   const expected = crypto.createHmac('sha256', process.env.MP_WEBHOOK_SECRET).update(manifest).digest('hex');
   return secureCompare(expected, v1);
+}
+
+function resolveUserId(payment: any): string | null {
+  const externalRef = typeof payment.external_reference === 'string' ? payment.external_reference : '';
+  const metadataUserId = typeof payment.metadata?.user_id === 'string' ? payment.metadata.user_id : '';
+  const fromExternalRef = externalRef.split(':')[0];
+  return fromExternalRef || metadataUserId || null;
 }
 
 export async function POST(req: Request) {
@@ -52,18 +61,28 @@ export async function POST(req: Request) {
     const payment = await response.json();
 
     if (payment.status !== 'approved') {
-      await auditLog('webhook_event', { status: 'ignored', reason: 'payment_not_approved', paymentId });
+      await auditLog('webhook_event', { status: 'ignored', reason: 'payment_not_approved', paymentId, paymentStatus: payment.status });
       return Response.json({ ok: true });
     }
 
-    const userId = payment.external_reference || payment.metadata?.user_id;
+    const userId = resolveUserId(payment);
     if (!userId) {
       await auditLog('webhook_event', { status: 'failed', reason: 'missing_user_association', paymentId });
       return Response.json({ ok: true });
     }
 
-    const referralCode = payment.metadata?.referral_code || null;
-    await supabase.from('profiles').update({ plan: 'pro', referral_code_used: referralCode }).eq('id', userId);
+    const referralCode = typeof payment.metadata?.referral_code === 'string' ? payment.metadata.referral_code : null;
+    const plan = validateCheckoutPlan(payment.metadata?.plan || 'mensal');
+    const externalReference = typeof payment.external_reference === 'string' ? payment.external_reference : null;
+
+    await activatePaidPro({
+      userId,
+      paymentId,
+      externalReference,
+      referralCode,
+      plan,
+      approvedAt: typeof payment.date_approved === 'string' ? payment.date_approved : undefined,
+    });
 
     if (referralCode) {
       const { error: incrementError } = await supabase.rpc('increment_referral_use', { referral_code: referralCode });
@@ -71,12 +90,11 @@ export async function POST(req: Request) {
         const { data: refData } = await supabase.from('referral_codes').select('uses').eq('code', referralCode).single();
         await supabase.from('referral_codes').update({ uses: (refData?.uses || 0) + 1 }).eq('code', referralCode);
       }
-      await supabase.from('referral_uses').insert({ code: referralCode, user_id: userId, payment_id: paymentId, created_at: new Date().toISOString() });
-    } else {
-      await supabase.from('referral_uses').insert({ code: null, user_id: userId, payment_id: paymentId, created_at: new Date().toISOString() });
     }
 
-    await auditLog('webhook_event', { status: 'processed', paymentId, userId });
+    await supabase.from('referral_uses').insert({ code: referralCode, user_id: userId, payment_id: paymentId, created_at: new Date().toISOString() });
+
+    await auditLog('webhook_event', { status: 'processed', paymentId, userId, plan });
     return Response.json({ ok: true });
   } catch {
     await auditLog('webhook_event', { status: 'failed', paymentId });

@@ -8,10 +8,11 @@ const S_static = {
  btnInfo: { background: 'none', border: '1px solid #0077ff', borderRadius: 0, padding: '6px 12px', fontSize: 12, fontWeight: 600, color: '#0077ff', cursor: 'pointer', fontFamily: 'Hele, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif' },
 };
 
-interface Profile { id: string; name: string; email: string; plan: string; created_at: string; referral_code_used?: string; }
+interface Billing { planSource: string; planStatus: string; billingStatus: string; subscriptionExpiresAt: string | null; isPaidPro: boolean; isManualPro: boolean; hasProAccess: boolean; }
+interface Profile { id: string; name: string; email: string; plan: string; created_at: string; referral_code_used?: string; billing?: Billing; }
 interface ReferralCode { id: number; code: string; influencer_name: string; uses: number; commission_pct: number; active: boolean; }
 interface ReferralUse { id: number; code: string; user_id: string; created_at: string; profiles?: { name: string; email: string; }; }
-interface Stats { total_users: number; pro_users: number; free_users: number; total_games: number; total_players: number; recent_signups: any[]; }
+interface Stats { total_users: number; pro_users: number; pro_paid_users: number; pro_admin_users: number; free_users: number; total_games: number; total_players: number; estimated_monthly_revenue_brl: number; recent_signups: any[]; }
 
 export default function AdminPage() {
  const router = useRouter();
@@ -26,7 +27,7 @@ export default function AdminPage() {
  const [newCode, setNewCode] = useState('');
  const [newInfluencer, setNewInfluencer] = useState('');
  const [search, setSearch] = useState('');
- const [planFilter, setPlanFilter] = useState<'all' | 'pro' | 'free'>('all');
+ const [planFilter, setPlanFilter] = useState<'all' | 'pro_paid' | 'pro_admin' | 'free'>('all');
  const [selectedRef, setSelectedRef] = useState<string | null>(null);
  const [darkMode, setDarkMode] = useState(true);
 
@@ -68,15 +69,14 @@ export default function AdminPage() {
  setLoading(false);
  }
 
- async function togglePlan(userId: string, currentPlan: string) {
- const newPlan = currentPlan === 'pro' ? 'free' : 'pro';
+ async function togglePlan(userId: string, billing?: Billing) {
+ const shouldGrant = !billing?.isManualPro;
  await fetch('/api/admin/users', {
  method: 'PATCH',
  headers: getHeaders(),
- body: JSON.stringify({ id: userId, plan: newPlan })
+ body: JSON.stringify({ id: userId, action: shouldGrant ? 'grant_manual_pro' : 'revoke_manual_pro' })
  });
- setUsers(u => u.map(x => x.id === userId ? { ...x, plan: newPlan } : x));
- if (stats) setStats({ ...stats, pro_users: stats.pro_users + (newPlan === 'pro' ? 1 : -1), free_users: stats.free_users + (newPlan === 'free' ? 1 : -1) });
+ await loadAll();
  }
 
  async function deleteUser(userId: string) {
@@ -145,7 +145,10 @@ export default function AdminPage() {
 
  const filteredUsers = users.filter(u => {
  const matchSearch = u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase());
- const matchPlan = planFilter === 'all' || u.plan === planFilter;
+ const matchPlan = planFilter === 'all'
+   || (planFilter === 'free' && !u.billing?.hasProAccess)
+   || (planFilter === 'pro_paid' && !!u.billing?.isPaidPro)
+   || (planFilter === 'pro_admin' && !!u.billing?.isManualPro);
  return matchSearch && matchPlan;
  });
 
@@ -250,9 +253,9 @@ export default function AdminPage() {
  <div style={S.card}>
  <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Receita estimada mensal</div>
  <div style={{ fontSize: 32, fontWeight: 800, color: '#00e676' }}>
- R$ {(stats.pro_users * 24.90).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+ R$ {stats.estimated_monthly_revenue_brl.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
  </div>
- <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{stats.pro_users} × R$24,90 · líquido ~R$ {(stats.pro_users * 24.90 * 0.7).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+ <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>{stats.pro_paid_users} assinaturas pagas × R$24,90 · Pro admin não entra na receita</div>
  </div>
  <div style={S.card}>
  <div style={{ fontSize: 13, color: '#888', marginBottom: 8 }}>Conversão Free → Pro</div>
@@ -275,7 +278,7 @@ export default function AdminPage() {
  <div style={{ fontSize: 13, fontWeight: 600 }}>{u.name || '—'}</div>
  <div style={{ fontSize: 11, color: '#888' }}>{u.email}</div>
  </div>
- <span style={S.tag(u.plan)}>{u.plan === 'pro' ? ' Pro' : 'Free'}</span>
+ <span style={S.tag(u.plan)}>{u.billing?.isPaidPro ? 'PRO PAID' : u.billing?.isManualPro ? 'PRO ADMIN' : 'FREE'}</span>
  <div style={{ fontSize: 11, color: '#888' }}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</div>
  </div>
  ))}
@@ -290,9 +293,9 @@ export default function AdminPage() {
  <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
  <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nome ou email..." style={{ ...S.input, flex: 1, minWidth: 200 }} />
  <div style={{ display: 'flex', gap: 6 }}>
- {(['all', 'pro', 'free'] as const).map(f => (
+ {(['all', 'pro_paid', 'pro_admin', 'free'] as const).map(f => (
  <button key={f} onClick={() => setPlanFilter(f)} style={{ ...S.btnSec, color: planFilter === f ? '#00e676' : '#888', borderColor: planFilter === f ? '#00e676' : '#2a2a2a' }}>
- {f === 'all' ? 'Todos' : f === 'pro' ? ' Pro' : 'Free'}
+ {f === 'all' ? 'Todos' : f === 'pro_paid' ? 'Pro pago' : f === 'pro_admin' ? 'Pro admin' : 'Free'}
  </button>
  ))}
  </div>
@@ -309,11 +312,12 @@ export default function AdminPage() {
  <div style={{ fontSize: 14, fontWeight: 600 }}>{u.name || '—'}</div>
  <div style={{ fontSize: 12, color: '#888' }}>{u.email}</div>
  {u.referral_code_used && <div style={{ fontSize: 11, color: '#00e676', marginTop: 2 }}>código: {u.referral_code_used}</div>}
+ {u.billing?.planStatus === 'cancelled' && u.billing?.subscriptionExpiresAt && <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2 }}>cancelado · acesso até {new Date(u.billing.subscriptionExpiresAt).toLocaleDateString('pt-BR')}</div>}
  <div style={{ fontSize: 11, color: '#555', marginTop: 1 }}>{new Date(u.created_at).toLocaleDateString('pt-BR')}</div>
  </div>
- <span style={S.tag(u.plan)}>{u.plan === 'pro' ? ' Pro' : 'Free'}</span>
- <button onClick={() => togglePlan(u.id, u.plan)} style={u.plan === 'pro' ? S.btnDanger : S.btn}>
- {u.plan === 'pro' ? 'Remover Pro' : 'Dar Pro'}
+ <span style={S.tag(u.plan)}>{u.billing?.isPaidPro ? 'PRO PAID' : u.billing?.isManualPro ? 'PRO ADMIN' : 'FREE'}</span>
+ <button onClick={() => togglePlan(u.id, u.billing)} style={u.billing?.isManualPro ? S.btnDanger : S.btn}>
+ {u.billing?.isManualPro ? 'Revogar Pro Admin' : 'Conceder Pro Admin'}
  </button>
  <button onClick={() => resetPassword(u.email)} style={S.btnInfo}>Reset senha</button>
  <button onClick={() => deleteUser(u.id)} style={S.btnDanger}></button>

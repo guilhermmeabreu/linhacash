@@ -10,7 +10,13 @@ type AuditEvent =
   | 'password_reset'
   | 'account_deleted'
   | 'sync_execution'
-  | 'webhook_event';
+  | 'webhook_event'
+  | 'billing_paid_activation'
+  | 'billing_admin_grant'
+  | 'billing_admin_revoke'
+  | 'billing_cancellation_requested'
+  | 'billing_cancellation_applied'
+  | 'billing_status_changed';
 
 export async function auditLog(event: AuditEvent, details: Record<string, unknown>) {
   const entry = {
