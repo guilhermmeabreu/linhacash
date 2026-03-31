@@ -214,6 +214,7 @@ section{padding:80px 0;border-top:1px solid var(--bd)}
   </div>
 </footer>
 
+<script src="/tracking.js"></script>
 <script>
 const THEME_KEY='lc_theme';
 const html=document.documentElement;
@@ -238,6 +239,37 @@ applyTheme(startLight);
 themeBtn.addEventListener('click', function(){
   applyTheme(!html.classList.contains('theme-light'));
 });
+
+
+function setupTracking(){
+  var planos = document.getElementById('planos');
+  var viewed = false;
+
+  if (planos && 'IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (!viewed && entry.isIntersecting) {
+          viewed = true;
+          track('pricing_section_viewed', { section: 'planos' });
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.35 });
+    observer.observe(planos);
+  }
+
+  document.querySelectorAll('a.btn.primary').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var text = (btn.textContent || '').trim();
+      var isUpgrade = /assinar|pro/i.test(text);
+      if (isUpgrade) {
+        track('upgrade_button_clicked', { source: 'landing', label: text });
+      }
+    });
+  });
+}
+
+setupTracking();
 </script>
 </body>
 </html>
