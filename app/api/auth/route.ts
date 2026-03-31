@@ -10,6 +10,19 @@ const supabase = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
+function isEmailDeliveryError(errorMessage: string): boolean {
+  const message = errorMessage.toLowerCase();
+  return (
+    message.includes('email') &&
+    (message.includes('smtp') ||
+      message.includes('send') ||
+      message.includes('confirmation') ||
+      message.includes('provider') ||
+      message.includes('resend') ||
+      message.includes('domain'))
+  );
+}
+
 // POST /api/auth — login, registro, google, forgot, session
 export async function POST(req: Request) {
   assertAllowedOrigin(req);
@@ -74,11 +87,33 @@ export async function POST(req: Request) {
     }
 
     const { data, error } = await supabase.auth.signUp({ email, password });
-    if (error) return errorResponse(error.message || 'Erro ao criar conta. Tente novamente.', 400);
+    let createdUser = data.user;
+    let confirmationNotice = 'Verifique seu email para confirmar a conta';
 
-    if (data.user) {
+    if (error) {
+      const fallbackAllowed = !isProduction && isEmailDeliveryError(error.message || '');
+      if (!fallbackAllowed) {
+        return errorResponse(error.message || 'Erro ao criar conta. Tente novamente.', 400);
+      }
+
+      const { data: fallbackData, error: fallbackError } = await supabase.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: { name: name.trim().slice(0, 100) },
+      });
+
+      if (fallbackError || !fallbackData.user) {
+        return errorResponse('Conta criada parcialmente, mas não foi possível concluir o fluxo de confirmação em ambiente de teste. Tente novamente.', 503);
+      }
+
+      createdUser = fallbackData.user;
+      confirmationNotice = 'Conta criada em modo de teste. A confirmação por email está temporariamente indisponível neste ambiente.';
+    }
+
+    if (createdUser) {
       await supabase.from('profiles').upsert({
-        id: data.user.id,
+        id: createdUser.id,
         name: name.trim().slice(0, 100), // sanitizar comprimento
         email,
         plan: 'free',
@@ -89,14 +124,18 @@ export async function POST(req: Request) {
       });
 
       // Email de boas-vindas via API interna
-      await fetch(`${process.env.NEXT_PUBLIC_URL}/api/emails/welcome`, {
+      const welcomeRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/emails/welcome`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })
       }).catch(() => {});
+
+      if (!isProduction && welcomeRes && !welcomeRes.ok) {
+        confirmationNotice = 'Conta criada. O envio de email está indisponível neste ambiente de teste.';
+      }
     }
 
-    return okResponse({ ok: true, message: 'Verifique seu email para confirmar a conta' });
+    return okResponse({ ok: true, message: confirmationNotice });
   }
 
   // ── GOOGLE OAUTH ───────────────────────────────────────────────────────────
