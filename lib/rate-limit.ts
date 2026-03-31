@@ -59,8 +59,15 @@ export function rateLimitSync(ip: string, limit: number = 30, windowMs: number =
 
 export function getIP(req: Request): string {
   const forwarded = req.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
-  return ip;
+  if (forwarded) return forwarded.split(',')[0].trim();
+
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+
+  const vercelForwardedFor = req.headers.get('x-vercel-forwarded-for');
+  if (vercelForwardedFor) return vercelForwardedFor.split(',')[0].trim();
+
+  return 'unknown';
 }
 
 // Limpa entradas antigas a cada 10 minutos

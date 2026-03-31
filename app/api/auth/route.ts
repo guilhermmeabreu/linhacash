@@ -57,11 +57,17 @@ export async function POST(req: Request) {
     if (!name || !email || !password) return errorResponse('Dados incompletos');
     if (password.length < 6) return errorResponse('Senha muito curta');
 
-    // Rate limit no registro (escopo por ambiente/deploy + IP + email hash)
-    const registerWindowMs = process.env.VERCEL_ENV === 'production' ? 60 * 60 * 1000 : 10 * 60 * 1000;
-    const registerKey = `register:${deploymentNamespace()}:${ip}:${hashEmail(email)}`;
-    if (!await rateLimit(registerKey, 5, registerWindowMs)) {
-      const waitMessage = registerWindowMs >= 60 * 60 * 1000
+    // Rate limit no registro (bucket separado de login/google; mais tolerante em preview)
+    const isProduction = process.env.VERCEL_ENV === 'production';
+    const registerWindowMs = isProduction ? 60 * 60 * 1000 : 10 * 60 * 1000;
+    const namespace = deploymentNamespace();
+    const emailHash = hashEmail(email);
+    const ipLimit = isProduction ? 5 : 25;
+    const emailLimit = isProduction ? 3 : 8;
+    const byIpAllowed = await rateLimit(`register:ip:${namespace}:${ip}`, ipLimit, registerWindowMs);
+    const byEmailAllowed = await rateLimit(`register:email:${namespace}:${emailHash}`, emailLimit, registerWindowMs);
+    if (!byIpAllowed || !byEmailAllowed) {
+      const waitMessage = isProduction
         ? 'Muitos cadastros. Aguarde 1 hora.'
         : 'Muitos cadastros. Aguarde alguns minutos.';
       return errorResponse(waitMessage, 429);
