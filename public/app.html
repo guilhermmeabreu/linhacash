@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
-<title>Linha Cash — Análise de Apostas da NBA</title>
+<title>LinhaCash — Análise de Apostas da NBA</title>
 <link rel="icon" type="image/png" href="/logo.png"/>
 <link rel="apple-touch-icon" href="/logo.png"/>
 <link rel="manifest" href="/manifest.json"/>
@@ -487,6 +487,25 @@ body{min-height:100dvh}
 
 /* TOAST */
 .toast{position:fixed;bottom:36px;left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--bd2);color:var(--tx);padding:10px 18px;border-radius:0;font-size:13px;font-weight:600;z-index:500;white-space:nowrap;pointer-events:none}
+
+:root{--space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:24px;--space-6:32px;--radius-sm:0;--radius-md:0;--shadow-sm:0 8px 24px rgba(0,0,0,.22)}
+button,.schip,.stab,.pbtn,.sd-item,.drawer-item,.gcard,.prow2,.abtn,.lnbtn{transition:background .18s ease,border-color .18s ease,color .18s ease,transform .18s ease,opacity .18s ease}
+button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visible,input:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.gcard:hover{background:var(--s2);transform:translateY(-1px)}
+.prow2:hover{background:var(--s2)}
+.empty-state{margin:24px 16px;padding:24px;border:1px dashed var(--bd2);background:linear-gradient(180deg,var(--s1),var(--s2));text-align:center}
+.empty-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--mt);line-height:1.6}
+.skeleton{position:relative;overflow:hidden;background:var(--s2);border:1px solid var(--bd)}
+.skeleton::after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:sh 1.3s infinite}
+@keyframes sh{100%{transform:translateX(100%)}}
+.sk-card{height:130px;margin-bottom:1px;border-left:3px solid rgba(255,255,255,.08)}
+.sk-list{height:66px;margin-bottom:1px}
+.analytics-grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));padding:0 16px 16px}
+.analytics-card{border:1px solid var(--bd);background:var(--s2);padding:12px}
+.analytics-title{font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:.08em}
+.analytics-value{margin-top:6px;font-size:20px;font-family:var(--font-mono);font-weight:700}
+.pro-placeholder{margin:0 16px 16px;border:1px dashed rgba(0,230,118,.35);background:rgba(0,230,118,.06);padding:14px;font-size:12px;line-height:1.5;color:#bdeccf}
 </style>
 </head>
 <body>
@@ -810,7 +829,7 @@ body{min-height:100dvh}
  <div style="text-align:center;padding:18px 0 14px">
  <div style="font-size:30px;margin-bottom:8px"></div>
  <div style="font-size:20px;font-weight:800">Assine o Plano Pro</div>
- <div style="font-size:13px;color:var(--mt);margin-top:4px">Acesso completo à plataforma</div>
+ <div style="font-size:13px;color:var(--mt);margin-top:4px">Acesso completo ao serviço</div>
  </div>
 
  <!-- Benefícios -->
@@ -864,7 +883,7 @@ body{min-height:100dvh}
  </div>
  <div style="overflow-y:auto;padding:16px 20px 32px;font-size:13px;color:var(--mt);line-height:1.7">
  <p style="font-weight:700;color:var(--tx);margin-bottom:6px">1. Finalidade</p>
- <p style="margin-bottom:14px">O LinhaCash é uma plataforma de análise de dados estatísticos da NBA para fins <strong>exclusivamente informativos</strong>. Não somos uma casa de apostas, não aceitamos apostas e não nos responsabilizamos por decisões financeiras tomadas com base nos dados exibidos.</p>
+ <p style="margin-bottom:14px">O LinhaCash é um serviço de análise de dados estatísticos da NBA para fins <strong>exclusivamente informativos</strong>. Não somos casa de apostas, não aceitamos apostas e não nos responsabilizamos por decisões financeiras tomadas com base nos dados exibidos.</p>
  <p style="font-weight:700;color:var(--tx);margin-bottom:6px">2. Uso Responsável</p>
  <p style="margin-bottom:14px">As informações têm caráter informativo e estatístico. O usuário é o único responsável por suas decisões. Jogue com responsabilidade. Se tiver problemas com apostas, ligue para o CVV: 188.</p>
  <p style="font-weight:700;color:var(--tx);margin-bottom:6px">3. Planos e Pagamentos</p>
@@ -980,6 +999,59 @@ async function api(path, opts) {
 if (location.hostname !== 'localhost') {
   console.log = function(){};
   console.debug = function(){};
+}
+
+
+const dataServices = {
+  async fetchGames() {
+    const payload = await api('/api/games');
+    const list = Array.isArray(payload?.games) ? payload.games : [];
+    return list.map((game) => ({
+      id: game.id,
+      home_team: game.home_team || 'Time da casa',
+      away_team: game.away_team || 'Time visitante',
+      home_logo: game.home_logo || null,
+      away_logo: game.away_logo || null,
+      game_time: game.game_time || new Date().toISOString(),
+    }));
+  },
+  async fetchPlayersByGame(gameId) {
+    const payload = await api(`/api/players?gameId=${gameId}`);
+    const list = Array.isArray(payload?.players) ? payload.players : [];
+    return list.map((player) => ({
+      id: player.id,
+      name: player.name || 'Jogador',
+      team: player.team || 'Time não informado',
+      position: player.position || 'N/A',
+      line: Number(player.line || 0),
+    }));
+  },
+  async fetchPlayerStats(playerId, stat) {
+    const payload = await api(`/api/metrics?playerId=${playerId}&stat=${stat}`);
+    return Array.isArray(payload?.data) ? payload.data : [];
+  }
+};
+
+async function useGamesData() {
+  const games = await dataServices.fetchGames();
+  return { games, hasData: games.length > 0 };
+}
+
+async function useStatsData(playerId, stat) {
+  const metrics = await dataServices.fetchPlayerStats(playerId, stat);
+  return { metrics, hasData: metrics.length > 0 };
+}
+
+function renderGamesSkeleton(){
+  return new Array(4).fill(0).map(()=>'<div class="skeleton sk-card"></div>').join('');
+}
+
+function renderPlayersSkeleton(){
+  return new Array(6).fill(0).map(()=>'<div class="skeleton sk-list"></div>').join('');
+}
+
+function renderEmptyState(title, message){
+  return `<div class="empty-state"><div class="empty-title">${title}</div><div class="empty-sub">${message}</div></div>`;
 }
 
 const NAV_ITEMS = [
@@ -1170,12 +1242,12 @@ function enterApp(){
 async function renderGames(){
  const d=new Date();
  document.getElementById('dlabel').textContent='Hoje · '+d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
- document.getElementById('glist').innerHTML='<div style="padding:32px;text-align:center;color:var(--mt)">Carregando jogos...</div>';
+ document.getElementById('glist').innerHTML=renderGamesSkeleton();
  const today=new Date().toISOString().slice(0,10);
- const gFinal = await api('/api/games');
- GAMES = gFinal?.games || [];
- if(GAMES.length===0){
- document.getElementById('glist').innerHTML='<div style="padding:32px;text-align:center;color:var(--mt)">Nenhum jogo ainda</div>';
+ const gamesData = await useGamesData();
+ GAMES = gamesData.games || [];
+ if(!gamesData.hasData){
+ document.getElementById('glist').innerHTML=renderEmptyState('Sem jogos disponíveis no momento','Estamos aguardando a próxima atualização automática. Volte em alguns minutos.');
  return;
  }
  const vis=pro()?GAMES:GAMES.slice(0,1);
@@ -1254,9 +1326,8 @@ async function openGame(id){
  });
  });
  // Buscar jogadores dos dois times no Supabase
- document.getElementById('plist').innerHTML='<div style="padding:24px;text-align:center;color:var(--mt)">Carregando jogadores...</div>';
- const playersData = await api(`/api/players?gameId=${cGame.id}`);
-  const data = playersData?.players || [];
+ document.getElementById('plist').innerHTML=renderPlayersSkeleton();
+ const data = await dataServices.fetchPlayersByGame(cGame.id);
  PBG[id]=data||[];
  renderPRows();
  nav(2);
@@ -1272,6 +1343,7 @@ async function renderPRows(){
  // Buscar métricas para stat atual
  const statMap={PTS:'points',AST:'assists',REB:'rebounds','3PM':'three_pointers','P+A':'points','P+R':'points','A+R':'assists','FG2A':'fgm','FG3A':'fga'};
  const sbStat=statMap[cStat]||'points';
+ if(!ps.length){ document.getElementById('plist').innerHTML=renderEmptyState('Nenhum jogador encontrado','Sem jogadores disponíveis para este confronto no momento.'); return; }
  document.getElementById('plist').innerHTML=ps.map(p=>{
  const clr=getClr(p.team);
  const m=METRICS[p.id]?METRICS[p.id][sbStat]:null;
@@ -1298,13 +1370,9 @@ async function openPlayer(id){
  }).join('');
  // Buscar métricas do jogador no Supabase
  // Tenta player_props_cache primeiro (mais rápido), fallback para player_metrics
- let metricsData = await api(`/api/metrics?playerId=${id}&stat=${cStat}`);
- if(!data||data.length===0){
- // fallback já tratado pela rota /api/metrics
- data=fallback.data;
- }
+ const statsData = await useStatsData(id, cStat);
  METRICS[id]={};
- if(data) data.forEach(m=>{ METRICS[id][m.stat]=m; });
+ if(statsData.metrics) statsData.metrics.forEach(m=>{ METRICS[id][m.stat]=m; });
  renderDetail();
  nav(3);
 }
@@ -1371,7 +1439,7 @@ function renderDetail(){
  <div class="heav" style="background:linear-gradient(135deg,${clr}cc,${clr}55)">${ini(p.name)}</div>
  <div style="flex:1;min-width:0"><div class="henm">${p.name}</div><div class="hesb">${p.position||''}, ${p.team}</div></div>
  </div>
- <div style="padding:32px;text-align:center;color:var(--mt)">Sem dados para esta stat ainda.<br><span style="font-size:12px">Aguarde o próximo sync</span></div>`;
+ ${renderEmptyState('Estatística ainda indisponível','O processamento desse jogador está em andamento. Tente novamente após o próximo sync.')}`;
  return;
  }
 
@@ -1462,7 +1530,14 @@ function renderDetail(){
  <div style="font-family:'SF Mono','Fira Code','Fira Mono','Roboto Mono',monospace;font-size:20px;font-weight:700">${m.avg_minutes_l5}</div>
  </div>
  </div>
- </div>`;
+ </div>
+ <div style="padding:0 16px 8px"><div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.08em;padding:12px 0 10px">Painel avançado</div></div>
+ <div class="analytics-grid">
+   <div class="analytics-card"><div class="analytics-title">Consistência L10</div><div class="analytics-value">${Math.round((m.avg_l10/(line||1))*100)}%</div></div>
+   <div class="analytics-card"><div class="analytics-title">Variação casa/fora</div><div class="analytics-value">${Math.abs((m.avg_home||0)-(m.avg_away||0)).toFixed(1)}</div></div>
+   <div class="analytics-card"><div class="analytics-title">Tendência</div><div class="analytics-value">${(m.avg_l5>m.avg_l10)?'↑':'↓'}</div></div>
+ </div>
+ <div class="pro-placeholder">Advanced stats coming soon · Faça upgrade para o Pro e libere análises preditivas completas, histórico expandido e comparativos por matchup.</div>`;
 }
 
 // S4: PERFIL 
@@ -1865,7 +1940,7 @@ renderNavigation();
  if(!savedToken){
    if(urlParams.get('status')==='success'){
      show('sAuth',false);
-     setTimeout(()=>toast('Pagamento aprovado! Faça login para acessar o Pro 🏆'),500);
+     setTimeout(()=>toast('Pagamento aprovado! Faça login para acessar o Pro.'),500);
    } else {
      show('sAuth',false);
    }
