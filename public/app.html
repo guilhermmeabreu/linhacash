@@ -1046,13 +1046,20 @@ const dataServices = {
       game_time: game.game_time || new Date().toISOString(),
     }));
   },
-  async fetchPlayersByGame(gameId) {
+  async fetchPlayersByGame(gameId, gameContext) {
     const payload = await api(`/api/players?gameId=${gameId}`);
     const list = Array.isArray(payload?.players) ? payload.players : [];
+    const homeTeamId = Number(gameContext?.home_team_id || 0);
+    const awayTeamId = Number(gameContext?.away_team_id || 0);
     return list.map((player) => ({
       id: player.id,
       name: player.name || 'Jogador',
-      team: player.team || 'Time não informado',
+      team_id: Number(player.team_id || 0),
+      team: Number(player.team_id) === homeTeamId
+        ? (gameContext?.home_team || 'Time da casa')
+        : (Number(player.team_id) === awayTeamId
+          ? (gameContext?.away_team || 'Time visitante')
+          : 'Time não informado'),
       position: player.position || 'N/A',
       line: Number(player.line || 0),
     }));
@@ -1074,11 +1081,12 @@ async function useGamesData() {
 
 async function useStatsData(playerId, stat) {
   const response = await dataServices.fetchPlayerStats(playerId, stat);
+  const safeResponse = response || {};
   return {
-    metrics: response.metrics,
-    games: response.games,
-    availableStats: response.availableStats,
-    hasData: Boolean(response.metrics || (response.games || []).length),
+    metrics: safeResponse.metrics || null,
+    games: Array.isArray(safeResponse.games) ? safeResponse.games : [],
+    availableStats: Array.isArray(safeResponse.availableStats) ? safeResponse.availableStats : [],
+    hasData: Boolean(safeResponse.metrics || (safeResponse.games || []).length),
   };
 }
 
@@ -1367,8 +1375,8 @@ async function openGame(id){
  });
  // Buscar jogadores dos dois times no Supabase
  document.getElementById('plist').innerHTML=renderPlayersSkeleton();
- const data = await dataServices.fetchPlayersByGame(cGame.id);
- PBG[id]=data||[];
+ const data = await dataServices.fetchPlayersByGame(cGame.id, cGame);
+ PBG[id]=Array.isArray(data)?data:[];
  renderPRows();
  nav(2);
 }
@@ -1379,21 +1387,26 @@ function setS2Stat(s,el){
 
 async function renderPRows(){
  let ps=PBG[cGame.id]||[];
- if(!pro()){const seen={};ps=ps.filter(p=>{if(seen[p.team])return false;seen[p.team]=true;return true;});}
- // Buscar métricas para stat atual
- const statMap={PTS:'points',AST:'assists',REB:'rebounds','3PM':'three_pointers','P+A':'points','P+R':'points','A+R':'assists','FG2A':'fgm','FG3A':'fga'};
- const sbStat=statMap[cStat]||'points';
+ if(!Array.isArray(ps)) ps=[];
+ if(!pro()){
+   const seen={};
+   ps=ps.filter((p)=>{
+     const key=p?.team_id||p?.team||p?.id;
+     if(seen[key]) return false;
+     seen[key]=true;
+     return true;
+   });
+ }
  if(!ps.length){ document.getElementById('plist').innerHTML=renderEmptyState('Nenhum jogador encontrado','Sem jogadores disponíveis para este confronto no momento.'); return; }
- document.getElementById('plist').innerHTML=ps.map(p=>{
- const clr=getClr(p.team);
- const m=METRICS[p.id]?METRICS[p.id][sbStat]:null;
- const ln=m?half(m.line):0;
- const hr=m?Math.round(m.avg_l10/ln*50):0;
- const cls=hr>=65?'g':hr>=50?'a':'r';
- return `<div class="prow2" onclick="openPlayer(${p.id})">
- <div class="prav" style="background:linear-gradient(135deg,${clr}cc,${clr}66)">${ini(p.name)}</div>
- <div style="flex:1;min-width:0"><div class="prnm">${p.name}</div><div class="prmt">${p.position||''} · ${p.team}</div></div>
- <div class="prrt"><div class="prln">${ln||'—'}</div>${m?`<div class="prhr ${cls}">${hr}%</div>`:''}</div>
+ document.getElementById('plist').innerHTML=ps.map((p)=>{
+ if(!p||!p.id) return '';
+ const teamLabel=p.team||'Time não informado';
+ const clr=getClr(teamLabel);
+ const ln=p.line>0?half(p.line):'—';
+ return `<div class="prow2" onclick="openPlayer(${p.id})" role="button" tabindex="0">
+ <div class="prav" style="background:linear-gradient(135deg,${clr}cc,${clr}66)">${ini(p.name||'Jogador')}</div>
+ <div style="flex:1;min-width:0"><div class="prnm">${p.name||'Jogador'}</div><div class="prmt">${p.position||'—'} · ${teamLabel}</div></div>
+ <div class="prrt"><div class="prln">${ln}</div></div>
  </div>`;
  }).join('');
 }
