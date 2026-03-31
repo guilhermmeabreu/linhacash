@@ -977,6 +977,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  </div>
 </div>
 
+<script src="/tracking.js"></script>
 <script>
 // SUPABASE CONFIG 
 
@@ -1343,6 +1344,7 @@ const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:64px;height:64
 // S2: JOGADORES 
 async function openGame(id){
  cGame=GAMES.find(g=>g.id===id);cStat='PTS';
+ track('game_opened',{game_id:id,away_team:cGame?.away_team||null,home_team:cGame?.home_team||null});
  document.getElementById('s2ttl').textContent='';
  const hc=getClr(cGame.home_team),ac=getClr(cGame.away_team);
  const time=new Date(cGame.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
@@ -1368,9 +1370,9 @@ async function openGame(id){
  <div class="sectitle">${pro()?'Jogadores':'Jogadores · <span style="color:var(--amber);font-size:10px">1 por time — Gratuito</span>'}</div>`;
  document.querySelectorAll('#s2chips .schip').forEach(function(el){
  el.addEventListener('click',function(){
- if(el.dataset.lk==='1'){openPro();return;}
+ if(el.dataset.lk==='1'){track('locked_pro_feature_clicked',{context:'game_markets',market:el.dataset.stat});openPro();return;}
  document.querySelectorAll('#s2chips .schip').forEach(function(c){c.classList.remove('on');});
- el.classList.add('on');cStat=el.dataset.stat;renderPRows();
+ el.classList.add('on');cStat=el.dataset.stat;track('market_changed',{context:'game_players',market:cStat,game_id:cGame?.id||null});renderPRows();
  });
  });
  // Buscar jogadores dos dois times no Supabase
@@ -1416,18 +1418,21 @@ async function openPlayer(id){
  const allPlayers=Object.values(PBG).flat();
  cPlayer=allPlayers.find(p=>p.id===id);if(!cPlayer)return;
  cStat='PTS';cLine=null;cModalPlayerId=id;
+ track('player_modal_opened',{player_id:id,player_name:cPlayer?.name||null,game_id:cGame?.id||null});
  await ensurePlayerModalData(id);
  openPropModal();
  renderPropModal();
 }
 function changeTab(s,el){
- if(!pro()&&!SFREE.includes(s)){openPro();return;}
+ if(!pro()&&!SFREE.includes(s)){track('locked_pro_feature_clicked',{context:'player_modal_tab',market:s,player_id:cModalPlayerId||null});openPro();return;}
  cStat=s;cLine=null;
+ track('market_changed',{context:'player_modal',market:s,player_id:cModalPlayerId||null});
  renderPropModal();
 }
 function adjLine(d){
  const base=cLine!==null?cLine:getDefaultLine(cModalPlayerId,cStat);
  cLine=Math.max(.5,half(base+d));
+ track('line_adjusted',{player_id:cModalPlayerId||null,market:cStat,line:cLine,delta:d});
  renderPropModal();
 }
 function openPropModal(){const el=document.getElementById('mProp');if(el)el.style.display='flex';}
@@ -1672,6 +1677,7 @@ function atualizarPreco(){
 }
 
 function openPro(){
+ track('upgrade_button_clicked',{source:stack[stack.length-1]||'unknown'});
  document.getElementById('mPro').style.display='flex';
  // Reset ao abrir
  selectedPlan='anual';
@@ -1685,6 +1691,7 @@ function openPro(){
 // MODAIS 
 function closePro(){document.getElementById('mPro').style.display='none';}
 async function activatePro(){
+ track('upgrade_button_clicked',{source:'checkout_modal',plan:selectedPlan||null});
  toast('Redirecionando para pagamento...');
  try{
  const refCode=document.getElementById('cupomInput')?.value.trim().toUpperCase()||'';
