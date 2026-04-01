@@ -22,7 +22,7 @@ html,body{font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:
 a{text-decoration:none;color:inherit}
 .wrap{max-width:1140px;margin:0 auto;padding:0 var(--space-4)}
 nav{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bd);backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 90%, transparent)}
-.ninner{height:74px;display:flex;align-items:center;justify-content:space-between}
+.ninner{height:72px;display:flex;align-items:center;justify-content:space-between}
 .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;line-height:1}
 .logo img{width:28px;height:28px}
 .brand-accent{color:var(--green)}
@@ -34,9 +34,8 @@ nav{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bd);backdrop-
 #theme{width:40px;height:40px;display:grid;place-items:center;padding:0}
 #theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 main section{padding:90px 0;border-top:1px solid var(--bd)}
-.hero{padding:78px 0 66px;position:relative;overflow:hidden}
+.hero{padding:64px 0 54px;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:-20% -10% auto;background:radial-gradient(circle at top,rgba(0,230,118,.14),transparent 56%);height:72%;pointer-events:none}
-.badge{display:inline-flex;border:1px solid var(--green-soft);padding:7px 12px;color:var(--green);font-size:11px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;margin-bottom:var(--space-4)}
 h1{font-size:clamp(32px,4.6vw,54px);line-height:1.08;max-width:720px;letter-spacing:-.03em}
 .subtitle{margin-top:18px;max-width:610px;color:var(--mt);font-size:18px;line-height:1.58}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:var(--space-5)}
@@ -87,8 +86,7 @@ h1{font-size:clamp(32px,4.6vw,54px);line-height:1.08;max-width:720px;letter-spac
 </nav>
 
 <header class="hero wrap">
-  <span class="badge fade">Linha<span class="brand-accent">Cash</span> para NBA</span>
-  <h1 class="fade delay-1">Leia os melhores props do dia em minutos e entre no jogo com mais confiança.</h1>
+  <h1 class="fade">Leia os melhores props do dia em minutos com a Linha<span class="brand-accent">Cash</span> e entre no jogo com mais confiança.</h1>
   <p class="subtitle fade delay-2">Tudo em português, com visão direta do confronto e do jogador. Sem ruído e sem perder tempo pulando entre telas.</p>
   <div class="hero-cta fade delay-2">
     <a class="btn primary" href="/app.html">Começar no Free</a>
