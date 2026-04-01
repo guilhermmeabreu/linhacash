@@ -35,7 +35,7 @@ nav{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bd);backdrop-
 #theme{width:40px;height:40px;display:grid;place-items:center;padding:0}
 #theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
 main section{padding:90px 0;border-top:1px solid var(--bd)}
-.hero{padding:78px 0 72px;position:relative;overflow:hidden}
+.hero{padding:88px 0 80px;position:relative;overflow:hidden;min-height:calc(100vh - 72px);display:grid;place-items:center}
 .hero::before{content:'';position:absolute;inset:-20% -10% auto;background:radial-gradient(circle at top,rgba(0,230,118,.14),transparent 56%);height:72%;pointer-events:none}
 .hero-inner{position:relative;max-width:700px;margin:0 auto;text-align:center}
 h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-wrap:balance}
@@ -80,6 +80,8 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
 .fade{opacity:0;transform:translateY(12px);animation:fadeUp .7s ease forwards}
 .delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
+.reveal.is-visible{opacity:1;transform:translateY(0)}
 @media (max-width:950px){.steps,.plans{grid-template-columns:1fr}}
 @media (max-width:768px){
   .wrap{padding:0 18px}
@@ -92,7 +94,7 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
   #theme{width:32px;height:32px;opacity:.72;border-color:transparent}
   #theme svg{width:14px;height:14px}
   main section{padding:72px 0}
-  .hero{padding:58px 0 54px}
+  .hero{padding:66px 0 58px;min-height:0}
   .hero-inner{max-width:420px}
   h1{font-size:clamp(30px,7.4vw,36px);line-height:1.2;letter-spacing:-.022em}
   .subtitle{margin-top:18px;font-size:15px;line-height:1.7}
@@ -113,7 +115,7 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
   .btn{padding:10px 14px;font-size:11px}
   .h2{font-size:clamp(24px,7.4vw,30px)}
   .p{font-size:15px;line-height:1.62}
-  .hero{padding-top:52px;padding-bottom:48px}
+  .hero{padding-top:56px;padding-bottom:50px}
   .hero-inner{max-width:390px}
   h1{font-size:clamp(26px,7.4vw,32px);line-height:1.24}
   .subtitle{font-size:14px;line-height:1.66}
@@ -141,31 +143,19 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
     <p class="subtitle fade delay-1">Analise jogadores, linhas e desempenho recente em segundos para entrar em cada decisão com contexto real.</p>
     <div class="hero-cta fade delay-2">
       <a class="btn primary" href="/app.html">Ver jogos de hoje</a>
-      <a class="btn secondary" href="#como-funciona">Como funciona</a>
+      <a class="btn secondary" href="#planos">Ver planos</a>
     </div>
     <p class="hero-microcopy fade delay-2">Sem cartão de crédito · Plano gratuito disponível</p>
   </div>
 </header>
 
 <main>
-  <section id="como-funciona">
-    <div class="wrap">
-      <h2 class="h2">Como funciona</h2>
-      <p class="p">Sem curva longa: três passos e você já está analisando.</p>
-      <div class="steps">
-        <article class="step"><span class="n">Passo 1</span><h3>Escolha o jogo</h3><p>Abra os confrontos do dia e entre direto no duelo que quer analisar.</p></article>
-        <article class="step"><span class="n">Passo 2</span><h3>Abra o jogador</h3><p>Veja os props principais em um modal claro, com os dados que realmente importam.</p></article>
-        <article class="step"><span class="n">Passo 3</span><h3>Tome sua decisão</h3><p>Compare linha, fase recente e contexto. Menos dúvida antes de entrar na aposta.</p></article>
-      </div>
-    </div>
-  </section>
-
   <section id="planos">
     <div class="wrap">
-      <h2 class="h2">Free para começar, Pro pra jogar sério.</h2>
-      <p class="p">A diferença é simples: no Free você prova o método, no Pro você tem cobertura completa da rodada.</p>
+      <h2 class="h2 reveal">Free para começar, Pro pra jogar sério.</h2>
+      <p class="p reveal">A diferença é simples: no Free você prova o método, no Pro você tem cobertura completa da rodada.</p>
       <div class="plans">
-        <article class="plan">
+        <article class="plan reveal">
           <h3>Free</h3>
           <div class="price">R$0</div>
           <div class="small">Ideal para testar a rotina e sentir a experiência do LinhaCash.</div>
@@ -177,7 +167,7 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
           </ul>
           <a class="btn" href="/app.html">Começar no Free</a>
         </article>
-        <article class="plan pro">
+        <article class="plan pro reveal">
           <h3>Pro</h3>
           <div class="price">R$24,90 <span style="font-size:15px;font-weight:600">/mês</span></div>
           <div class="small">Para quem acompanha NBA todos os dias e quer ler props com profundidade.</div>
@@ -197,10 +187,22 @@ h1{font-size:clamp(36px,4.7vw,58px);line-height:1.1;letter-spacing:-.03em;text-w
     </div>
   </section>
 
+  <section id="como-funciona">
+    <div class="wrap">
+      <h2 class="h2 reveal">Como funciona</h2>
+      <p class="p reveal">Sem curva longa: três passos e você já está analisando.</p>
+      <div class="steps">
+        <article class="step reveal"><span class="n">Passo 1</span><h3>Escolha o jogo</h3><p>Abra os confrontos do dia e entre direto no duelo que quer analisar.</p></article>
+        <article class="step reveal"><span class="n">Passo 2</span><h3>Abra o jogador</h3><p>Veja os props principais em um modal claro, com os dados que realmente importam.</p></article>
+        <article class="step reveal"><span class="n">Passo 3</span><h3>Tome sua decisão</h3><p>Compare linha, fase recente e contexto. Menos dúvida antes de entrar na aposta.</p></article>
+      </div>
+    </div>
+  </section>
+
   <section class="final wrap">
-    <h2 class="h2">Clareza pra decidir. Velocidade para agir.</h2>
-    <p>Abra sua conta gratuita e veja hoje como o LinhaCash encurta o caminho entre análise e decisão.</p>
-    <a class="btn primary" href="/app.html">Criar conta grátis</a>
+    <h2 class="h2 reveal">Clareza pra decidir. Velocidade para agir.</h2>
+    <p class="reveal">Abra sua conta gratuita e veja hoje como o LinhaCash encurta o caminho entre análise e decisão.</p>
+    <a class="btn primary reveal" href="/app.html">Criar conta grátis</a>
   </section>
 </main>
 
@@ -272,6 +274,17 @@ function setupTracking(){
 }
 
 setupTracking();
+
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-visible');
+      observer.unobserve(entry.target);
+    });
+  }, { threshold: 0.22 });
+  document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+}
 </script>
 </body>
 </html>

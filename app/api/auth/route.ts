@@ -10,6 +10,14 @@ const supabase = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
+function resolvePublicUrl(req: Request): string {
+  const configured = process.env.NEXT_PUBLIC_URL?.trim();
+  if (configured) return configured.replace(/\/+$/, '');
+
+  const url = new URL(req.url);
+  return `${url.protocol}//${url.host}`;
+}
+
 function isEmailDeliveryError(errorMessage: string): boolean {
   const message = errorMessage.toLowerCase();
   return (
@@ -28,6 +36,7 @@ export async function POST(req: Request) {
   assertAllowedOrigin(req);
   assertJsonRequest(req);
   const ip = getIP(req);
+  const publicUrl = resolvePublicUrl(req);
   const body = await req.json().catch(() => ({}));
   const { action } = body;
 
@@ -124,7 +133,7 @@ export async function POST(req: Request) {
       });
 
       // Email de boas-vindas via API interna
-      const welcomeRes = await fetch(`${process.env.NEXT_PUBLIC_URL}/api/emails/welcome`, {
+      const welcomeRes = await fetch(`${publicUrl}/api/emails/welcome`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email })
@@ -140,7 +149,7 @@ export async function POST(req: Request) {
 
   // ── GOOGLE OAUTH ───────────────────────────────────────────────────────────
   if (action === 'google') {
-    const redirectUrl = `${process.env.NEXT_PUBLIC_URL}/app.html`;
+    const redirectUrl = `${publicUrl}/app.html`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl }
@@ -160,7 +169,7 @@ export async function POST(req: Request) {
     }
 
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_URL}/app.html?reset=true`
+      redirectTo: `${publicUrl}/app.html?reset=true`
     });
 
     // Sempre retornar ok — não revelar se email existe
