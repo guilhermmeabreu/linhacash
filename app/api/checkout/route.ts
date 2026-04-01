@@ -6,6 +6,8 @@ import { validateCheckoutPayload } from '@/lib/validators/auth-validator';
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin') || undefined;
+  const requestUrl = new URL(req.url);
+  const publicBaseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
   try {
     const ip = getIP(req);
     if (!(await rateLimit(`checkout:${ip}`, 5, 60_000))) {
@@ -22,12 +24,12 @@ export async function POST(req: Request) {
     const body: Record<string, unknown> = {
       items: [{ title, quantity: 1, currency_id: 'BRL', unit_price: price }],
       back_urls: {
-        success: `${process.env.NEXT_PUBLIC_URL}/app.html?status=success`,
-        failure: `${process.env.NEXT_PUBLIC_URL}/app.html?status=failure`,
-        pending: `${process.env.NEXT_PUBLIC_URL}/app.html?status=pending`,
+        success: `${publicBaseUrl}/app.html?status=success`,
+        failure: `${publicBaseUrl}/app.html?status=failure`,
+        pending: `${publicBaseUrl}/app.html?status=pending`,
       },
       auto_return: 'approved',
-      notification_url: `${process.env.NEXT_PUBLIC_URL}/api/webhook/mp`,
+      notification_url: `${publicBaseUrl}/api/webhook/mp`,
       metadata: { referral_code: referralCode, plan, user_id: user.id, external_reference: externalReference },
       external_reference: externalReference,
       payer: { email: user.email },

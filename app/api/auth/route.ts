@@ -11,11 +11,13 @@ const supabase = createClient(
 );
 
 function resolvePublicUrl(req: Request): string {
+  const url = new URL(req.url);
+  const requestOrigin = `${url.protocol}//${url.host}`;
+  if (url.host) return requestOrigin.replace(/\/+$/, '');
+
   const configured = process.env.NEXT_PUBLIC_URL?.trim();
   if (configured) return configured.replace(/\/+$/, '');
-
-  const url = new URL(req.url);
-  return `${url.protocol}//${url.host}`;
+  return 'https://linhacash.com.br';
 }
 
 function isEmailDeliveryError(errorMessage: string): boolean {
