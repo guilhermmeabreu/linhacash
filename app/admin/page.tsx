@@ -34,7 +34,7 @@ function AdminSkeleton() {
 
 export default function AdminPage() {
   const router = useRouter();
-  const { stats, users, referrals, referralUses, syncHistory, loading, feedback, loadAll, actions } = useAdminData();
+  const { stats, users, referrals, referralUses, syncHistory, productInsights, operationsInsights, adminActionInsights, loading, feedback, loadAll, actions } = useAdminData();
   const [tab, setTab] = useState<AdminTab>('dashboard');
   const [search, setSearch] = useState('');
   const [planFilter, setPlanFilter] = useState<'all' | 'pro_paid' | 'pro_admin' | 'free'>('all');
@@ -88,7 +88,7 @@ export default function AdminPage() {
     <main className="adm-page">
       <style>{`
         .adm-page{min-height:100vh;background:#080909;color:#ecf1ee;padding:24px;font-family:Inter,sans-serif}
-        .adm-shell{max-width:1200px;margin:0 auto;display:grid;gap:18px}
+        .adm-shell{max-width:1240px;margin:0 auto;display:grid;gap:18px}
         .adm-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding-bottom:8px;border-bottom:1px solid #1e2422}
         .adm-title{font-size:24px;font-weight:800}
         .adm-title em{color:#00e676;font-style:normal}
@@ -99,6 +99,7 @@ export default function AdminPage() {
         .adm-card{background:#0f1312;border:1px solid #1f2825;padding:16px}
         .adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
         .adm-kpi{font-size:28px;font-weight:800;margin-top:8px}
+        .adm-kpi-sm{font-size:22px;font-weight:800;margin-top:8px}
         .adm-muted{color:#8ea097;font-size:13px}
         .adm-input{background:#151b19;border:1px solid #2a3531;color:#eff5f2;padding:10px 12px;min-width:220px}
         .adm-btn{background:#00e676;color:#001108;border:none;padding:10px 12px;font-weight:700;cursor:pointer}
@@ -114,10 +115,16 @@ export default function AdminPage() {
         .adm-feedback{padding:10px 12px;font-size:13px;border:1px solid}
         .adm-feedback.ok{border-color:#1b7f47;background:rgba(0,230,118,.1);color:#82e8b3}
         .adm-feedback.err{border-color:#913939;background:rgba(255,77,77,.1);color:#ff9c9c}
-        .adm-log{display:flex;justify-content:space-between;border-bottom:1px solid #1d2824;padding:10px 0;font-size:13px}
+        .adm-log{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #1d2824;padding:10px 0;font-size:13px}
+        .adm-log:last-child{border-bottom:none}
         .adm-skeleton{background:linear-gradient(90deg,#17201d,#23302c,#17201d);background-size:220px 100%;animation:adm-loading 1.2s infinite ease-in-out}
         .adm-skeleton-label{height:14px;width:52%;margin-bottom:10px}
         .adm-skeleton-value{height:34px;width:75%}
+        .adm-section{display:grid;gap:10px}
+        .adm-section-title{font-weight:800;font-size:16px;letter-spacing:.02em}
+        .adm-two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
+        .adm-three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+        @media (max-width: 980px){.adm-two-col,.adm-three-col{grid-template-columns:1fr}}
         @keyframes adm-loading{0%{background-position:-220px 0}100%{background-position:220px 0}}
       `}</style>
       <div className="adm-shell">
@@ -140,12 +147,133 @@ export default function AdminPage() {
         {loading && <AdminSkeleton />}
 
         {!loading && tab === 'dashboard' && stats && (
-          <section className="adm-grid">
-            <div className="adm-card"><div className="adm-muted">Total de usuários</div><div className="adm-kpi">{stats.total_users}</div></div>
-            <div className="adm-card"><div className="adm-muted">FREE</div><div className="adm-kpi">{stats.free_users}</div></div>
-            <div className="adm-card"><div className="adm-muted">PRO PAID</div><div className="adm-kpi">{stats.pro_paid_users}</div></div>
-            <div className="adm-card"><div className="adm-muted">PRO ADMIN</div><div className="adm-kpi">{stats.pro_admin_users}</div></div>
-            <div className="adm-card"><div className="adm-muted">Receita mensal estimada</div><div className="adm-kpi">R$ {stats.estimated_monthly_revenue_brl.toLocaleString('pt-BR')}</div></div>
+          <section className="adm-section">
+            <div className="adm-section-title">Business</div>
+            <div className="adm-grid">
+              <div className="adm-card"><div className="adm-muted">Total de usuários</div><div className="adm-kpi">{stats.total_users}</div></div>
+              <div className="adm-card"><div className="adm-muted">Novos usuários hoje</div><div className="adm-kpi">{stats.new_users_today}</div></div>
+              <div className="adm-card"><div className="adm-muted">Novos usuários 7d</div><div className="adm-kpi">{stats.new_users_7d}</div></div>
+              <div className="adm-card"><div className="adm-muted">Novos usuários 30d</div><div className="adm-kpi">{stats.new_users_30d}</div></div>
+              <div className="adm-card"><div className="adm-muted">FREE</div><div className="adm-kpi">{stats.free_users}</div></div>
+              <div className="adm-card"><div className="adm-muted">PRO PAID</div><div className="adm-kpi">{stats.pro_paid_users}</div></div>
+              <div className="adm-card"><div className="adm-muted">PRO ADMIN</div><div className="adm-kpi">{stats.pro_admin_users}</div></div>
+              <div className="adm-card"><div className="adm-muted">Receita mensal estimada</div><div className="adm-kpi-sm">R$ {stats.estimated_monthly_revenue_brl.toLocaleString('pt-BR')}</div></div>
+            </div>
+
+            <div className="adm-two-col">
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Cancelamentos recentes</div>
+                {stats.recent_cancellations.length === 0 && <p className="adm-muted">Ainda não há cancelamentos recentes.</p>}
+                {stats.recent_cancellations.map((item) => (
+                  <div className="adm-log" key={item.id}>
+                    <span>{item.email || item.id}</span>
+                    <span className="adm-muted">{item.cancelled_at ? new Date(item.cancelled_at).toLocaleString('pt-BR') : 'sem data'}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Últimos cadastros</div>
+                {stats.recent_signups.slice(0, 6).map((user) => (
+                  <div className="adm-log" key={user.id}>
+                    <span>{user.email || user.id}</span>
+                    <span className="adm-muted">{new Date(user.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="adm-section-title">Product usage</div>
+            <div className="adm-three-col">
+              <div className="adm-card"><div className="adm-muted">Game opens</div><div className="adm-kpi">{productInsights?.gameOpens ?? 0}</div></div>
+              <div className="adm-card"><div className="adm-muted">Player modal opens</div><div className="adm-kpi">{productInsights?.playerModalOpens ?? 0}</div></div>
+              <div className="adm-card"><div className="adm-muted">Upgrade clicks</div><div className="adm-kpi">{productInsights?.upgradeClicks ?? 0}</div></div>
+              <div className="adm-card"><div className="adm-muted">Locked Pro feature clicks</div><div className="adm-kpi">{productInsights?.lockedProFeatureClicks ?? 0}</div></div>
+              <div className="adm-card"><div className="adm-muted">Total de eventos ({productInsights?.periodDays ?? 30}d)</div><div className="adm-kpi">{productInsights?.totalEvents ?? 0}</div></div>
+              <div className="adm-card"><div className="adm-muted">Tabela events</div><div className="adm-kpi-sm">{productInsights?.eventsAvailable ? 'Disponível' : 'Sem dados suficientes'}</div></div>
+            </div>
+
+            <div className="adm-two-col">
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Mercados mais usados</div>
+                {(productInsights?.mostUsedMarkets?.length || 0) === 0 && <p className="adm-muted">Não há dados de mercado suficientes ainda.</p>}
+                {(productInsights?.mostUsedMarkets || []).map((item) => (
+                  <div className="adm-log" key={item.market}>
+                    <span>{item.market.toUpperCase()}</span>
+                    <span>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Resumo recente de eventos</div>
+                {(productInsights?.recentEventSummaries?.length || 0) === 0 && <p className="adm-muted">Não há eventos recentes para resumir.</p>}
+                {(productInsights?.recentEventSummaries || []).map((item) => (
+                  <div className="adm-log" key={item.event_name}>
+                    <span>{item.event_name}</span>
+                    <span>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="adm-section-title">Operations & admin actions</div>
+            <div className="adm-three-col">
+              <div className="adm-card">
+                <div className="adm-muted">Status da última sync</div>
+                <div className="adm-kpi-sm">{operationsInsights?.latestSyncStatus || 'N/A'}</div>
+                <p className="adm-muted">{operationsInsights?.latestSyncTimestamp ? new Date(operationsInsights.latestSyncTimestamp).toLocaleString('pt-BR') : 'Sem timestamp'}</p>
+                <p className="adm-muted">{operationsInsights?.syncFreshnessLabel || 'Sem dados de sincronização'}</p>
+              </div>
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Últimos 5 syncs</div>
+                {(syncHistory || []).slice(0, 5).map((entry, index) => (
+                  <div className="adm-log" key={`${entry.created_at}-${index}`}>
+                    <span>{entry.status} · {entry.games_synced} jogos</span>
+                    <span className="adm-muted">{new Date(entry.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Eventos importantes (auth/billing/system)</div>
+                {(operationsInsights?.recentImportantEvents?.length || 0) === 0 && <p className="adm-muted">Não há eventos importantes registrados.</p>}
+                {(operationsInsights?.recentImportantEvents || []).slice(0, 6).map((event, idx) => (
+                  <div className="adm-log" key={`${event.event}-${idx}`}>
+                    <span>{event.event}</span>
+                    <span className="adm-muted">{new Date(event.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="adm-two-col">
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Ações recentes de usuários</div>
+                {(adminActionInsights?.recentUserActions?.length || 0) === 0 && <p className="adm-muted">Ainda não há ações recentes.</p>}
+                {(adminActionInsights?.recentUserActions || []).map((event, idx) => (
+                  <div className="adm-log" key={`${event.action}-${idx}`}>
+                    <span>{event.action} · {event.context}</span>
+                    <span className="adm-muted">{new Date(event.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="adm-card">
+                <div className="adm-section-title" style={{ fontSize: 14 }}>Mudanças de billing/admin + resets/deleções</div>
+                {(adminActionInsights?.recentBillingAdminChanges || []).slice(0, 5).map((event, idx) => (
+                  <div className="adm-log" key={`bill-${event.event}-${idx}`}>
+                    <span>{event.event}</span>
+                    <span className="adm-muted">{new Date(event.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+                {(adminActionInsights?.recentResetsDeletions || []).slice(0, 5).map((event, idx) => (
+                  <div className="adm-log" key={`reset-${event.event}-${idx}`}>
+                    <span>{event.event}</span>
+                    <span className="adm-muted">{new Date(event.created_at).toLocaleString('pt-BR')}</span>
+                  </div>
+                ))}
+                {(adminActionInsights?.recentBillingAdminChanges?.length || 0) + (adminActionInsights?.recentResetsDeletions?.length || 0) === 0 && (
+                  <p className="adm-muted">Não há logs de billing/admin/reset/deleção disponíveis.</p>
+                )}
+              </div>
+            </div>
           </section>
         )}
 
