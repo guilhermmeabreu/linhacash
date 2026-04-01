@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { adminApi, Profile, ReferralCode, ReferralUse, Stats } from '../_lib/admin-api';
+import { AdminActionInsights, adminApi, OperationsInsights, ProductInsights, Profile, ReferralCode, ReferralUse, Stats } from '../_lib/admin-api';
 
 export function useAdminData() {
   const [stats, setStats] = useState<Stats | null>(null);
@@ -9,6 +9,9 @@ export function useAdminData() {
   const [referrals, setReferrals] = useState<ReferralCode[]>([]);
   const [referralUses, setReferralUses] = useState<ReferralUse[]>([]);
   const [syncHistory, setSyncHistory] = useState<Array<{ created_at: string; status: string; games_synced: number }>>([]);
+  const [productInsights, setProductInsights] = useState<ProductInsights | null>(null);
+  const [operationsInsights, setOperationsInsights] = useState<OperationsInsights | null>(null);
+  const [adminActionInsights, setAdminActionInsights] = useState<AdminActionInsights | null>(null);
   const [loading, setLoading] = useState(true);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -21,6 +24,9 @@ export function useAdminData() {
       setReferrals(data.referrals);
       setReferralUses(data.referralUses);
       setSyncHistory(Array.isArray(data.syncHistory) ? data.syncHistory : []);
+      setProductInsights(data.productInsights || null);
+      setOperationsInsights(data.operationsInsights || null);
+      setAdminActionInsights(data.adminActionInsights || null);
     } catch {
       setFeedback({ type: 'error', message: 'Não foi possível carregar o painel.' });
     } finally {
@@ -72,5 +78,18 @@ export function useAdminData() {
     [loadAll],
   );
 
-  return { stats, users, referrals, referralUses, syncHistory, loading, feedback, loadAll, actions };
+  return {
+    stats,
+    users,
+    referrals,
+    referralUses,
+    syncHistory,
+    productInsights,
+    operationsInsights,
+    adminActionInsights,
+    loading,
+    feedback,
+    loadAll,
+    actions,
+  };
 }

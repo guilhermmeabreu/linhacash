@@ -45,6 +45,37 @@ export interface Stats {
   total_players: number;
   estimated_monthly_revenue_brl: number;
   recent_signups: Array<Profile & { billing?: Billing }>;
+  new_users_today: number;
+  new_users_7d: number;
+  new_users_30d: number;
+  recent_cancellations: Array<{ id: string; email: string | null; cancelled_at: string | null }>;
+}
+
+export interface ProductInsights {
+  eventsAvailable: boolean;
+  periodDays: number;
+  totalEvents: number;
+  gameOpens: number;
+  playerModalOpens: number;
+  upgradeClicks: number;
+  lockedProFeatureClicks: number;
+  mostUsedMarkets: Array<{ market: string; count: number }>;
+  recentEventSummaries: Array<{ event_name: string; count: number }>;
+  recentEvents: Array<{ event_name: string; created_at: string; metadata: Record<string, unknown> | null }>;
+}
+
+export interface OperationsInsights {
+  latestSyncStatus: string | null;
+  latestSyncTimestamp: string | null;
+  syncFreshness: 'fresh' | 'stale' | 'critical' | 'unknown';
+  syncFreshnessLabel: string;
+  recentImportantEvents: Array<{ event: string; created_at: string; details: Record<string, unknown> | null }>;
+}
+
+export interface AdminActionInsights {
+  recentUserActions: Array<{ action: string; created_at: string; context: string }>;
+  recentBillingAdminChanges: Array<{ event: string; created_at: string; details: Record<string, unknown> | null }>;
+  recentResetsDeletions: Array<{ event: string; created_at: string; details: Record<string, unknown> | null }>;
 }
 
 async function json<T>(url: string, init?: RequestInit): Promise<T> {
@@ -67,6 +98,9 @@ export interface AdminOverviewPayload {
   referrals: ReferralCode[];
   referralUses: ReferralUse[];
   syncHistory: Array<{ created_at: string; status: string; games_synced: number }>;
+  productInsights: ProductInsights;
+  operationsInsights: OperationsInsights;
+  adminActionInsights: AdminActionInsights;
 }
 
 export const adminApi = {
