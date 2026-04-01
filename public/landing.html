@@ -62,17 +62,21 @@ h1{font-size:clamp(32px,4.6vw,54px);line-height:1.1;max-width:680px;letter-spaci
 .price-note{margin-top:14px;padding:10px 12px;border:1px solid var(--bd2);background:var(--s2);font-size:12px;color:var(--mt);line-height:1.5}
 .final{text-align:center}
 .final p{max-width:630px;margin:14px auto 26px;color:var(--mt);line-height:1.65}
-.footer{border-top:1px solid var(--bd);padding:36px 0 44px}
-.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:28px}
-.footer-title{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--mt);margin-bottom:10px}
-.footer-link{display:block;color:var(--tx);font-size:14px;opacity:.9;margin-bottom:8px;transition:opacity .2s,color .2s}
-.footer-link:hover{opacity:1;color:var(--green)}
-.disclaimer{margin-top:18px;padding-top:18px;border-top:1px solid var(--bd);font-size:12px;color:var(--mt);line-height:1.7}
-.copy{margin-top:16px;font-size:12px;color:var(--mt)}
+.footer{border-top:1px solid var(--bd);padding:34px 0 38px}
+.footer-content{max-width:760px;margin:0 auto;text-align:center;display:grid;gap:12px}
+.footer-brand{font-weight:800;letter-spacing:-.02em}
+.footer-desc{font-size:14px;color:var(--mt);line-height:1.6}
+.footer-links{font-size:13px;color:var(--tx)}
+.footer-links a{color:var(--tx);opacity:.92}
+.footer-links a:hover{color:var(--green);opacity:1}
+.footer-contact{font-size:13px}
+.footer-contact a{color:var(--tx)}
+.disclaimer{font-size:12px;color:var(--mt);line-height:1.6;max-width:62ch;margin:0 auto}
+.copy{font-size:12px;color:var(--mt)}
 .fade{opacity:0;transform:translateY(12px);animation:fadeUp .7s ease forwards}
 .delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}
 @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-@media (max-width:950px){.steps,.plans,.footer-grid{grid-template-columns:1fr}}
+@media (max-width:950px){.steps,.plans{grid-template-columns:1fr}}
 @media (max-width:768px){
   .wrap{padding:0 18px}
   .ninner{height:auto;min-height:66px;padding:9px 0;align-items:center;gap:10px}
@@ -101,7 +105,7 @@ h1{font-size:clamp(32px,4.6vw,54px);line-height:1.1;max-width:680px;letter-spaci
   .plan{padding:22px 18px}
   .price{font-size:36px}
   .final p{margin:16px auto 24px}
-  .footer-grid{gap:20px}
+  .footer-content{gap:10px;max-width:480px}
 }
 @media (max-width:520px){
   .btn{padding:10px 14px;font-size:11px}
@@ -113,8 +117,10 @@ h1{font-size:clamp(32px,4.6vw,54px);line-height:1.1;max-width:680px;letter-spaci
   main section{padding:70px 0}
   .hero-cta{max-width:240px}
   .hero-cta .btn:not(.primary){font-size:11px}
-  .list li,.small,.footer-link,.disclaimer{overflow-wrap:anywhere}
-  .footer{padding:28px 0 34px}
+  .list li,.small,.disclaimer{overflow-wrap:anywhere}
+  .footer{padding:26px 0 30px}
+  .footer-desc{font-size:13px}
+  .footer-links,.footer-contact,.copy{font-size:12px}
 }
 </style>
 </head>
@@ -199,28 +205,16 @@ h1{font-size:clamp(32px,4.6vw,54px);line-height:1.1;max-width:680px;letter-spaci
 
 <footer class="footer">
   <div class="wrap">
-    <div class="footer-grid">
-      <div>
-        <div class="footer-title">LinhaCash</div>
-        <p style="font-size:14px;color:var(--mt);line-height:1.7">Leitura objetiva de estatísticas e props da NBA para quem quer decidir melhor antes de apostar.</p>
+    <div class="footer-content">
+      <div class="footer-brand">LinhaCash</div>
+      <p class="footer-desc">Leitura objetiva de estatísticas e props da NBA para decidir melhor antes de apostar.</p>
+      <p class="footer-links"><a href="/app.html">Termos de uso</a> · <a href="/privacidade">Política de privacidade</a></p>
+      <p class="footer-contact"><a href="mailto:contato@linhacash.com">contato@linhacash.com</a></p>
+      <div class="disclaimer">
+        Uso responsável: o LinhaCash não é casa de apostas, não intermedia apostas e não garante resultados.
       </div>
-      <div>
-        <div class="footer-title">Legal</div>
-        <a class="footer-link" href="/app.html">Termos de uso</a>
-        <a class="footer-link" href="/privacidade">Política de privacidade</a>
-      </div>
-      <div>
-        <div class="footer-title">Contato</div>
-        <a class="footer-link" href="mailto:contato@linhacash.com">contato@linhacash.com</a>
-        <a class="footer-link" href="/app.html">Acessar conta</a>
-      </div>
+      <div class="copy">© 2026 LinhaCash. Todos os direitos reservados.</div>
     </div>
-
-    <div class="disclaimer">
-      O LinhaCash não é casa de apostas, não intermedia apostas e não garante resultados. Todo conteúdo tem caráter informativo e estatístico.
-    </div>
-
-    <div class="copy">© 2026 LinhaCash. Todos os direitos reservados.</div>
   </div>
 </footer>
 
