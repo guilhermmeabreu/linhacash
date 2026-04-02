@@ -1,22 +1,27 @@
 import { emailConfirmacaoSuporte, emailSuporte, sendEmail } from '@/lib/emails';
 import { AppError } from '@/lib/http/errors';
 import { fail, internalError, ok, options } from '@/lib/http/responses';
-import { getIP, rateLimit } from '@/lib/rate-limit';
+import { getIP, rateLimitDetailed } from '@/lib/rate-limit';
 import { validateSupportPayload } from '@/lib/validators/auth-validator';
 import { requireAuthenticatedUser } from '@/lib/auth/authorization';
 import { assertAllowedOrigin, readJsonObject } from '@/lib/http/request-guards';
 import { auditLog } from '@/lib/services/audit-log-service';
+import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/observability';
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin') || undefined;
+  const context = buildRequestContext(req);
   try {
     assertAllowedOrigin(req);
     const ip = getIP(req);
-    if (!(await rateLimit(`support:${ip}`, 3, 60 * 60_000))) {
+    const rate = await rateLimitDetailed(`support:${ip}`, 3, 60 * 60_000);
+    if (!rate.allowed) {
+      logSecurityEvent('route_rate_limited', { ...context, route: '/api/support', retryAfterSeconds: rate.retryAfterSeconds });
       return fail(new AppError('RATE_LIMIT_ERROR', 429, 'Too many support requests'), origin);
     }
 
     const user = await requireAuthenticatedUser(req);
+    logSecurityEvent('support_attempt', { ...context, userId: user.id });
     const { subject, message } = validateSupportPayload(await readJsonObject(req));
     const name = user.name || 'Usuário';
     const email = user.email;
@@ -27,6 +32,8 @@ export async function POST(req: Request) {
     return ok({ sent: true });
   } catch (error) {
     if (error instanceof AppError) return fail(error, origin);
+    logRouteError('/api/support', context.requestId, error);
+    logSecurityEvent('support_failed', context);
     return internalError(origin);
   }
 }

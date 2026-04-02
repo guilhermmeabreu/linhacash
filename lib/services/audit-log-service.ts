@@ -17,7 +17,9 @@ type AuditEvent =
   | 'billing_cancellation_requested'
   | 'billing_cancellation_applied'
   | 'billing_status_changed'
-  | 'support_message_sent';
+  | 'support_message_sent'
+  | 'security_rate_limited'
+  | 'auth_security_event';
 
 export async function auditLog(event: AuditEvent, details: Record<string, unknown>) {
   const entry = {
