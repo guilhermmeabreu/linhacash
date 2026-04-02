@@ -3,7 +3,10 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 const FROM = process.env.RESEND_FROM_EMAIL || 'LinhaCash <onboarding@resend.dev>';
-const LOGO_URL = `${process.env.NEXT_PUBLIC_URL || 'https://linhacash.com.br'}/logo.png`;
+const PUBLIC_SITE_URL = (process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : process.env.NEXT_PUBLIC_URL || 'https://linhacash.com.br').replace(/\/+$/, '');
+const LOGO_URL = `${PUBLIC_SITE_URL}/logo.png`;
 
 function base(content: string) {
   return `
@@ -25,7 +28,7 @@ function base(content: string) {
             <tr><td style="padding:20px 32px;border-top:1px solid #1a1a1a">
               <p style="margin:0;font-size:12px;color:#444">
                 LinhaCash — Análise de props da NBA<br/>
-                <a href="${process.env.NEXT_PUBLIC_URL}/privacidade" style="color:#555;text-decoration:none">Política de Privacidade</a> · 
+                <a href="${PUBLIC_SITE_URL}/privacidade" style="color:#555;text-decoration:none">Política de Privacidade</a> · 
                 <a href="mailto:suporte@linhacash.com.br" style="color:#555;text-decoration:none">suporte@linhacash.com.br</a>
               </p>
             </td></tr>
@@ -75,7 +78,7 @@ export function emailProAtivado(name: string, plan: string) {
           <p style="margin:4px 0;color:#ccc">✓ H2H vs adversário</p>
         </td></tr>
       </table>
-      <p style="font-size:13px;color:#555">Dúvidas? Responda este email ou acesse <a href="${process.env.NEXT_PUBLIC_URL}/app.html" style="color:#00e676">linhacash.com.br</a></p>
+      <p style="font-size:13px;color:#555">Dúvidas? Responda este email ou acesse <a href="${PUBLIC_SITE_URL}/app.html" style="color:#00e676">linhacash.com.br</a></p>
     `)
   };
 }

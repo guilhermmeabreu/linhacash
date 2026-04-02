@@ -40,6 +40,8 @@ export default function AdminPage() {
   const [planFilter, setPlanFilter] = useState<'all' | 'pro_paid' | 'pro_admin' | 'free'>('all');
   const [code, setCode] = useState('');
   const [influencer, setInfluencer] = useState('');
+  const [dashboardFocus, setDashboardFocus] = useState<'all' | 'growth' | 'product' | 'operations' | 'activity'>('all');
+  const [showSecondary, setShowSecondary] = useState(false);
 
   useEffect(() => {
     loadAll().catch(() => router.push('/admin/login'));
@@ -129,6 +131,10 @@ export default function AdminPage() {
         .adm-main-kpi .adm-muted{font-size:12px;text-transform:uppercase;letter-spacing:.04em}
         .adm-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
         .adm-pill{display:flex;justify-content:space-between;gap:12px;background:#111614;border:1px solid #1e2a25;padding:10px 12px;font-size:13px}
+        .adm-toolbar{display:flex;gap:8px;flex-wrap:wrap}
+        .adm-chip{background:#121716;border:1px solid #2a3531;color:#8ea097;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer}
+        .adm-chip.on{border-color:#00e676;color:#00e676;background:rgba(0,230,118,.12)}
+        .adm-summary{display:flex;justify-content:space-between;gap:12px;align-items:center}
         .adm-two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
         .adm-three-col{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
         @media (max-width: 980px){.adm-two-col,.adm-three-col,.adm-main-kpis,.adm-secondary{grid-template-columns:1fr}}
@@ -176,6 +182,15 @@ export default function AdminPage() {
 
         {!loading && tab === 'dashboard' && stats && (
           <section className="adm-section">
+            <div className="adm-toolbar">
+              <button className={`adm-chip ${dashboardFocus === 'all' ? 'on' : ''}`} onClick={() => setDashboardFocus('all')}>Tudo</button>
+              <button className={`adm-chip ${dashboardFocus === 'growth' ? 'on' : ''}`} onClick={() => setDashboardFocus('growth')}>Crescimento</button>
+              <button className={`adm-chip ${dashboardFocus === 'product' ? 'on' : ''}`} onClick={() => setDashboardFocus('product')}>Produto</button>
+              <button className={`adm-chip ${dashboardFocus === 'operations' ? 'on' : ''}`} onClick={() => setDashboardFocus('operations')}>Operação</button>
+              <button className={`adm-chip ${dashboardFocus === 'activity' ? 'on' : ''}`} onClick={() => setDashboardFocus('activity')}>Atividade</button>
+              <button className={`adm-chip ${showSecondary ? 'on' : ''}`} onClick={() => setShowSecondary((value) => !value)}>Detalhes secundários</button>
+            </div>
+
             <div className="adm-section-title">Visão geral</div>
             <div className="adm-main-kpis">
               <div className="adm-main-kpi"><div className="adm-muted">Total de usuários</div><div className="adm-kpi-main">{stats.total_users}</div></div>
@@ -187,6 +202,8 @@ export default function AdminPage() {
               <div className="adm-pill"><span>Usuários Pro admin</span><strong>{stats.pro_admin_users}</strong></div>
             </div>
 
+            {(dashboardFocus === 'all' || dashboardFocus === 'growth') && (
+            <>
             <div className="adm-section-title">Crescimento</div>
             <div className="adm-section-block">
               <div className="adm-secondary">
@@ -196,7 +213,11 @@ export default function AdminPage() {
                 <div className="adm-pill"><span>Base total ativa no painel</span><strong>{stats.total_users}</strong></div>
               </div>
             </div>
+            </>
+            )}
 
+            {(dashboardFocus === 'all' || dashboardFocus === 'product') && (
+            <>
             <div className="adm-section-title">Uso do produto</div>
             <div className="adm-section-block">
               <div className="adm-secondary">
@@ -204,10 +225,10 @@ export default function AdminPage() {
                 <div className="adm-pill"><span>Aberturas do modal de jogador</span><strong>{productInsights?.playerModalOpens ?? 0}</strong></div>
                 <div className="adm-pill"><span>Cliques de upgrade</span><strong>{productInsights?.upgradeClicks ?? 0}</strong></div>
                 <div className="adm-pill"><span>Cliques em recurso Pro bloqueado</span><strong>{productInsights?.lockedProFeatureClicks ?? 0}</strong></div>
-                <div className="adm-pill"><span>Total de eventos ({productInsights?.periodDays ?? 30} dias)</span><strong>{productInsights?.totalEvents ?? 0}</strong></div>
-                <div className="adm-pill"><span>Tabela de eventos</span><strong>{productInsights?.eventsAvailable ? 'Disponível' : 'Dados insuficientes'}</strong></div>
+                {showSecondary && <div className="adm-pill"><span>Total de eventos ({productInsights?.periodDays ?? 30} dias)</span><strong>{productInsights?.totalEvents ?? 0}</strong></div>}
+                {showSecondary && <div className="adm-pill"><span>Tabela de eventos</span><strong>{productInsights?.eventsAvailable ? 'Disponível' : 'Dados insuficientes'}</strong></div>}
               </div>
-              <div className="adm-two-col">
+              {showSecondary && <div className="adm-two-col">
                 <div>
                   <div className="adm-section-title" style={{ fontSize: 14 }}>Mercados mais usados</div>
                 {(productInsights?.mostUsedMarkets?.length || 0) === 0 && <p className="adm-muted">Não há dados de mercado suficientes ainda.</p>}
@@ -228,9 +249,13 @@ export default function AdminPage() {
                   </div>
                 ))}
                 </div>
-              </div>
+              </div>}
             </div>
+            </>
+            )}
 
+            {(dashboardFocus === 'all' || dashboardFocus === 'operations') && (
+            <>
             <div className="adm-section-title">Operação</div>
             <div className="adm-section-block">
               <div className="adm-two-col">
@@ -250,7 +275,7 @@ export default function AdminPage() {
                 ))}
                 </div>
               </div>
-              <div>
+              {showSecondary && <div>
                 <div className="adm-section-title" style={{ fontSize: 14 }}>Eventos importantes (autenticação, cobrança e sistema)</div>
                 {(operationsInsights?.recentImportantEvents?.length || 0) === 0 && <p className="adm-muted">Não há eventos importantes registrados.</p>}
                 {(operationsInsights?.recentImportantEvents || []).slice(0, 6).map((event, idx) => (
@@ -259,9 +284,13 @@ export default function AdminPage() {
                     <span className="adm-muted">{new Date(event.created_at).toLocaleString('pt-BR')}</span>
                   </div>
                 ))}
-              </div>
+              </div>}
             </div>
+            </>
+            )}
 
+            {(dashboardFocus === 'all' || dashboardFocus === 'activity') && (
+            <>
             <div className="adm-section-title">Atividade recente</div>
             <div className="adm-two-col">
               <div className="adm-section-block">
@@ -308,6 +337,8 @@ export default function AdminPage() {
                 )}
               </div>
             </div>
+            </>
+            )}
           </section>
         )}
 
@@ -319,6 +350,9 @@ export default function AdminPage() {
               <button className="adm-btn alt" onClick={() => setPlanFilter('pro_paid')}>PRO PAGO</button>
               <button className="adm-btn alt" onClick={() => setPlanFilter('pro_admin')}>PRO ADMIN</button>
               <button className="adm-btn alt" onClick={() => setPlanFilter('free')}>GRÁTIS</button>
+            </div>
+            <div className="adm-summary">
+              <span className="adm-muted">{filteredUsers.length} usuário(s) filtrado(s)</span>
             </div>
             <div className="adm-table">
               {filteredUsers.map((user) => (
