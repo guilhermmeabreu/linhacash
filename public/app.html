@@ -398,13 +398,14 @@ body{min-height:100dvh}
 
 /* S1 GAMES */
 .datebar{padding:14px 16px 8px;font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.1em}
-.gcard{margin:0 12px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:background .2s ease,border-color .2s ease}
+.gcard{position:relative;margin:0 12px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,filter .18s ease}
 .gcard:active{opacity:.8}
-.gcard.lk{opacity:.72;cursor:default;background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 86%, #000 14%),color-mix(in srgb,var(--s1) 76%, #000 24%));border-color:color-mix(in srgb,var(--bd) 78%, #000 22%)}
+.gcard.lk{opacity:.82;background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 90%, #000 10%),color-mix(in srgb,var(--s1) 82%, #000 18%));border-color:color-mix(in srgb,var(--bd) 74%, #000 26%);filter:saturate(.92) brightness(.9)}
+.gcard.lk::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.28));pointer-events:none}
 .gctop{position:relative;display:flex;justify-content:center;padding:8px 12px 2px;min-height:24px}
 .gtime{font-size:11px;font-weight:500;color:var(--mt);background:transparent;border:none;padding:0}
 .gtime.muted{color:var(--mt)}
-.glock{position:absolute;right:12px;top:8px;display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mt)}
+.glock{position:absolute;right:10px;top:7px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.04em;color:color-mix(in srgb,var(--tx) 72%, var(--mt) 28%);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:3px 7px;border-radius:999px;backdrop-filter:blur(1px)}
 .gteams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;padding:4px 12px 10px}
 .tside{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
 .tcirc{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--tx);background:transparent;border:none}
@@ -417,14 +418,16 @@ body{min-height:100dvh}
 .auth-foot p{font-size:10px;color:var(--mt);line-height:1.45}
 
 .gfoot{display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;background:transparent;border-top:1px solid var(--bd);font-size:12px;color:color-mix(in srgb,var(--tx) 72%, var(--mt) 28%);font-weight:600;letter-spacing:.01em}
-.gcard:hover{background:var(--s3);border-color:color-mix(in srgb,var(--bd) 76%, var(--tx) 24%)}
+.gcard:hover{background:var(--s3);border-color:color-mix(in srgb,var(--bd) 76%, var(--tx) 24%);box-shadow:0 8px 18px rgba(0,0,0,.2);transform:translateY(-1px)}
 .gcard:hover .gfoot{background:var(--s3);border-top-color:var(--bd2);color:var(--tx)}
 .gcard:active .gfoot{transform:translateY(1px)}
-.gcard.lk:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 86%, #000 14%),color-mix(in srgb,var(--s1) 76%, #000 24%));border-color:color-mix(in srgb,var(--bd) 78%, #000 22%)}
+.gcard.lk:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 88%, #000 12%),color-mix(in srgb,var(--s1) 78%, #000 22%));border-color:color-mix(in srgb,var(--bd) 70%, var(--tx) 30%);box-shadow:0 10px 24px rgba(0,0,0,.28);filter:saturate(.96) brightness(.96)}
 .gcard.lk .gfoot{color:var(--mt);background:color-mix(in srgb,var(--s2) 80%, #000 20%);border-top-color:color-mix(in srgb,var(--bd) 82%, #000 18%)}
-.gcard.lk .tcity{color:color-mix(in srgb,var(--tx) 72%, var(--mt) 28%)}
-.gcta{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid color-mix(in srgb,var(--green) 58%, var(--bd) 42%);background:color-mix(in srgb,var(--gdim) 48%, transparent 52%);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer}
-.gcta:hover{filter:brightness(1.08)}
+.gcard.lk .tcity{color:color-mix(in srgb,var(--tx) 80%, var(--mt) 20%)}
+.gcta-wrap{display:grid;justify-items:center;gap:2px}
+.gcta{display:inline-flex;align-items:center;justify-content:center;padding:6px 12px;border:1px solid color-mix(in srgb,var(--green) 38%, var(--bd2) 62%);background:color-mix(in srgb,var(--green) 12%, transparent 88%);color:color-mix(in srgb,var(--green) 88%, #d8ffe9 12%);font-size:11px;font-weight:700;letter-spacing:.03em;border-radius:10px;cursor:pointer;transform:scale(1);transition:filter .18s ease,transform .18s ease,border-color .18s ease,background .18s ease}
+.gcta-sub{font-size:10px;color:color-mix(in srgb,var(--mt) 72%, var(--tx) 28%)}
+.gcard.lk:hover .gcta{filter:brightness(1.14);transform:scale(1.03);border-color:color-mix(in srgb,var(--green) 54%, var(--bd2) 46%)}
 @media(max-width:420px){
   .gcard{margin:0 10px 10px}
   .tcirc{width:46px;height:46px}
@@ -1394,7 +1397,7 @@ async function renderGames(){
 
 const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
  const homeImg=g.home_logo?`<img src="${g.home_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
- return `<div class="gcard ${locked?'lk':''}" ${locked?'':`onclick="openGame(${g.id})" onpointerdown="prefetchGamePlayers(${g.id})"`}>
+ return `<div class="gcard ${locked?'lk':''}" onclick="${locked?`openLockedGameUpgrade(${g.id})`:`openGame(${g.id})`}" onpointerdown="${locked?'':'prefetchGamePlayers('+g.id+')'}">
  <div class="gctop"><span class="gtime ${locked?'muted':''}">${time}</span>${locked?'<span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span>':''}</div>
  <div class="gteams">
  <div class="tside">
@@ -1407,7 +1410,7 @@ const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:52px;height:52
  <div class="tcity">${g.home_team}</div>
  </div>
  </div>
- <div class="gfoot">${locked?'<button class="gcta" onclick="event.stopPropagation();openPro()">Desbloquear no Pro</button>':'<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Ver jogadores'}</div>
+ <div class="gfoot">${locked?'<div class="gcta-wrap"><button class="gcta" onclick="event.stopPropagation();openLockedGameUpgrade('+g.id+')">Desbloquear no Pro</button><div class="gcta-sub">Acesse todos os jogos e métricas</div></div>':'<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Ver jogadores'}</div>
  </div>`;
  }).join('');
 }
@@ -1795,31 +1798,44 @@ function openPro(){
  if(msg) msg.style.display='none';
  atualizarPreco();
 }
+function openLockedGameUpgrade(gameId){
+ track('locked_pro_feature_clicked',{context:'games_list_card',game_id:gameId||null});
+ openPro();
+}
 
 // MODAIS 
 function closePro(){document.getElementById('mPro').style.display='none';}
 async function activatePro(){
  track('upgrade_button_clicked',{source:'checkout_modal',plan:selectedPlan||null});
+ if(!authToken||!supabaseUser?.id){
+ toast('Sessão expirada. Faça login novamente.');
+ setTimeout(function(){ show('sAuth',false); }, 350);
+ return;
+ }
  toast('Redirecionando para pagamento...');
  try{
  const refCode=document.getElementById('cupomInput')?.value.trim().toUpperCase()||'';
- const res=await fetch('/api/checkout',{
+ const payload=await api('/api/checkout',{
  method:'POST',
- headers:{'Content-Type':'application/json'},
  body:JSON.stringify({plan:selectedPlan, referral_code:refCode||null})
  });
- const payload=await res.json().catch(()=>null);
  const checkoutUrl=payload?.data?.url;
- if(res.ok&&payload?.ok&&checkoutUrl){
+ if(payload?._ok&&payload?.ok&&checkoutUrl){
    window.location.href=checkoutUrl;
    return;
  }
- const userMessage=payload?.error?.message||'Erro ao gerar pagamento. Tente novamente.';
- console.error('checkout_failed',{status:res.status,payload});
+ if(!payload){
+   toast('Sessão expirada. Faça login novamente.');
+   return;
+ }
+ const userMessage = payload?._status===401
+   ? 'Sessão expirada. Faça login novamente.'
+   : (payload?.error?.message || 'Não foi possível iniciar o pagamento agora. Tente novamente em instantes.');
+ console.error('checkout_failed',{status:payload?._status,payload});
  toast(userMessage);
  }catch(e){
  console.error(e);
- toast('Erro ao conectar. Tente novamente.');
+ toast('Falha de conexão ao iniciar pagamento. Tente novamente.');
  }
 }
 function openEdit(){document.getElementById('inName').value=uName;document.getElementById('inEmail').value=uEmail;document.getElementById('mEdit').style.display='flex';}
