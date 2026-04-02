@@ -1268,6 +1268,7 @@ function authTab(t){
 async function doGoogle(){
   showAuthError('');
   setAuthLoading('googleBtn','Conectando...',true);
+  sessionStorage.setItem('lc_oauth_in_flight','1');
   const data = await api('/api/auth', {
     method: 'POST',
     body: JSON.stringify({ action: 'google' })
@@ -2043,28 +2044,93 @@ window.addEventListener('resize', updateSidebar);
 
 // INIT 
 const urlParams=new URLSearchParams(window.location.search);
+const OAUTH_IN_FLIGHT_KEY='lc_oauth_in_flight';
+
+function sleep(ms){ return new Promise((resolve)=>setTimeout(resolve,ms)); }
+
+function clearOauthInFlightFlag(){
+ try{ sessionStorage.removeItem(OAUTH_IN_FLIGHT_KEY); }catch(_){}
+}
+
+function setOauthInFlightFlag(){
+ try{ sessionStorage.setItem(OAUTH_IN_FLIGHT_KEY,'1'); }catch(_){}
+}
+
+function hasOauthInFlightFlag(){
+ try{ return sessionStorage.getItem(OAUTH_IN_FLIGHT_KEY)==='1'; }catch(_){ return false; }
+}
+
+function extractOAuthPayload(){
+ const hashParams=new URLSearchParams(window.location.hash.slice(1));
+ const queryParams=new URLSearchParams(window.location.search);
+ const tokenFromHash=hashParams.get('access_token');
+ const tokenFromQuery=queryParams.get('access_token');
+ const accessToken=(tokenFromHash||tokenFromQuery||'').trim()||null;
+ const oauthError=hashParams.get('error_description')||hashParams.get('error')||queryParams.get('error_description')||queryParams.get('error')||null;
+ const isOAuthReturn=Boolean(accessToken||oauthError||queryParams.get('oauth')==='google'||hasOauthInFlightFlag());
+ return { accessToken, oauthError, isOAuthReturn };
+}
+
+function cleanOAuthUrl(){
+ const cleanUrl=new URL(window.location.href);
+ cleanUrl.hash='';
+ cleanUrl.searchParams.delete('oauth');
+ cleanUrl.searchParams.delete('access_token');
+ cleanUrl.searchParams.delete('refresh_token');
+ cleanUrl.searchParams.delete('token_type');
+ cleanUrl.searchParams.delete('expires_in');
+ cleanUrl.searchParams.delete('expires_at');
+ cleanUrl.searchParams.delete('provider_token');
+ cleanUrl.searchParams.delete('provider_refresh_token');
+ cleanUrl.searchParams.delete('type');
+ cleanUrl.searchParams.delete('code');
+ cleanUrl.searchParams.delete('error');
+ cleanUrl.searchParams.delete('error_description');
+ history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
+}
+
+async function fetchSessionWithToken(token,retries,delayMs){
+ authToken=token;
+ for(let attempt=0;attempt<retries;attempt++){
+   const sessData=await api('/api/auth');
+   if(sessData&&!sessData.error) return sessData;
+   if(attempt<retries-1) await sleep(delayMs);
+ }
+ return null;
+}
+
+function applySessionProfile(sessData){
+ const prof=sessData.user;
+ supabaseUser = { id: prof.id };
+ uEmail = prof.email || '';
+ uName = prof.name || uEmail.split('@')[0];
+ plan = prof.plan || 'free';
+ billingState = sessData.billing || null;
+ if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+}
 
 renderNavigation();
 
 // Verificar sessão existente
 (async function checkSession(){
- // Capturar token OAuth do hash da URL (Google redirect)
- const hashParams = new URLSearchParams(window.location.hash.slice(1));
- const oauthToken = hashParams.get('access_token');
- if(oauthToken){
-   // Limpar hash da URL sem reload
-   history.replaceState(null,'',window.location.pathname + window.location.search);
-   localStorage.setItem('lc_token', oauthToken);
-   authToken = oauthToken;
-   const sessData = await api('/api/auth');
-   if(sessData && !sessData.error){
-     const prof = sessData.user;
-     supabaseUser = { id: prof.id };
-     uEmail = prof.email || '';
-     uName = prof.name || uEmail.split('@')[0];
-     plan = prof.plan || 'free';
-     billingState = sessData.billing || null;
-     if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+ const oauthPayload = extractOAuthPayload();
+ if(oauthPayload.oauthError){
+   cleanOAuthUrl();
+   clearOauthInFlightFlag();
+   show('sAuth',false);
+   showAuthError('Falha no login com Google. Tente novamente.');
+   updateSidebar();
+   return;
+ }
+
+ if(oauthPayload.accessToken){
+   setOauthInFlightFlag();
+   localStorage.setItem('lc_token', oauthPayload.accessToken);
+   cleanOAuthUrl();
+   const sessionAfterOAuth=await fetchSessionWithToken(oauthPayload.accessToken,4,450);
+   if(sessionAfterOAuth){
+     applySessionProfile(sessionAfterOAuth);
+     clearOauthInFlightFlag();
      enterApp();
      updateSidebar();
      return;
@@ -2072,6 +2138,7 @@ renderNavigation();
  }
 
  const savedToken = localStorage.getItem('lc_token');
+ const shouldStabilizeOAuth = oauthPayload.isOAuthReturn;
  if(!savedToken){
    if(urlParams.get('status')==='success'){
      show('sAuth',false);
@@ -2083,23 +2150,21 @@ renderNavigation();
    return;
  }
  // Verificar sessão via /api/auth
- authToken = savedToken;
- const sessData = await api('/api/auth');
+ const sessData = await fetchSessionWithToken(savedToken,shouldStabilizeOAuth?4:1,350);
  if(!sessData || sessData.error){
    // Token expirado ou inválido
+   clearOauthInFlightFlag();
    localStorage.removeItem('lc_token');
    authToken = null;
    show('sAuth',false);
+   if(shouldStabilizeOAuth){
+     showAuthError('Não foi possível restaurar sua sessão Google. Tente entrar novamente.');
+   }
    updateSidebar();
    return;
  }
- const prof = sessData.user;
- supabaseUser = { id: prof.id };
- uEmail = prof.email || '';
- uName = prof.name || uEmail.split('@')[0];
- plan = prof.plan || 'free';
- billingState = sessData.billing || null;
- if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+ applySessionProfile(sessData);
+ clearOauthInFlightFlag();
  if(urlParams.get('status')==='success'){
    setTimeout(()=>toast('Pagamento aprovado! A confirmação final ocorre via webhook. Atualize em alguns segundos.'),500);
  }

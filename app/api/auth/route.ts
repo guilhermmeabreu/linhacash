@@ -151,7 +151,7 @@ export async function POST(req: Request) {
 
   // ── GOOGLE OAUTH ───────────────────────────────────────────────────────────
   if (action === 'google') {
-    const redirectUrl = `${publicUrl}/app.html`;
+    const redirectUrl = `${publicUrl}/app.html?oauth=google`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl }
