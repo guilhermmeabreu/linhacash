@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { rateLimit, getIP, deploymentNamespace } from '@/lib/rate-limit';
+import { rateLimit, getIP, deploymentNamespace, rateLimitDetailed } from '@/lib/rate-limit';
 import { hashEmail, loginRateLimit, errorResponse, okResponse, sanitizeProfile } from '@/lib/security';
 import { getBillingState } from '@/lib/services/billing-service';
 import { assertAllowedOrigin, assertJsonRequest } from '@/lib/http/request-guards';
+import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/observability';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,29 +36,34 @@ function isEmailDeliveryError(errorMessage: string): boolean {
 
 // POST /api/auth — login, registro, google, forgot, session
 export async function POST(req: Request) {
-  assertAllowedOrigin(req);
-  assertJsonRequest(req);
-  const ip = getIP(req);
-  const publicUrl = resolvePublicUrl(req);
-  const body = await req.json().catch(() => ({}));
-  const { action } = body;
+  const context = buildRequestContext(req, { route: '/api/auth' });
+  try {
+    assertAllowedOrigin(req);
+    assertJsonRequest(req);
+    const ip = getIP(req);
+    const publicUrl = resolvePublicUrl(req);
+    const body = await req.json().catch(() => ({}));
+    const { action } = body;
+    logSecurityEvent('auth_attempt', { ...context, action: typeof action === 'string' ? action : 'unknown' });
 
   // ── LOGIN ──────────────────────────────────────────────────────────────────
-  if (action === 'login') {
+    if (action === 'login') {
     const { email, password } = body;
     if (!email || !password) return errorResponse('Email e senha obrigatórios');
 
     // Rate limit: 5 tentativas por IP e por email em 15 min
     const allowed = await loginRateLimit(ip, email);
-    if (!allowed) {
+      if (!allowed) {
+        logSecurityEvent('auth_failed', { ...context, action, reason: 'rate_limited' });
       return errorResponse('Muitas tentativas. Aguarde 15 minutos.', 429);
-    }
+      }
 
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error || !data.user) {
+      if (error || !data.user) {
       // Nunca revelar se email existe ou não (user enumeration)
+        logSecurityEvent('auth_failed', { ...context, action, reason: 'invalid_credentials' });
       return errorResponse('Email ou senha incorretos', 401);
-    }
+      }
 
     // Buscar perfil — sanitizado
     const { data: profile } = await supabase
@@ -67,16 +73,17 @@ export async function POST(req: Request) {
       .single();
 
     const billing = await getBillingState(data.user.id);
-    return okResponse({
+      logSecurityEvent('auth_success', { ...context, action, userId: data.user.id });
+      return okResponse({
       token: data.session?.access_token,
       expiresAt: data.session?.expires_at,
       user: sanitizeProfile({ ...(profile || { id: data.user.id, email }), plan: billing.hasProAccess ? 'pro' : 'free' }),
       billing,
     });
-  }
+    }
 
   // ── REGISTRO ───────────────────────────────────────────────────────────────
-  if (action === 'register') {
+    if (action === 'register') {
     const { name, email, password, referralCode } = body;
     if (!name || !email || !password) return errorResponse('Dados incompletos');
     if (password.length < 6) return errorResponse('Senha muito curta');
@@ -90,7 +97,7 @@ export async function POST(req: Request) {
     const emailLimit = isProduction ? 3 : 8;
     const byIpAllowed = await rateLimit(`register:ip:${namespace}:${ip}`, ipLimit, registerWindowMs);
     const byEmailAllowed = await rateLimit(`register:email:${namespace}:${emailHash}`, emailLimit, registerWindowMs);
-    if (!byIpAllowed || !byEmailAllowed) {
+      if (!byIpAllowed || !byEmailAllowed) {
       const waitMessage = isProduction
         ? 'Muitos cadastros. Aguarde 1 hora.'
         : 'Muitos cadastros. Aguarde alguns minutos.';
@@ -146,11 +153,11 @@ export async function POST(req: Request) {
       }
     }
 
-    return okResponse({ ok: true, message: confirmationNotice });
-  }
+      return okResponse({ ok: true, message: confirmationNotice });
+    }
 
   // ── GOOGLE OAUTH ───────────────────────────────────────────────────────────
-  if (action === 'google') {
+    if (action === 'google') {
     const redirectUrl = `${publicUrl}/app.html?oauth=google`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -158,37 +165,43 @@ export async function POST(req: Request) {
     });
     if (error) return errorResponse(error.message);
     return okResponse({ url: data.url });
-  }
+    }
 
   // ── RECUPERAR SENHA ────────────────────────────────────────────────────────
-  if (action === 'forgot') {
+    if (action === 'forgot') {
     const { email } = body;
     if (!email) return errorResponse('Email obrigatório');
 
     // Rate limit no forgot
-    if (!await rateLimit(`forgot:${ip}`, 3, 3600000)) {
+      const forgotRate = await rateLimitDetailed(`forgot:${ip}`, 3, 3600000);
+      if (!forgotRate.allowed) {
+        logSecurityEvent('route_rate_limited', { ...context, route: '/api/auth:forgot', retryAfterSeconds: forgotRate.retryAfterSeconds });
       return errorResponse('Muitas tentativas.', 429);
-    }
+      }
 
     await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${publicUrl}/app.html?reset=true`
     });
 
     // Sempre retornar ok — não revelar se email existe
-    return okResponse({ ok: true });
-  }
+      return okResponse({ ok: true });
+    }
 
   // ── LOGOUT ─────────────────────────────────────────────────────────────────
-  if (action === 'logout') {
+    if (action === 'logout') {
     const authHeader = req.headers.get('authorization');
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.slice(7);
       await supabase.auth.admin.signOut(token).catch(() => {});
     }
-    return okResponse({ ok: true });
-  }
+      return okResponse({ ok: true });
+    }
 
-  return errorResponse('Ação inválida');
+    return errorResponse('Ação inválida');
+  } catch (error) {
+    logRouteError('/api/auth', context.requestId, error);
+    return errorResponse('Falha na autenticação', 500);
+  }
 }
 
 // GET /api/auth — verificar sessão atual e retornar perfil atualizado

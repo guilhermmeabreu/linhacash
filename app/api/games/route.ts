@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { validateSession, sanitizeGame, errorResponse, okResponse, corsHeaders } from '@/lib/security';
-import { rateLimit, getIP } from '@/lib/rate-limit';
+import { rateLimitDetailed, getIP } from '@/lib/rate-limit';
 import { getCachedValue } from '@/lib/cache/memory-cache';
+import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/observability';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,12 +13,18 @@ const supabase = createClient(
 
 // GET /api/games — jogos do dia
 export async function GET(req: Request) {
+  const context = buildRequestContext(req, { route: '/api/games' });
   // Verificar sessão
   const session = await validateSession(req);
-  if (!session.valid) return errorResponse('Não autorizado', 401);
+  if (!session.valid) {
+    logSecurityEvent('auth_failed', { ...context, reason: session.error || 'unauthorized' });
+    return errorResponse('Não autorizado', 401);
+  }
 
   // Rate limit
-  if (!await rateLimit(getIP(req), 30, 60000)) {
+  const rate = await rateLimitDetailed(`games:${session.userId}:${getIP(req)}`, 50, 60000);
+  if (!rate.allowed) {
+    logSecurityEvent('route_rate_limited', { ...context, retryAfterSeconds: rate.retryAfterSeconds });
     return errorResponse('Muitas requisições', 429);
   }
 
@@ -39,7 +46,10 @@ export async function GET(req: Request) {
     }
 
     return (games || []).map(sanitizeGame);
-  }).catch(() => null);
+  }).catch((error) => {
+    logRouteError('/api/games', context.requestId, error);
+    return null;
+  });
 
   if (!result) return errorResponse('Erro ao buscar jogos', 500);
 

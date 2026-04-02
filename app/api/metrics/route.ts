@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { validateSession, sanitizeMetrics, errorResponse, okResponse, corsHeaders } from '@/lib/security';
-import { rateLimit, getIP } from '@/lib/rate-limit';
+import { rateLimitDetailed, getIP } from '@/lib/rate-limit';
 import { getCachedValue } from '@/lib/cache/memory-cache';
+import { buildRequestContext, logSecurityEvent } from '@/lib/observability';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,10 +16,16 @@ const ALL_STATS = ['PTS', 'REB', 'AST', '3PM', 'P+A', 'P+R', 'A+R', 'FG2A', 'FG3
 
 // GET /api/metrics?playerId=xxx&stat=PTS — métricas de um jogador
 export async function GET(req: Request) {
+  const context = buildRequestContext(req, { route: '/api/metrics' });
   const session = await validateSession(req);
-  if (!session.valid) return errorResponse('Não autorizado', 401);
+  if (!session.valid) {
+    logSecurityEvent('auth_failed', { ...context, reason: session.error || 'unauthorized' });
+    return errorResponse('Não autorizado', 401);
+  }
 
-  if (!await rateLimit(getIP(req), 60, 60000)) {
+  const rate = await rateLimitDetailed(`metrics:${session.userId}:${getIP(req)}`, 120, 60000);
+  if (!rate.allowed) {
+    logSecurityEvent('route_rate_limited', { ...context, retryAfterSeconds: rate.retryAfterSeconds });
     return errorResponse('Muitas requisições', 429);
   }
 

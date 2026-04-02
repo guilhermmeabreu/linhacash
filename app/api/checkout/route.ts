@@ -1,25 +1,30 @@
 import { AppError, ExternalIntegrationError } from '@/lib/http/errors';
 import { fail, internalError, ok, options } from '@/lib/http/responses';
-import { getIP, rateLimit } from '@/lib/rate-limit';
+import { getIP, rateLimitDetailed } from '@/lib/rate-limit';
 import { requireAuthenticatedUser } from '@/lib/auth/authorization';
 import { validateCheckoutPayload } from '@/lib/validators/auth-validator';
 import { requireEnv } from '@/lib/env';
 import { assertAllowedOrigin, readJsonObject } from '@/lib/http/request-guards';
 import { auditLog } from '@/lib/services/audit-log-service';
+import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/observability';
 import crypto from 'crypto';
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin') || undefined;
   const requestUrl = new URL(req.url);
   const publicBaseUrl = `${requestUrl.protocol}//${requestUrl.host}`;
+  const context = buildRequestContext(req);
   try {
     assertAllowedOrigin(req);
     const ip = getIP(req);
-    if (!(await rateLimit(`checkout:${ip}`, 5, 60_000))) {
+    const rate = await rateLimitDetailed(`checkout:${ip}`, 5, 60_000);
+    if (!rate.allowed) {
+      logSecurityEvent('route_rate_limited', { ...context, route: '/api/checkout', retryAfterSeconds: rate.retryAfterSeconds });
       return fail(new AppError('RATE_LIMIT_ERROR', 429, 'Too many checkout attempts'), origin);
     }
 
     const user = await requireAuthenticatedUser(req);
+    logSecurityEvent('checkout_attempt', { ...context, userId: user.id });
     const { plan, referralCode } = validateCheckoutPayload(await readJsonObject(req));
     const mpAccessToken = requireEnv('MP_ACCESS_TOKEN');
     const price = Number((plan === 'anual' ? 197.0 : 24.9).toFixed(2));
@@ -63,11 +68,13 @@ export async function POST(req: Request) {
       throw new ExternalIntegrationError('Não foi possível iniciar o checkout no momento.');
     }
 
+    logSecurityEvent('checkout_created', { ...context, userId: user.id, plan });
     await auditLog('plan_change', { userId: user.id, status: 'checkout_created', plan, referralCode: referralCode || null });
     return ok({ url: checkoutUrl });
   } catch (error) {
     if (error instanceof AppError) return fail(error, origin);
-    console.error('[checkout] Unexpected checkout failure', error);
+    logRouteError('/api/checkout', context.requestId, error);
+    logSecurityEvent('checkout_failed', context);
     return internalError(origin);
   }
 }

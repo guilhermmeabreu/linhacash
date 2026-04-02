@@ -5,8 +5,9 @@ import { acquireIdempotencyKey } from '@/lib/services/idempotency-service';
 import { activatePaidPro } from '@/lib/services/billing-service';
 import { validateCheckoutPlan } from '@/lib/validators/billing-validator';
 import { invalidateCacheByPrefix } from '@/lib/cache/memory-cache';
-import { getIP, rateLimit } from '@/lib/rate-limit';
+import { getIP, rateLimitDetailed } from '@/lib/rate-limit';
 import { requireEnv } from '@/lib/env';
+import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/observability';
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 
@@ -52,6 +53,7 @@ function resolveAndValidateUserId(payment: any): string | null {
 
 export async function POST(req: Request) {
   const ip = getIP(req);
+  const context = buildRequestContext(req, { route: '/api/webhook/mp' });
   const contentType = req.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) {
     return Response.json({ error: 'Unsupported content type' }, { status: 415 });
@@ -61,17 +63,23 @@ export async function POST(req: Request) {
   const requestId = req.headers.get('x-request-id') || 'no-request-id';
 
   try {
+    logSecurityEvent('webhook_received', { ...context, requestId });
     if (!process.env.MP_WEBHOOK_SECRET) {
       await auditLog('webhook_event', { status: 'denied', reason: 'missing_webhook_secret' });
+      logSecurityEvent('webhook_denied', { ...context, reason: 'missing_webhook_secret' });
       return Response.json({ error: 'Webhook not configured' }, { status: 503 });
     }
 
-    if (!(await rateLimit(`webhook:mp:${ip}`, 120, 60_000))) {
+    const byIp = await rateLimitDetailed(`webhook:mp:${ip}`, 120, 60_000);
+    if (!byIp.allowed) {
       await auditLog('webhook_event', { status: 'denied', reason: 'rate_limited' });
+      logSecurityEvent('webhook_denied', { ...context, reason: 'rate_limited_ip', retryAfterSeconds: byIp.retryAfterSeconds });
       return Response.json({ error: 'Rate limited' }, { status: 429 });
     }
-    if (!(await rateLimit(`webhook:mp:req:${requestId}`, 20, 60_000))) {
+    const byRequestId = await rateLimitDetailed(`webhook:mp:req:${requestId}`, 5, 60_000);
+    if (!byRequestId.allowed) {
       await auditLog('webhook_event', { status: 'denied', reason: 'request_id_rate_limited', requestId });
+      logSecurityEvent('webhook_denied', { ...context, reason: 'rate_limited_request_id', requestId, retryAfterSeconds: byRequestId.retryAfterSeconds });
       return Response.json({ error: 'Rate limited' }, { status: 429 });
     }
 
@@ -82,12 +90,14 @@ export async function POST(req: Request) {
 
     if (!validateSignature(req, paymentId)) {
       await auditLog('webhook_event', { status: 'denied', reason: 'invalid_signature' });
+      logSecurityEvent('webhook_denied', { ...context, reason: 'invalid_signature', paymentId });
       return Response.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
     const lockAcquired = await acquireIdempotencyKey(`mp:webhook:${paymentId}`);
     if (!lockAcquired) {
       await auditLog('webhook_event', { status: 'ignored', reason: 'idempotent_replay', paymentId });
+      logSecurityEvent('webhook_denied', { ...context, reason: 'idempotent_replay', paymentId });
       return Response.json({ ok: true });
     }
 
@@ -143,9 +153,12 @@ export async function POST(req: Request) {
     invalidateCacheByPrefix('admin:');
 
     await auditLog('webhook_event', { status: 'processed', paymentId, userId, plan });
+    logSecurityEvent('webhook_processed', { ...context, paymentId, userId, plan });
     return Response.json({ ok: true });
-  } catch {
+  } catch (error) {
     await auditLog('webhook_event', { status: 'failed', paymentId });
+    logRouteError('/api/webhook/mp', context.requestId, error, { paymentId, requestId });
+    logSecurityEvent('webhook_failed', { ...context, paymentId, requestId });
     return Response.json({ ok: true });
   }
 }
