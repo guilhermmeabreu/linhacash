@@ -400,7 +400,7 @@ body{min-height:100dvh}
 .datebar{padding:14px 16px 8px;font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.1em}
 .gcard{margin:0 12px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:background .2s ease,border-color .2s ease}
 .gcard:active{opacity:.8}
-.gcard.lk{opacity:.62;pointer-events:none}
+.gcard.lk{opacity:.72;cursor:default;background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 86%, #000 14%),color-mix(in srgb,var(--s1) 76%, #000 24%));border-color:color-mix(in srgb,var(--bd) 78%, #000 22%)}
 .gctop{position:relative;display:flex;justify-content:center;padding:8px 12px 2px;min-height:24px}
 .gtime{font-size:11px;font-weight:500;color:var(--mt);background:transparent;border:none;padding:0}
 .gtime.muted{color:var(--mt)}
@@ -420,6 +420,11 @@ body{min-height:100dvh}
 .gcard:hover{background:var(--s3);border-color:color-mix(in srgb,var(--bd) 76%, var(--tx) 24%)}
 .gcard:hover .gfoot{background:var(--s3);border-top-color:var(--bd2);color:var(--tx)}
 .gcard:active .gfoot{transform:translateY(1px)}
+.gcard.lk:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 86%, #000 14%),color-mix(in srgb,var(--s1) 76%, #000 24%));border-color:color-mix(in srgb,var(--bd) 78%, #000 22%)}
+.gcard.lk .gfoot{color:var(--mt);background:color-mix(in srgb,var(--s2) 80%, #000 20%);border-top-color:color-mix(in srgb,var(--bd) 82%, #000 18%)}
+.gcard.lk .tcity{color:color-mix(in srgb,var(--tx) 72%, var(--mt) 28%)}
+.gcta{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border:1px solid color-mix(in srgb,var(--green) 58%, var(--bd) 42%);background:color-mix(in srgb,var(--gdim) 48%, transparent 52%);color:var(--green);font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;cursor:pointer}
+.gcta:hover{filter:brightness(1.08)}
 @media(max-width:420px){
   .gcard{margin:0 10px 10px}
   .tcirc{width:46px;height:46px}
@@ -629,7 +634,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div class="afield"><label>Senha</label><input type="password" id="rPass" placeholder="Mínimo 6 caracteres"/></div>
  <button class="abtn" onclick="doRegister()">Criar conta grátis</button>
  <div class="adiv">ou</div>
- <p style="font-size:11px;color:var(--mt);text-align:center;line-height:1.6">Ao criar conta você concorda com os <span style="color:var(--green);cursor:pointer" onclick="openTermos()">Termos de Uso</span></p>
+ <p style="font-size:11px;color:var(--mt);text-align:center;line-height:1.6">Ao criar conta você concorda com os <a href="/termos" target="_blank" rel="noopener" style="color:var(--green)">Termos de Uso</a></p>
  </div>
  <div class="auth-foot">
   <div><a href="/termos" target="_blank" rel="noopener">Termos de uso</a> · <a href="/privacidade" target="_blank" rel="noopener">Política de privacidade</a></div>
@@ -767,7 +772,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <span style="font-size:14px;font-weight:600;flex:1">Qual a diferença entre Gratuito e Pro?</span>
  <svg class="faq-arrow" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0;transition:.2s;color:var(--mt)"><polyline points="6 9 12 15 18 9"/></svg>
  </div>
- <div class="faq-ans" style="display:none;padding:0 20px 14px;font-size:13px;color:var(--mt);line-height:1.6">Gratuito: 1 jogo por dia, 1 jogador por time, apenas PTS. Pro: todos os jogos, todos os jogadores, todas as stats (AST, REB, 3PM, P+A, P+R, A+R, FG2A, FG3A) e períodos H2H, L20 e L30.</div>
+ <div class="faq-ans" style="display:none;padding:0 20px 14px;font-size:13px;color:var(--mt);line-height:1.6">Gratuito: todos os jogos visíveis, com 1 jogo liberado por dia, 1 jogador por time e stats PTS + FG2A. Pro: todos os jogos liberados, todos os jogadores, todas as stats (AST, REB, 3PM, P+A, P+R, A+R, FG2A, FG3A) e períodos H2H, L20 e L30.</div>
  </div>
 
  <div class="faq-item" onclick="toggleFaq(this)" style="border-bottom:1px solid var(--bd);cursor:pointer">
@@ -864,7 +869,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div style="display:flex;flex-direction:column;gap:6px">
  <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="color:var(--red)"></span> Todos os jogos do dia</div>
  <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="color:var(--red)"></span> Todos os jogadores</div>
- <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="color:var(--red)"></span> Stats AST, REB, 3PM, P+A, P+R, A+R, FG2A, FG3A</div>
+ <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="color:var(--red)"></span>Acesso a todos os mercados além de PTS + FG2A</div>
  <div style="display:flex;align-items:center;gap:8px;font-size:13px"><span style="color:var(--red)"></span> Períodos H2H, L20 e L30</div>
  </div>
  </div>
@@ -947,36 +952,6 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <button onclick="closePro()" style="width:100%;padding:11px;background:none;border:none;font-size:14px;color:var(--mt);cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Agora não</button>
  </div>
 </div>
-
-<!-- MODAL TERMOS -->
-<div class="overlay" id="mTermos" onclick="if(event.target===this)closeTermos()">
- <div class="sheet" style="max-height:80dvh;display:flex;flex-direction:column">
- <div class="shhandle"></div>
- <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--bd);flex-shrink:0">
- <span style="font-size:16px;font-weight:700">Termos de Uso</span>
- <button onclick="closeTermos()" style="background:var(--s3);border:none;color:var(--mt);width:30px;height:30px;border-radius:0;cursor:pointer;font-size:16px;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
- </div>
- <div style="overflow-y:auto;padding:16px 20px 32px;font-size:13px;color:var(--mt);line-height:1.7">
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">1. Finalidade</p>
- <p style="margin-bottom:14px">O LinhaCash é um serviço de análise de dados estatísticos da NBA para fins <strong>exclusivamente informativos</strong>. Não somos casa de apostas, não aceitamos apostas e não nos responsabilizamos por decisões financeiras tomadas com base nos dados exibidos.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">2. Uso Responsável</p>
- <p style="margin-bottom:14px">As informações têm caráter informativo e estatístico. O usuário é o único responsável por suas decisões. Jogue com responsabilidade. Se tiver problemas com apostas, ligue para o CVV: 188.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">3. Planos e Pagamentos</p>
- <p style="margin-bottom:14px">Plano Free: gratuito com acesso limitado. Plano Pro Mensal: R$24,90/mês. Plano Pro Anual: R$197,00/ano (R$16,41/mês). Pagamentos processados pelo Mercado Pago.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">4. Política de Reembolso</p>
- <p style="margin-bottom:14px">Por se tratar de serviço digital com acesso imediato, conforme Art. 49 do Código de Defesa do Consumidor (Lei 8.078/90), que exclui serviços de entrega imediata do direito de arrependimento de 7 dias, <strong>não realizamos reembolsos após o acesso ser liberado</strong>. O cancelamento encerra a renovação automática; o acesso Pro permanece ativo até o fim do período pago.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">5. Privacidade e LGPD</p>
- <p style="margin-bottom:14px">Tratamos seus dados conforme a Lei Geral de Proteção de Dados (LGPD — Lei 13.709/2018). Coletamos apenas nome e email. Não vendemos dados. Você pode excluir sua conta e todos os dados a qualquer momento em Perfil → Excluir conta. Política completa: <span style="color:var(--green);cursor:pointer" onclick="closeTermos();window.open('/privacidade','_blank')">linhacash.com.br/privacidade</span></p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">6. Precisão dos Dados</p>
- <p style="margin-bottom:14px">Os dados são atualizados diariamente via API oficial. Não nos responsabilizamos por imprecisões ou por perdas financeiras baseadas nos dados exibidos.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">7. Propriedade Intelectual</p>
- <p style="margin-bottom:14px">O LinhaCash, suas marcas, design e código são propriedade do operador. É proibida a reprodução sem autorização.</p>
- <p style="font-weight:700;color:var(--tx);margin-bottom:6px">8. Foro</p>
- <p>Estes termos são regidos pela legislação brasileira. Fica eleito o foro da comarca de domicílio do operador para dirimir eventuais controvérsias.</p>
- </div>
- </div>
-</div>
-
 
 <!-- MODAL EXCLUIR CONTA -->
 <div class="overlay" id="mDeleteAccount" onclick="if(event.target===this)closeDeleteAccount()">
@@ -1224,7 +1199,7 @@ let plan='free',dark=true,billingState=null;
 let uName='Usuário',uEmail='usuario@email.com';
 let supabaseUser=null;
 const STATS=['PTS','AST','REB','3PM','P+A','P+R','A+R','FG2A','FG3A'];
-const SFREE=['PTS'];
+const SFREE=['PTS','FG2A'];
 const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers','P+A':'Pts+Ast','P+R':'Pts+Reb','A+R':'Ast+Reb','FG2A':'FG2 Tent.','FG3A':'FG3 Tent.'};
 const OPPS=['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'];
 let otpInt=null,pendEmail='';
@@ -1293,6 +1268,7 @@ function authTab(t){
 async function doGoogle(){
   showAuthError('');
   setAuthLoading('googleBtn','Conectando...',true);
+  sessionStorage.setItem('lc_oauth_in_flight','1');
   const data = await api('/api/auth', {
     method: 'POST',
     body: JSON.stringify({ action: 'google' })
@@ -1407,10 +1383,10 @@ async function renderGames(){
  document.getElementById('glist').innerHTML=renderEmptyState('Sem jogos disponíveis no momento','Estamos aguardando a próxima atualização automática. Volte em alguns minutos.');
  return;
  }
- const vis=pro()?GAMES:GAMES.slice(0,1);
- const lkd=pro()?[]:GAMES.slice(1);
+ const freeUnlockedGameId = pro() || !GAMES.length ? null : getFreeUnlockedGameId(GAMES);
  document.getElementById('glist').innerHTML=
- vis.map(g=>{
+ GAMES.map(g=>{
+ const locked = !pro() && g.id !== freeUnlockedGameId;
  const hc=getClr(g.home_team),ac=getClr(g.away_team);
  const time=new Date(g.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
  const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
@@ -1418,35 +1394,35 @@ async function renderGames(){
 
 const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
  const homeImg=g.home_logo?`<img src="${g.home_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
- return `<div class="gcard" onclick="openGame(${g.id})" onpointerdown="prefetchGamePlayers(${g.id})">
- <div class="gctop"><span class="gtime">${time}</span></div>
+ return `<div class="gcard ${locked?'lk':''}" ${locked?'':`onclick="openGame(${g.id})" onpointerdown="prefetchGamePlayers(${g.id})"`}>
+ <div class="gctop"><span class="gtime ${locked?'muted':''}">${time}</span>${locked?'<span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span>':''}</div>
  <div class="gteams">
  <div class="tside">
- <div class="tcirc">${awayImg}<span style="display:${g.away_logo?'none':'flex'}">${awayIni}</span></div>
+ <div class="tcirc" ${locked?`style="background:linear-gradient(135deg,${ac}44,${ac}22)"`:''}>${awayImg}<span style="display:${g.away_logo?'none':'flex'}">${awayIni}</span></div>
  <div class="tcity">${g.away_team}</div>
  </div>
  <div class="gvs-wrap"><span class="gvs-x">x</span></div>
  <div class="tside">
- <div class="tcirc">${homeImg}<span style="display:${g.home_logo?'none':'flex'}">${homeIni}</span></div>
+ <div class="tcirc" ${locked?`style="background:linear-gradient(135deg,${hc}44,${hc}22)"`:''}>${homeImg}<span style="display:${g.home_logo?'none':'flex'}">${homeIni}</span></div>
  <div class="tcity">${g.home_team}</div>
  </div>
  </div>
- <div class="gfoot"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Ver jogadores</div>
- </div>`;
- }).join('')+
- lkd.map(g=>{
- const hc=getClr(g.home_team),ac=getClr(g.away_team);
- const time=new Date(g.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
- const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
- return `<div class="gcard lk">
- <div class="gctop"><span class="gtime muted">${time}</span><span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span></div>
- <div class="gteams">
- <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${ac}44,${ac}22)">${awayIni}</div><div class="tcity">${g.away_team}</div></div>
- <div class="gvs-wrap"><span class="gvs-x">x</span></div>
- <div class="tside"><div class="tcirc" style="background:linear-gradient(135deg,${hc}44,${hc}22)">${homeIni}</div><div class="tcity">${g.home_team}</div></div>
- </div>
+ <div class="gfoot">${locked?'<button class="gcta" onclick="event.stopPropagation();openPro()">Desbloquear no Pro</button>':'<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:4px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Ver jogadores'}</div>
  </div>`;
  }).join('');
+}
+function getFreeUnlockedGameId(games){
+ if(!Array.isArray(games)||!games.length) return null;
+ const ordered=[...games].sort((a,b)=>{
+   const at=Date.parse(a?.game_time||'');
+   const bt=Date.parse(b?.game_time||'');
+   if(Number.isNaN(at)&&Number.isNaN(bt)) return Number(a?.id||0)-Number(b?.id||0);
+   if(Number.isNaN(at)) return 1;
+   if(Number.isNaN(bt)) return -1;
+   if(at!==bt) return at-bt;
+   return Number(a?.id||0)-Number(b?.id||0);
+ });
+ return ordered[0]?.id??null;
 }
 
 // S2: JOGADORES 
@@ -1705,7 +1681,7 @@ function renderProf(){
  </div>
  <div class="psec"><div class="psectitle">Planos</div>
  <div class="pplancard">
- <div class="pplanrow" style="${!ip?'':'opacity:.5'}"><div><div class="pplannm">Gratuito</div><div class="pplansb">1 jogo · 1 jogador/time · só PTS</div></div><div style="font-size:13px;font-weight:700;color:${!ip?'var(--green)':'var(--mt)'}">${!ip?'Ativo':'—'}</div></div>
+ <div class="pplanrow" style="${!ip?'':'opacity:.5'}"><div><div class="pplannm">Gratuito</div><div class="pplansb">Todos os jogos visíveis · 1 jogo liberado · 1 jogador/time · PTS + FG2A</div></div><div style="font-size:13px;font-weight:700;color:${!ip?'var(--green)':'var(--mt)'}">${!ip?'Ativo':'—'}</div></div>
  <div class="pplanrow" onclick="${!ip?'openPro()':''}" style="${!ip?'cursor:pointer':''}"><div><div class="pplannm" style="${ip?'color:var(--green)':''}">Pro ${ip?'<span class="protag">ATIVO</span>':'<span style="font-size:9px;background:var(--s4);color:var(--mt);border-radius:0;padding:2px 5px;font-weight:700;vertical-align:middle">R$24,90/mês</span>'}</div><div class="pplansb">Todos os jogos · Todos os jogadores · Todas as stats</div></div>${!ip?'<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--mt);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>':''}</div>
  </div>
  </div>
@@ -1731,7 +1707,7 @@ function renderProf(){
  document.getElementById('rowFaq').addEventListener('click', openFaq);
  document.getElementById('rowContato').addEventListener('click', openContato);
  document.getElementById('rowBug').addEventListener('click', openBug);
- document.getElementById('rowTermos').addEventListener('click', openTermos);
+ document.getElementById('rowTermos').addEventListener('click', ()=>window.open('/termos','_blank'));
  const rp=document.getElementById('rowPrivacidade');
  if(rp) rp.addEventListener('click',()=>window.open('/privacidade','_blank'));
  document.getElementById('rowSeg').addEventListener('click', openSeg);
@@ -1832,16 +1808,20 @@ async function activatePro(){
  headers:{'Content-Type':'application/json'},
  body:JSON.stringify({plan:selectedPlan, referral_code:refCode||null})
  });
- const data=await res.json();
- if(data.url) window.location.href=data.url;
- else toast('Erro ao gerar pagamento. Tente novamente.');
+ const payload=await res.json().catch(()=>null);
+ const checkoutUrl=payload?.data?.url;
+ if(res.ok&&payload?.ok&&checkoutUrl){
+   window.location.href=checkoutUrl;
+   return;
+ }
+ const userMessage=payload?.error?.message||'Erro ao gerar pagamento. Tente novamente.';
+ console.error('checkout_failed',{status:res.status,payload});
+ toast(userMessage);
  }catch(e){
  console.error(e);
  toast('Erro ao conectar. Tente novamente.');
  }
 }
-function openTermos(){document.getElementById('mTermos').style.display='flex';}
-function closeTermos(){document.getElementById('mTermos').style.display='none';}
 function openEdit(){document.getElementById('inName').value=uName;document.getElementById('inEmail').value=uEmail;document.getElementById('mEdit').style.display='flex';}
 function closeEdit(){document.getElementById('mEdit').style.display='none';}
 function saveEdit(){const n=document.getElementById('inName').value.trim(),e=document.getElementById('inEmail').value.trim();if(n)uName=n;if(e)uEmail=e;closeEdit();renderProf();toast('Perfil atualizado!');}
@@ -2064,28 +2044,93 @@ window.addEventListener('resize', updateSidebar);
 
 // INIT 
 const urlParams=new URLSearchParams(window.location.search);
+const OAUTH_IN_FLIGHT_KEY='lc_oauth_in_flight';
+
+function sleep(ms){ return new Promise((resolve)=>setTimeout(resolve,ms)); }
+
+function clearOauthInFlightFlag(){
+ try{ sessionStorage.removeItem(OAUTH_IN_FLIGHT_KEY); }catch(_){}
+}
+
+function setOauthInFlightFlag(){
+ try{ sessionStorage.setItem(OAUTH_IN_FLIGHT_KEY,'1'); }catch(_){}
+}
+
+function hasOauthInFlightFlag(){
+ try{ return sessionStorage.getItem(OAUTH_IN_FLIGHT_KEY)==='1'; }catch(_){ return false; }
+}
+
+function extractOAuthPayload(){
+ const hashParams=new URLSearchParams(window.location.hash.slice(1));
+ const queryParams=new URLSearchParams(window.location.search);
+ const tokenFromHash=hashParams.get('access_token');
+ const tokenFromQuery=queryParams.get('access_token');
+ const accessToken=(tokenFromHash||tokenFromQuery||'').trim()||null;
+ const oauthError=hashParams.get('error_description')||hashParams.get('error')||queryParams.get('error_description')||queryParams.get('error')||null;
+ const isOAuthReturn=Boolean(accessToken||oauthError||queryParams.get('oauth')==='google'||hasOauthInFlightFlag());
+ return { accessToken, oauthError, isOAuthReturn };
+}
+
+function cleanOAuthUrl(){
+ const cleanUrl=new URL(window.location.href);
+ cleanUrl.hash='';
+ cleanUrl.searchParams.delete('oauth');
+ cleanUrl.searchParams.delete('access_token');
+ cleanUrl.searchParams.delete('refresh_token');
+ cleanUrl.searchParams.delete('token_type');
+ cleanUrl.searchParams.delete('expires_in');
+ cleanUrl.searchParams.delete('expires_at');
+ cleanUrl.searchParams.delete('provider_token');
+ cleanUrl.searchParams.delete('provider_refresh_token');
+ cleanUrl.searchParams.delete('type');
+ cleanUrl.searchParams.delete('code');
+ cleanUrl.searchParams.delete('error');
+ cleanUrl.searchParams.delete('error_description');
+ history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
+}
+
+async function fetchSessionWithToken(token,retries,delayMs){
+ authToken=token;
+ for(let attempt=0;attempt<retries;attempt++){
+   const sessData=await api('/api/auth');
+   if(sessData&&!sessData.error) return sessData;
+   if(attempt<retries-1) await sleep(delayMs);
+ }
+ return null;
+}
+
+function applySessionProfile(sessData){
+ const prof=sessData.user;
+ supabaseUser = { id: prof.id };
+ uEmail = prof.email || '';
+ uName = prof.name || uEmail.split('@')[0];
+ plan = prof.plan || 'free';
+ billingState = sessData.billing || null;
+ if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+}
 
 renderNavigation();
 
 // Verificar sessão existente
 (async function checkSession(){
- // Capturar token OAuth do hash da URL (Google redirect)
- const hashParams = new URLSearchParams(window.location.hash.slice(1));
- const oauthToken = hashParams.get('access_token');
- if(oauthToken){
-   // Limpar hash da URL sem reload
-   history.replaceState(null,'',window.location.pathname + window.location.search);
-   localStorage.setItem('lc_token', oauthToken);
-   authToken = oauthToken;
-   const sessData = await api('/api/auth');
-   if(sessData && !sessData.error){
-     const prof = sessData.user;
-     supabaseUser = { id: prof.id };
-     uEmail = prof.email || '';
-     uName = prof.name || uEmail.split('@')[0];
-     plan = prof.plan || 'free';
-     billingState = sessData.billing || null;
-     if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+ const oauthPayload = extractOAuthPayload();
+ if(oauthPayload.oauthError){
+   cleanOAuthUrl();
+   clearOauthInFlightFlag();
+   show('sAuth',false);
+   showAuthError('Falha no login com Google. Tente novamente.');
+   updateSidebar();
+   return;
+ }
+
+ if(oauthPayload.accessToken){
+   setOauthInFlightFlag();
+   localStorage.setItem('lc_token', oauthPayload.accessToken);
+   cleanOAuthUrl();
+   const sessionAfterOAuth=await fetchSessionWithToken(oauthPayload.accessToken,4,450);
+   if(sessionAfterOAuth){
+     applySessionProfile(sessionAfterOAuth);
+     clearOauthInFlightFlag();
      enterApp();
      updateSidebar();
      return;
@@ -2093,6 +2138,7 @@ renderNavigation();
  }
 
  const savedToken = localStorage.getItem('lc_token');
+ const shouldStabilizeOAuth = oauthPayload.isOAuthReturn;
  if(!savedToken){
    if(urlParams.get('status')==='success'){
      show('sAuth',false);
@@ -2104,23 +2150,21 @@ renderNavigation();
    return;
  }
  // Verificar sessão via /api/auth
- authToken = savedToken;
- const sessData = await api('/api/auth');
+ const sessData = await fetchSessionWithToken(savedToken,shouldStabilizeOAuth?4:1,350);
  if(!sessData || sessData.error){
    // Token expirado ou inválido
+   clearOauthInFlightFlag();
    localStorage.removeItem('lc_token');
    authToken = null;
    show('sAuth',false);
+   if(shouldStabilizeOAuth){
+     showAuthError('Não foi possível restaurar sua sessão Google. Tente entrar novamente.');
+   }
    updateSidebar();
    return;
  }
- const prof = sessData.user;
- supabaseUser = { id: prof.id };
- uEmail = prof.email || '';
- uName = prof.name || uEmail.split('@')[0];
- plan = prof.plan || 'free';
- billingState = sessData.billing || null;
- if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
+ applySessionProfile(sessData);
+ clearOauthInFlightFlag();
  if(urlParams.get('status')==='success'){
    setTimeout(()=>toast('Pagamento aprovado! A confirmação final ocorre via webhook. Atualize em alguns segundos.'),500);
  }

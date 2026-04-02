@@ -3,6 +3,7 @@ import { fail, internalError, ok, options } from '@/lib/http/responses';
 import { getIP, rateLimit } from '@/lib/rate-limit';
 import { requireAuthenticatedUser } from '@/lib/auth/authorization';
 import { validateCheckoutPayload } from '@/lib/validators/auth-validator';
+import { requireEnv } from '@/lib/env';
 
 export async function POST(req: Request) {
   const origin = req.headers.get('origin') || undefined;
@@ -16,8 +17,10 @@ export async function POST(req: Request) {
 
     const user = await requireAuthenticatedUser(req);
     const { plan, referralCode } = validateCheckoutPayload(await req.json());
-    const price = plan === 'anual' ? 197.0 : 24.9;
+    const mpAccessToken = requireEnv('MP_ACCESS_TOKEN');
+    const price = Number((plan === 'anual' ? 197.0 : 24.9).toFixed(2));
     const title = plan === 'anual' ? 'LinhaCash Pro Anual' : 'LinhaCash Pro Mensal';
+    const useSandboxCheckout = process.env.MP_USE_SANDBOX_CHECKOUT === 'true';
 
     const externalReference = `${user.id}:${Date.now()}:${plan}`;
 
@@ -38,17 +41,28 @@ export async function POST(req: Request) {
     const res = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        Authorization: `Bearer ${mpAccessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok || !data.init_point) throw new ExternalIntegrationError('Mercado Pago checkout creation failed');
+    const checkoutUrl = useSandboxCheckout ? data?.sandbox_init_point || data?.init_point : data?.init_point || data?.sandbox_init_point;
+    if (!res.ok || !checkoutUrl) {
+      console.error('[checkout] Mercado Pago preference creation failed', {
+        status: res.status,
+        statusText: res.statusText,
+        userId: user.id,
+        plan,
+        error: data?.message || data,
+      });
+      throw new ExternalIntegrationError('Não foi possível iniciar o checkout no momento.');
+    }
 
-    return ok({ url: data.init_point });
+    return ok({ url: checkoutUrl });
   } catch (error) {
     if (error instanceof AppError) return fail(error, origin);
+    console.error('[checkout] Unexpected checkout failure', error);
     return internalError(origin);
   }
 }

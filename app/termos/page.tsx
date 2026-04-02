@@ -26,8 +26,9 @@ export default function TermosPage() {
 
       <LegalSection title="4. Planos, cobrança e cancelamento">
         <ul style={listStyle}>
-          <li>O plano Free possui limitações de uso definidas no produto.</li>
+          <li>O plano Free mostra todos os jogos da rodada, com 1 jogo liberado por dia, 1 jogador por time e estatísticas PTS + FG2A.</li>
           <li>Assinaturas Pro são processadas por parceiro de pagamento (Mercado Pago).</li>
+          <li>O plano Pro libera todos os jogos, todos os jogadores e todas as estatísticas disponíveis no produto.</li>
           <li>Cancelamentos podem ser solicitados pela área logada; o acesso permanece até o fim do período já pago.</li>
         </ul>
       </LegalSection>
