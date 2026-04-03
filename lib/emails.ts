@@ -28,7 +28,8 @@ function base(content: string) {
             <tr><td style="padding:20px 32px;border-top:1px solid #1a1a1a">
               <p style="margin:0;font-size:12px;color:#444">
                 LinhaCash — Análise de props da NBA<br/>
-                <a href="${PUBLIC_SITE_URL}/termos" style="color:#555;text-decoration:none">Termos de Uso e Privacidade</a> · 
+                <a href="${PUBLIC_SITE_URL}/termos" style="color:#555;text-decoration:none">Termos de uso</a> · 
+                <a href="${PUBLIC_SITE_URL}/privacidade" style="color:#555;text-decoration:none">Política de privacidade</a> ·
                 <a href="mailto:suporte@linhacash.com.br" style="color:#555;text-decoration:none">suporte@linhacash.com.br</a>
               </p>
             </td></tr>

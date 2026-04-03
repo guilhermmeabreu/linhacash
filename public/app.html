@@ -419,16 +419,19 @@ body{min-height:100dvh}
 .datebar{padding:14px 16px 8px;font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.1em}
 .gcard{position:relative;margin:0 12px 10px;background:var(--s2);border:1px solid var(--bd);border-radius:12px;overflow:hidden;cursor:pointer;transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease,filter .18s ease}
 .gcard:active{opacity:.8}
-.gcard.lk{opacity:.94;background:color-mix(in srgb,var(--s2) 82%, var(--s1) 18%);border-color:color-mix(in srgb,var(--bd2) 72%, var(--bd) 28%);filter:saturate(.96)}
-html.light .gcard.lk{background:color-mix(in srgb,var(--s2) 76%, #dbe3ea 24%);border-color:color-mix(in srgb,var(--bd2) 78%, #b7c4d1 22%)}
-.gcard.lk::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.12));pointer-events:none}
+.gcard.lk{opacity:.9;background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 64%, var(--s1) 36%),color-mix(in srgb,var(--s1) 72%, #000 28%));border-color:color-mix(in srgb,var(--bd2) 50%, #000 50%);filter:saturate(.72) brightness(.82)}
+html.light .gcard.lk{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 78%, #d8e0e8 22%),color-mix(in srgb,var(--s1) 82%, #d1d9e2 18%));border-color:color-mix(in srgb,var(--bd2) 84%, #b8c2ce 16%);filter:saturate(.72) brightness(.96)}
+.gcard.lk::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.22));pointer-events:none}
 .gctop{position:relative;display:flex;justify-content:center;padding:8px 12px 2px;min-height:24px}
 .gtime{font-size:11px;font-weight:500;color:var(--mt);background:transparent;border:none;padding:0}
 .gtime.muted{color:var(--mt)}
 .glock{position:absolute;right:10px;top:7px;display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.04em;color:color-mix(in srgb,var(--tx) 82%, var(--mt) 18%);background:color-mix(in srgb,var(--s2) 70%, var(--s1) 30%);border:1px solid color-mix(in srgb,var(--bd2) 78%, transparent 22%);padding:3px 7px;border-radius:999px}
 .gteams{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;padding:4px 12px 10px}
 .tside{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
-.tcirc{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--tx);background:transparent;border:none}
+.tcirc{width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--tx);background:color-mix(in srgb,var(--s2) 70%, var(--s1) 30%);border:1px solid color-mix(in srgb,var(--bd2) 58%, transparent 42%);border-radius:999px;overflow:hidden}
+.team-logo-wrap{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:999px;background:color-mix(in srgb,var(--s1) 84%, transparent 16%);overflow:hidden}
+.team-logo{width:32px;height:32px;object-fit:contain;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.28))}
+
 .tcity{font-size:12px;color:var(--tx);line-height:1.32;text-align:center;max-width:128px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:600}
 .gvs-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;width:74px;flex-shrink:0}
 .gvs-x{font-size:11px;font-weight:400;color:#525252;letter-spacing:0.04em;text-transform:lowercase}
@@ -441,7 +444,7 @@ html.light .gcard.lk{background:color-mix(in srgb,var(--s2) 76%, #dbe3ea 24%);bo
 .gcard:hover{background:var(--s3);border-color:color-mix(in srgb,var(--bd) 76%, var(--tx) 24%);box-shadow:0 8px 18px rgba(0,0,0,.2);transform:translateY(-1px)}
 .gcard:hover .gfoot{background:var(--s3);border-top-color:var(--bd2);color:var(--tx)}
 .gcard:active .gfoot{transform:translateY(1px)}
-.gcard.lk:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 88%, #000 12%),color-mix(in srgb,var(--s1) 78%, #000 22%));border-color:color-mix(in srgb,var(--bd) 70%, var(--tx) 30%);box-shadow:0 10px 24px rgba(0,0,0,.28);filter:saturate(.96) brightness(.96)}
+.gcard.lk:hover{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 62%, var(--s1) 38%),color-mix(in srgb,var(--s1) 70%, #000 30%));border-color:color-mix(in srgb,var(--bd) 66%, var(--tx) 34%);box-shadow:0 8px 18px rgba(0,0,0,.26);filter:saturate(.76) brightness(.86)}
 .gcard.lk .gfoot{color:color-mix(in srgb,var(--tx) 70%, var(--mt) 30%);background:color-mix(in srgb,var(--s2) 88%, var(--s1) 12%);border-top-color:color-mix(in srgb,var(--bd2) 60%, var(--bd) 40%)}
 .gcard.lk .tcity{color:color-mix(in srgb,var(--tx) 80%, var(--mt) 20%)}
 .gcta-wrap{display:grid;justify-items:center;gap:2px}
@@ -1417,8 +1420,8 @@ async function renderGames(){
  const awayIni=ini(g.away_team),homeIni=ini(g.home_team);
  
 
-const awayImg=g.away_logo?`<img src="${g.away_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
- const homeImg=g.home_logo?`<img src="${g.home_logo}" style="width:52px;height:52px;object-fit:contain" onerror="this.style.display='none';this.nextSibling.style.display='flex'">`:'';
+const awayImg=g.away_logo?`<span class="team-logo-wrap"><img src="${g.away_logo}" class="team-logo" onerror="this.style.display='none';this.closest('span').nextElementSibling.style.display='flex'"></span>`:'';
+ const homeImg=g.home_logo?`<span class="team-logo-wrap"><img src="${g.home_logo}" class="team-logo" onerror="this.style.display='none';this.closest('span').nextElementSibling.style.display='flex'"></span>`:'';
  return `<div class="gcard ${locked?'lk':''}" onclick="${locked?`openLockedGameUpgrade(${g.id})`:`openGame(${g.id})`}" onpointerdown="${locked?'':'prefetchGamePlayers('+g.id+')'}">
  <div class="gctop"><span class="gtime ${locked?'muted':''}">${time}</span>${locked?'<span class="glock"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Pro</span>':''}</div>
  <div class="gteams">
@@ -1723,6 +1726,7 @@ function renderProf(){
  <div class="prow" id="rowContato"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--mt);flex-shrink:0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="prowlbl">Falar com suporte</span><svg class="pchev" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
  <div class="prow" id="rowBug"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--mt);flex-shrink:0"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span class="prowlbl">Reportar um problema</span><svg class="pchev" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
  <div class="prow" id="rowTermos"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--mt);flex-shrink:0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><span class="prowlbl">Termos de uso</span><svg class="pchev" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+ <div class="prow" id="rowPrivacidade"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--mt);flex-shrink:0"><path d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z"/></svg><span class="prowlbl">Política de privacidade</span><svg class="pchev" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
  <div class="prow" id="rowCancel" style="${ip?'':'display:none'}"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--red);flex-shrink:0"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><span class="prowlbl" style="color:var(--red)">Cancelar assinatura</span><svg class="pchev" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
  <div class="prow" id="rowDeleteAccount" style="border-bottom:none"><svg width="16" height="16" fill="none" stroke="#ff6b6b" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink:0"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg><span class="prowlbl" style="color:#ff6b6b;font-size:13px">Excluir minha conta e dados</span><svg class="pchev" width="14" height="14" fill="none" stroke="#ff6b6b" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
  </div>
@@ -1733,6 +1737,7 @@ function renderProf(){
  document.getElementById('rowContato').addEventListener('click', openContato);
  document.getElementById('rowBug').addEventListener('click', openBug);
  document.getElementById('rowTermos').addEventListener('click', ()=>window.open('/termos','_blank'));
+ document.getElementById('rowPrivacidade').addEventListener('click', ()=>window.open('/privacidade','_blank'));
  document.getElementById('rowSeg').addEventListener('click', openSeg);
  const rc = document.getElementById('rowCancel');
  if(rc) rc.addEventListener('click', cancelarPlano);
