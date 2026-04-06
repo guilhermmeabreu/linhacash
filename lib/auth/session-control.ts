@@ -39,6 +39,16 @@ type SessionRow = {
   is_active: boolean;
 };
 
+function toSessionFlowError(step: string, error: unknown): Error {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'object' && error !== null && typeof (error as Record<string, unknown>).message === 'string'
+        ? ((error as Record<string, unknown>).message as string)
+        : 'unknown error';
+  return new Error(`session_flow:${step}: ${message}`);
+}
+
 export async function createReplacementSession(params: {
   supabase: SupabaseClient;
   userId: string;
@@ -55,7 +65,7 @@ export async function createReplacementSession(params: {
     .eq('is_active', true)
     .select('session_id');
 
-  if (deactivateError) throw deactivateError;
+  if (deactivateError) throw toSessionFlowError('user_sessions_update_deactivate', deactivateError);
 
   const userAgent = getUserAgent(req);
   const ipHash = hashIp(getRequestIp(req));
@@ -70,7 +80,7 @@ export async function createReplacementSession(params: {
     is_active: true,
   });
 
-  if (insertError) throw insertError;
+  if (insertError) throw toSessionFlowError('user_sessions_insert_new_session', insertError);
 
   logSecurityEvent('session_created', {
     userId,
@@ -114,7 +124,7 @@ export async function validateActiveSession(params: {
     .eq('user_id', userId)
     .maybeSingle<SessionRow>();
 
-  if (error) throw error;
+  if (error) throw toSessionFlowError('user_sessions_select_validate', error);
   if (!row) return { valid: false, reason: 'session_not_found' as const };
   if (!row.is_active) return { valid: false, reason: 'session_inactive' as const };
 
@@ -138,7 +148,7 @@ export async function validateActiveSession(params: {
 
   if (Object.keys(patch).length) {
     const { error: updateError } = await supabase.from('user_sessions').update(patch).eq('session_id', sessionId);
-    if (updateError) throw updateError;
+    if (updateError) throw toSessionFlowError('user_sessions_update_touch', updateError);
   }
 
   const suspicious = await detectSuspiciousSessionActivity({
@@ -186,7 +196,7 @@ export async function invalidateAllUserSessions(params: {
     .eq('is_active', true)
     .select('session_id');
 
-  if (error) throw error;
+  if (error) throw toSessionFlowError('user_sessions_update_invalidate_all', error);
 
   logSecurityEvent('session_replaced', {
     userId,
@@ -213,6 +223,14 @@ async function detectSuspiciousSessionActivity(params: {
     .limit(20);
 
   if (error || !data?.length) {
+    if (error) {
+      logSecurityEvent('suspicious_activity', {
+        userId,
+        currentSessionId,
+        reason: 'user_sessions_select_recent_failed',
+        errorMessage: error.message,
+      });
+    }
     return { suspicious: false, shouldForceRelogin: false };
   }
 

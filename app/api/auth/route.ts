@@ -74,7 +74,16 @@ export async function POST(req: Request) {
       .single();
 
     const billing = await getBillingState(data.user.id);
-      const session = await createReplacementSession({ supabase, userId: data.user.id, req });
+      let session;
+      try {
+        session = await createReplacementSession({ supabase, userId: data.user.id, req });
+      } catch (sessionError) {
+        logRouteError('/api/auth', context.requestId, sessionError, {
+          stage: 'createReplacementSession',
+          userId: data.user.id,
+        });
+        return errorResponse('Falha na autenticação', 500);
+      }
       logSecurityEvent('auth_success', { ...context, action, userId: data.user.id });
       return okResponse({
       token: data.session?.access_token,
@@ -221,7 +230,9 @@ export async function POST(req: Request) {
 
     return errorResponse('Ação inválida');
   } catch (error) {
-    logRouteError('/api/auth', context.requestId, error);
+    logRouteError('/api/auth', context.requestId, error, {
+      stage: 'POST',
+    });
     return errorResponse('Falha na autenticação', 500);
   }
 }

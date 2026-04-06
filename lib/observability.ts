@@ -37,10 +37,42 @@ export function getRequestId(req: Request): string {
 
 function safeError(error: unknown): Record<string, unknown> {
   if (error instanceof AppError) {
-    return { kind: 'app', code: error.code, status: error.status, message: error.message };
+    return {
+      kind: 'app',
+      code: error.code,
+      status: error.status,
+      message: error.message?.slice(0, 400),
+      stack: error.stack?.slice(0, 2400),
+    };
   }
   if (error instanceof Error) {
-    return { kind: 'native', name: error.name, message: error.message };
+    return {
+      kind: 'native',
+      name: error.name,
+      message: error.message?.slice(0, 400),
+      stack: error.stack?.slice(0, 2400),
+    };
+  }
+  if (typeof error === 'object' && error !== null) {
+    const maybe = error as Record<string, unknown>;
+    const message =
+      typeof maybe.message === 'string'
+        ? maybe.message
+        : typeof maybe.error_description === 'string'
+          ? maybe.error_description
+          : typeof maybe.details === 'string'
+            ? maybe.details
+            : undefined;
+    const stack = typeof maybe.stack === 'string' ? maybe.stack : undefined;
+    return {
+      kind: 'object',
+      message: message?.slice(0, 400),
+      code: typeof maybe.code === 'string' ? maybe.code : undefined,
+      status: typeof maybe.status === 'number' ? maybe.status : undefined,
+      hint: typeof maybe.hint === 'string' ? maybe.hint.slice(0, 400) : undefined,
+      details: typeof maybe.details === 'string' ? maybe.details.slice(0, 400) : undefined,
+      stack: stack?.slice(0, 2400),
+    };
   }
   return { kind: 'unknown' };
 }
