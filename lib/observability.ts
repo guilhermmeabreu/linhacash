@@ -36,13 +36,65 @@ export function getRequestId(req: Request): string {
 }
 
 function safeError(error: unknown): Record<string, unknown> {
+  const sanitizeText = (input: string) =>
+    input
+      .replace(/Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi, 'Bearer [REDACTED]')
+      .replace(/(access_token|refresh_token|apikey|api_key|authorization)\s*[:=]\s*["']?[^"',\s]+/gi, '$1=[REDACTED]');
+
+  const truncate = (input: string, max = 1200) => (input.length > max ? `${input.slice(0, max)}…[truncated]` : input);
+
+  const safeString = (value: unknown) => {
+    try {
+      return truncate(sanitizeText(String(value)));
+    } catch {
+      return '[unstringifiable]';
+    }
+  };
+
+  const toJsonSafePreview = (value: unknown, depth = 0): unknown => {
+    if (depth > 2) return '[max-depth]';
+    if (value === null || value === undefined) return value;
+    if (typeof value === 'string') return truncate(sanitizeText(value), 300);
+    if (typeof value === 'number' || typeof value === 'boolean') return value;
+    if (Array.isArray(value)) return value.slice(0, 8).map((item) => toJsonSafePreview(item, depth + 1));
+    if (typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      const entries = Object.entries(obj).slice(0, 12).map(([key, entryValue]) => [key, toJsonSafePreview(entryValue, depth + 1)]);
+      return Object.fromEntries(entries);
+    }
+    return safeString(value);
+  };
+
   if (error instanceof AppError) {
-    return { kind: 'app', code: error.code, status: error.status, message: error.message };
+    return {
+      kind: 'app',
+      code: error.code,
+      status: error.status,
+      name: error.name,
+      message: truncate(sanitizeText(error.message)),
+      stack: error.stack ? truncate(sanitizeText(error.stack)) : null,
+    };
   }
   if (error instanceof Error) {
-    return { kind: 'native', name: error.name, message: error.message };
+    return {
+      kind: 'native',
+      name: error.name,
+      message: truncate(sanitizeText(error.message)),
+      stack: error.stack ? truncate(sanitizeText(error.stack)) : null,
+    };
   }
-  return { kind: 'unknown' };
+  const constructorName =
+    error && typeof error === 'object' && (error as { constructor?: { name?: string } }).constructor
+      ? (error as { constructor: { name?: string } }).constructor.name || null
+      : null;
+
+  return {
+    kind: 'thrown_non_error',
+    type: typeof error,
+    constructorName,
+    preview: toJsonSafePreview(error),
+    fallback: safeString(error),
+  };
 }
 
 export function logSecurityEvent(event: SecurityEvent, payload: Record<string, unknown>) {
