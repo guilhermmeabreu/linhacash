@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     body: JSON.stringify({
       email: newEmail,
       options: {
-        emailRedirectTo: `${publicUrl}/app.html`,
+        emailRedirectTo: `${publicUrl}/auth/callback?auth_flow=email_change`,
       },
     }),
   });

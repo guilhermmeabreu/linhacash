@@ -932,10 +932,10 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div class="sheet" style="padding:0 20px 36px">
  <div class="shhandle"></div>
  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
- <span style="font-size:17px;font-weight:700">Alterar Senha</span>
+ <span id="segTitle" style="font-size:17px;font-weight:700">Alterar Senha</span>
  <button onclick="closeSeg()" style="background:var(--s3);border:none;color:var(--mt);width:30px;height:30px;border-radius:0;cursor:pointer;font-size:16px;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
  </div>
- <div style="margin-bottom:12px">
+ <div id="segAtualWrap" style="margin-bottom:12px">
  <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Senha atual</div>
  <input id="segAtual" type="password" placeholder="Digite sua senha atual" style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:11px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none"/>
  </div>
@@ -2002,14 +2002,14 @@ async function saveSeg(){
  const atual = document.getElementById('segAtual').value;
  const nova = document.getElementById('segNova').value;
  const conf = document.getElementById('segConf').value;
- if(!atual){ toast('Digite sua senha atual.'); return; }
+ if(!isRecoveryFlow && !atual){ toast('Digite sua senha atual.'); return; }
  if(nova.length < 8 || !/[A-Za-z]/.test(nova) || !/\d/.test(nova)){ toast('Nova senha precisa ter ao menos 8 caracteres com letras e números.'); return; }
  if(nova !== conf){ toast('As senhas não coincidem.'); return; }
  setButtonLoading('btnSegSalvar','Salvando...',true);
  try{
    const data=await api('/api/profile/password',{
      method:'POST',
-     body:JSON.stringify({ currentPassword:atual, newPassword:nova })
+     body:JSON.stringify({ currentPassword:atual, newPassword:nova, recovery:isRecoveryFlow })
    });
    if(data?._ok){
      document.getElementById('segAtual').value='';
@@ -2017,6 +2017,11 @@ async function saveSeg(){
      document.getElementById('segConf').value='';
      closeSeg();
      toast(data?.message||'Senha alterada com sucesso!');
+     if(isRecoveryFlow){
+       const cleanUrl=new URL(window.location.href);
+       cleanUrl.searchParams.delete('auth_flow');
+       history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
+     }
    }else{
      toast(data?.error||'Não foi possível alterar a senha agora.');
    }
@@ -2180,6 +2185,8 @@ window.addEventListener('resize', updateSidebar);
 // INIT 
 const urlParams=new URLSearchParams(window.location.search);
 const OAUTH_IN_FLIGHT_KEY='lc_oauth_in_flight';
+const authFlowMode=(urlParams.get('auth_flow')||'').trim().toLowerCase();
+const isRecoveryFlow=authFlowMode==='recovery';
 
 function sleep(ms){ return new Promise((resolve)=>setTimeout(resolve,ms)); }
 
@@ -2244,7 +2251,17 @@ function applySessionProfile(sessData){
  if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
 }
 
+function setRecoveryPasswordMode(enabled){
+ const wrap=document.getElementById('segAtualWrap');
+ const title=document.getElementById('segTitle');
+ const atualInput=document.getElementById('segAtual');
+ if(wrap) wrap.style.display=enabled?'none':'block';
+ if(title) title.textContent=enabled?'Criar nova senha':'Alterar Senha';
+ if(enabled&&atualInput) atualInput.value='';
+}
+
 renderNavigation();
+setRecoveryPasswordMode(isRecoveryFlow);
 
 // Verificar sessão existente
 (async function checkSession(){
@@ -2267,6 +2284,14 @@ renderNavigation();
      applySessionProfile(sessionAfterOAuth);
      clearOauthInFlightFlag();
      enterApp();
+     if(authFlowMode==='email_change'){
+       toast('Email confirmado com sucesso! Seu perfil foi atualizado.');
+     }
+     if(isRecoveryFlow){
+       setRecoveryPasswordMode(true);
+       openSeg();
+       toast('Agora defina sua nova senha para concluir a recuperação.');
+     }
      updateSidebar();
      return;
    }
@@ -2304,6 +2329,10 @@ renderNavigation();
    setTimeout(()=>toast('Pagamento aprovado! A confirmação final ocorre via webhook. Atualize em alguns segundos.'),500);
  }
  enterApp();
+ if(isRecoveryFlow){
+   setRecoveryPasswordMode(true);
+   openSeg();
+ }
  updateSidebar();
 })();
 

@@ -39,8 +39,9 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const currentPassword = typeof body.currentPassword === 'string' ? body.currentPassword : '';
   const newPassword = typeof body.newPassword === 'string' ? body.newPassword : '';
+  const recoveryFlow = body.recovery === true;
 
-  if (!currentPassword || !newPassword) {
+  if ((!recoveryFlow && !currentPassword) || !newPassword) {
     return errorResponse('Preencha os campos de senha', 400);
   }
 
@@ -48,17 +49,19 @@ export async function POST(req: Request) {
     return errorResponse('A nova senha deve ter ao menos 8 caracteres, incluindo letras e números', 400);
   }
 
-  if (currentPassword === newPassword) {
+  if (!recoveryFlow && currentPassword === newPassword) {
     return errorResponse('A nova senha deve ser diferente da senha atual', 400);
   }
 
-  const { error: authError } = await supabase.auth.signInWithPassword({
-    email: session.email,
-    password: currentPassword,
-  });
+  if (!recoveryFlow) {
+    const { error: authError } = await supabase.auth.signInWithPassword({
+      email: session.email,
+      password: currentPassword,
+    });
 
-  if (authError) {
-    return errorResponse('Senha atual inválida', 400);
+    if (authError) {
+      return errorResponse('Senha atual inválida', 400);
+    }
   }
 
   const { error: updateError } = await supabase.auth.admin.updateUserById(session.userId, {
