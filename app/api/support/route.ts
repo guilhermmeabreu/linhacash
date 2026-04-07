@@ -54,16 +54,22 @@ export async function POST(req: Request) {
   try {
     const supabase = getSupabase();
     assertAllowedOrigin(req);
+    const payload = await readJsonObject(req);
+    const user = await resolveOptionalUser(req);
+    const { type, subject, message } = validateSupportPayload(payload);
     const ip = getIP(req);
-    const rate = await rateLimitDetailed(`support:${ip}`, 3, 60 * 60_000);
+    const actorKey = user?.id ? `user:${user.id}` : `ip:${ip}`;
+    const limit = type === 'bug' ? 5 : 8;
+    const rate = await rateLimitDetailed(`support:${type}:${actorKey}`, limit, 60 * 60_000);
     if (!rate.allowed) {
       logSecurityEvent('route_rate_limited', { ...context, route: '/api/support', retryAfterSeconds: rate.retryAfterSeconds });
-      return fail(new AppError('RATE_LIMIT_ERROR', 429, 'Too many support requests'), origin);
+      return fail(
+        new AppError('RATE_LIMIT_ERROR', 429, `Muitas solicitações. Tente novamente em ${rate.retryAfterSeconds}s.`),
+        origin
+      );
     }
 
-    const user = await resolveOptionalUser(req);
     logSecurityEvent('support_attempt', { ...context, userId: user?.id || null });
-    const { type, subject, message } = validateSupportPayload(await readJsonObject(req));
     const name = user?.name || 'Usuário';
     const email = user?.email || null;
     const supportInbox = process.env.SUPPORT_EMAIL || 'suporte@linhacash.com.br';
