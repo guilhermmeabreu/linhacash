@@ -1253,9 +1253,9 @@ let stack=['sBoot'];
 let plan='free',dark=document.documentElement.classList.contains('dark'),billingState=null;
 let uName='Usuário',uEmail='usuario@email.com';
 let supabaseUser=null;
-const STATS=['PTS','AST','REB','3PM','P+A','P+R','A+R','FG3A'];
+const STATS=['PTS','AST','REB','3PM','PA','PR','PRA','AR','DD','TD','STEAL','BLOCKS','SB','FG2A','FG3A'];
 const SFREE=['PTS','3PM'];
-const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers','P+A':'Pts+Ast','P+R':'Pts+Reb','A+R':'Ast+Reb','FG3A':'FG3 Tent.'};
+const SLBL={PTS:'Points',AST:'Assists',REB:'Rebounds','3PM':'3-Pointers',PA:'Pts+Ast',PR:'Pts+Reb',PRA:'Pts+Reb+Ast',AR:'Ast+Reb',DD:'Double-Double',TD:'Triple-Double',STEAL:'Steals',BLOCKS:'Blocks',SB:'Steals+Blocks',FG2A:'FG2 Tent.',FG3A:'FG3 Tent.'};
 const OPPS=['@IND','IND','@BOS','NOP','HOU','@ATL','SAC','@DAL','MEM','WAS','@MIA','GSW','@NYK','PHI','OKC','@DEN','MIL','@CHI','LAL','PHX'];
 let otpInt=null,pendEmail='';
 let planType='anual';
@@ -1265,9 +1265,18 @@ function pro(){return plan==='pro';}
 function defLine(p,s){
  let r=p.line;
  if(s==='AST')r=p.line*.25;else if(s==='REB')r=p.line*.35;
- else if(s==='3PM')r=p.line*.1;else if(s==='P+A')r=p.line*1.25;else if(s==='P+R')r=p.line*1.35;
- else if(s==='A+R')r=p.line*.6;else if(s==='FG3A')r=p.line*.12;
+ else if(s==='3PM')r=p.line*.1;else if(s==='PA')r=p.line*1.25;else if(s==='PR')r=p.line*1.35;
+ else if(s==='PRA')r=p.line*1.6;else if(s==='AR')r=p.line*.6;else if(s==='FG2A')r=p.line*.4;
+ else if(s==='FG3A')r=p.line*.12;else if(s==='SB')r=p.line*.25;else if(s==='DD'||s==='TD')r=.5;
+ else if(s==='STEAL')r=p.line*.08;else if(s==='BLOCKS')r=p.line*.06;
  const v=half(r);return v>=.5?v:.5;
+}
+
+function normalizeUiStat(stat){
+ if(stat==='P+A')return'PA';
+ if(stat==='P+R')return'PR';
+ if(stat==='A+R')return'AR';
+ return stat;
 }
 function toast(msg){
  const t=document.createElement('div');t.className='toast';t.textContent=msg;
@@ -1530,7 +1539,7 @@ async function openGame(id){
 }
 
 function setS2Stat(s,el){
- cStat=s;document.querySelectorAll('.schip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderPRows();
+ cStat=normalizeUiStat(s);document.querySelectorAll('.schip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderPRows();
 }
 
 async function renderPRows(){
@@ -1572,6 +1581,7 @@ async function openPlayer(id){
  ensurePlayerModalData(id);
 }
 async function changeTab(s,el){
+ s=normalizeUiStat(s);
  if(!pro()&&!SFREE.includes(s)){track('locked_pro_feature_clicked',{context:'player_modal_tab',market:s,player_id:cModalPlayerId||null});openPro();return;}
  cStat=s;cLine=null;
  track('market_changed',{context:'player_modal',market:s,player_id:cModalPlayerId||null});
