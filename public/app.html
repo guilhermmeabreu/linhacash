@@ -1071,6 +1071,12 @@ let authToken = null;
 
 function getHeaders() {
   const h = { 'Content-Type': 'application/json' };
+  if(!authToken){
+    try{
+      const saved = localStorage.getItem('lc_token');
+      if(saved) authToken = saved;
+    }catch(_){}
+  }
   if (authToken) h['Authorization'] = 'Bearer ' + authToken;
   return h;
 }
