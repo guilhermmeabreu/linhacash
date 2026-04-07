@@ -305,6 +305,10 @@ setupTracking();
     q.get('access_token') ||
     q.get('code') ||
     q.get('token_hash') ||
+    h.get('error') ||
+    q.get('error') ||
+    h.get('error_code') ||
+    q.get('error_code') ||
     h.get('type') === 'recovery' ||
     q.get('type') === 'recovery' ||
     q.get('auth_flow') === 'recovery' ||

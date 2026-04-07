@@ -2220,8 +2220,12 @@ function extractOAuthPayload(){
  const tokenFromHash=hashParams.get('access_token');
  const tokenFromQuery=queryParams.get('access_token');
  const accessToken=(tokenFromHash||tokenFromQuery||'').trim()||null;
+ const tokenHash=(queryParams.get('token_hash')||hashParams.get('token_hash')||'').trim()||null;
+ const flowType=(queryParams.get('type')||hashParams.get('type')||queryParams.get('auth_flow')||'').trim().toLowerCase()||null;
+ const errorCode=(hashParams.get('error_code')||queryParams.get('error_code')||'').trim().toLowerCase()||null;
  const oauthError=hashParams.get('error_description')||hashParams.get('error')||queryParams.get('error_description')||queryParams.get('error')||null;
  const hasAuthMarkers=Boolean(
+   tokenHash||
    queryParams.get('code')||
    queryParams.get('token_hash')||
    queryParams.get('auth_flow')||
@@ -2229,7 +2233,7 @@ function extractOAuthPayload(){
    hashParams.get('type')
  );
  const isOAuthReturn=Boolean(accessToken||oauthError||hasAuthMarkers||queryParams.get('oauth')==='google'||hasOauthInFlightFlag());
- return { accessToken, oauthError, isOAuthReturn };
+ return { accessToken, tokenHash, flowType, errorCode, oauthError, isOAuthReturn };
 }
 
 function cleanOAuthUrl(){
@@ -2245,6 +2249,8 @@ function cleanOAuthUrl(){
  cleanUrl.searchParams.delete('provider_refresh_token');
  cleanUrl.searchParams.delete('type');
  cleanUrl.searchParams.delete('code');
+ cleanUrl.searchParams.delete('token_hash');
+ cleanUrl.searchParams.delete('error_code');
  cleanUrl.searchParams.delete('error');
  cleanUrl.searchParams.delete('error_description');
  history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
@@ -2285,11 +2291,32 @@ setRecoveryPasswordMode(isRecoveryFlow);
 // Verificar sessão existente
 (async function checkSession(){
  const oauthPayload = extractOAuthPayload();
+ if(!oauthPayload.accessToken && isRecoveryFlow && oauthPayload.tokenHash){
+   const verifyRecovery = await api('/api/auth/recovery/verify', {
+     method: 'POST',
+     body: JSON.stringify({ token_hash: oauthPayload.tokenHash, type: 'recovery' })
+   });
+   if(verifyRecovery?._ok && verifyRecovery?.token){
+     oauthPayload.accessToken = verifyRecovery.token;
+   } else {
+     cleanOAuthUrl();
+     clearOauthInFlightFlag();
+     show('sAuth',false);
+     const msg=(verifyRecovery?.error||'Link de recuperação inválido ou expirado. Solicite um novo email.').trim();
+     showAuthError(msg);
+     updateSidebar();
+     return;
+   }
+ }
  if(oauthPayload.oauthError){
    cleanOAuthUrl();
    clearOauthInFlightFlag();
    show('sAuth',false);
-   showAuthError('Falha no login com Google. Tente novamente.');
+   const isExpiredRecovery = isRecoveryFlow && oauthPayload.errorCode==='otp_expired';
+   showAuthError(isExpiredRecovery
+     ? 'Seu link de recuperação expirou. Solicite um novo email de redefinição.'
+     : 'Falha na autenticação. Tente novamente.'
+   );
    updateSidebar();
    return;
  }

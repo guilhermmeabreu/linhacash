@@ -182,9 +182,25 @@ export async function sendEmail(
   emailData: { subject: string; html: string },
   replyTo?: string
 ): Promise<boolean> {
+  const result = await sendEmailDetailed(to, emailData, replyTo);
+  return result.ok;
+}
+
+export type EmailSendResult = {
+  ok: boolean;
+  status: number;
+  id?: string;
+  error?: string;
+};
+
+export async function sendEmailDetailed(
+  to: string,
+  emailData: { subject: string; html: string },
+  replyTo?: string
+): Promise<EmailSendResult> {
   if (!process.env.RESEND_API_KEY) {
     console.warn('[Email] RESEND_API_KEY não configurado');
-    return false;
+    return { ok: false, status: 0, error: 'RESEND_API_KEY_NOT_CONFIGURED' };
   }
 
   try {
@@ -203,15 +219,16 @@ export async function sendEmail(
       })
     });
 
+    const payload = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const err = await res.text();
+      const err = typeof payload?.message === 'string' ? payload.message : JSON.stringify(payload || {});
       console.error('[Email] Erro Resend:', err);
-      return false;
+      return { ok: false, status: res.status, error: err };
     }
 
-    return true;
+    return { ok: true, status: res.status, id: typeof payload?.id === 'string' ? payload.id : undefined };
   } catch (e) {
     console.error('[Email] Falha ao enviar:', e);
-    return false;
+    return { ok: false, status: 0, error: e instanceof Error ? e.message : 'UNKNOWN_EMAIL_ERROR' };
   }
 }

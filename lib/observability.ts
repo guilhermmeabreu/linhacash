@@ -6,6 +6,7 @@ export type SecurityEvent =
   | 'checkout_failed'
   | 'checkout_created'
   | 'support_attempt'
+  | 'support_internal_email_started'
   | 'support_internal_email_sent'
   | 'support_internal_email_failed'
   | 'support_confirmation_email_sent'

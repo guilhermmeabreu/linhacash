@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { emailConfirmacaoSuporte, emailSuporte, sendEmail } from '@/lib/emails';
+import { emailConfirmacaoSuporte, emailSuporte, sendEmailDetailed } from '@/lib/emails';
 import { AppError } from '@/lib/http/errors';
 import { fail, internalError, ok, options } from '@/lib/http/responses';
 import { getIP, rateLimitDetailed } from '@/lib/rate-limit';
@@ -75,6 +75,7 @@ export async function POST(req: Request) {
     const supportInbox = process.env.SUPPORT_EMAIL || 'suporte@linhacash.com.br';
     const subjectPrefix = type === 'bug' ? 'Bug' : 'Suporte';
     const submittedAt = new Date().toISOString();
+    const fromAddress = process.env.RESEND_FROM_EMAIL || 'LinhaCash <onboarding@resend.dev>';
 
     const { error: insertError } = await (supabase as any).from('support_messages').insert({
       user_id: user?.id || null,
@@ -98,25 +99,65 @@ export async function POST(req: Request) {
       message,
     ].join('\n');
 
-    const internalSent = await sendEmail(
+    logSecurityEvent('support_internal_email_started', {
+      ...context,
+      userId: user?.id || null,
+      to: supportInbox,
+      from: fromAddress,
+      replyTo: email || null,
+      subject: `[${subjectPrefix}] ${subject}`,
+      type,
+      messageLength: message.length,
+    });
+    const internalDelivery = await sendEmailDetailed(
       supportInbox,
       emailSuporte(name, email || 'não informado', `[${subjectPrefix}] ${subject}`, internalMessage),
       email || undefined
     );
+    const internalSent = internalDelivery.ok;
 
     if (internalSent) {
-      logSecurityEvent('support_internal_email_sent', { ...context, userId: user?.id || null, to: supportInbox, type });
+      logSecurityEvent('support_internal_email_sent', {
+        ...context,
+        userId: user?.id || null,
+        to: supportInbox,
+        resendId: internalDelivery.id || null,
+        status: internalDelivery.status,
+        type
+      });
     } else {
-      logSecurityEvent('support_internal_email_failed', { ...context, userId: user?.id || null, to: supportInbox, type });
+      logSecurityEvent('support_internal_email_failed', {
+        ...context,
+        userId: user?.id || null,
+        to: supportInbox,
+        status: internalDelivery.status,
+        error: internalDelivery.error || null,
+        type
+      });
     }
 
     let confirmationSent = false;
     if (email) {
-      confirmationSent = await sendEmail(email, emailConfirmacaoSuporte(name, message));
+      const confirmationDelivery = await sendEmailDetailed(email, emailConfirmacaoSuporte(name, message));
+      confirmationSent = confirmationDelivery.ok;
       if (confirmationSent) {
-        logSecurityEvent('support_confirmation_email_sent', { ...context, userId: user?.id || null, to: email, type });
+        logSecurityEvent('support_confirmation_email_sent', {
+          ...context,
+          userId: user?.id || null,
+          to: email,
+          resendId: confirmationDelivery.id || null,
+          status: confirmationDelivery.status,
+          type
+        });
       } else {
-        logSecurityEvent('support_confirmation_email_failed', { ...context, userId: user?.id || null, to: email, type });
+        logSecurityEvent('support_confirmation_email_failed', {
+          ...context,
+          userId: user?.id || null,
+          to: email,
+          status: confirmationDelivery.status,
+          error: confirmationDelivery.error || null,
+          type
+        });
       }
     }
 
