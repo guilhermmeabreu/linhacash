@@ -871,7 +871,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Mensagem</div>
  <textarea id="contatoMsg" rows="4" placeholder="Descreva sua dúvida em detalhes..." style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:11px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none;resize:none;line-height:1.5"></textarea>
  </div>
- <button onclick="enviarContato()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Enviar mensagem</button>
+ <button id="btnContatoEnviar" onclick="enviarContato()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Enviar mensagem</button>
  </div>
 </div>
 
@@ -898,7 +898,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Descrição</div>
  <textarea id="bugDesc" rows="4" placeholder="O que aconteceu? Descreva o problema com detalhes..." style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:11px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none;resize:none;line-height:1.5"></textarea>
  </div>
- <button onclick="enviarBug()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Enviar relatório</button>
+ <button id="btnBugEnviar" onclick="enviarBug()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Enviar relatório</button>
  </div>
 </div>
 
@@ -932,10 +932,10 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div class="sheet" style="padding:0 20px 36px">
  <div class="shhandle"></div>
  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
- <span style="font-size:17px;font-weight:700">Alterar Senha</span>
+ <span id="segTitle" style="font-size:17px;font-weight:700">Alterar Senha</span>
  <button onclick="closeSeg()" style="background:var(--s3);border:none;color:var(--mt);width:30px;height:30px;border-radius:0;cursor:pointer;font-size:16px;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
  </div>
- <div style="margin-bottom:12px">
+ <div id="segAtualWrap" style="margin-bottom:12px">
  <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Senha atual</div>
  <input id="segAtual" type="password" placeholder="Digite sua senha atual" style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:11px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none"/>
  </div>
@@ -947,7 +947,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div style="font-size:11px;font-weight:700;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Confirmar nova senha</div>
  <input id="segConf" type="password" placeholder="Repita a nova senha" style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:11px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none"/>
  </div>
- <button onclick="saveSeg()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;margin-bottom:6px">Salvar nova senha</button>
+ <button id="btnSegSalvar" onclick="saveSeg()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;margin-bottom:6px">Salvar nova senha</button>
  <button onclick="closeSeg()" style="width:100%;padding:11px;background:none;border:none;font-size:14px;color:var(--mt);cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Cancelar</button>
  </div>
 </div>
@@ -1040,7 +1040,7 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
  <div style="font-size:11px;font-weight:600;color:var(--mt);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">Email</div>
  <input id="inEmail" type="email" style="width:100%;background:var(--s3);border:1px solid var(--bd2);border-radius:0;padding:10px 12px;font-size:14px;color:var(--tx);font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;outline:none"/>
  </div>
- <button onclick="saveEdit()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;margin-bottom:6px">Salvar</button>
+ <button id="btnEditSalvar" onclick="saveEdit()" style="width:100%;padding:13px;background:var(--green);border:none;border-radius:0;font-size:15px;font-weight:700;color:#000;cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;margin-bottom:6px">Salvar</button>
  <button onclick="closeEdit()" style="width:100%;padding:11px;background:none;border:none;font-size:14px;color:var(--mt);cursor:pointer;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif">Cancelar</button>
  </div>
 </div>
@@ -1071,6 +1071,12 @@ let authToken = null;
 
 function getHeaders() {
   const h = { 'Content-Type': 'application/json' };
+  if(!authToken){
+    try{
+      const saved = localStorage.getItem('lc_token');
+      if(saved) authToken = saved;
+    }catch(_){}
+  }
   if (authToken) h['Authorization'] = 'Bearer ' + authToken;
   return h;
 }
@@ -1886,7 +1892,57 @@ async function activatePro(){
 }
 function openEdit(){document.getElementById('inName').value=uName;document.getElementById('inEmail').value=uEmail;document.getElementById('mEdit').style.display='flex';}
 function closeEdit(){document.getElementById('mEdit').style.display='none';}
-function saveEdit(){const n=document.getElementById('inName').value.trim(),e=document.getElementById('inEmail').value.trim();if(n)uName=n;if(e)uEmail=e;closeEdit();renderProf();toast('Perfil atualizado!');}
+function setButtonLoading(buttonId, loadingText, loading){
+ const btn=document.getElementById(buttonId);
+ if(!btn) return;
+ if(loading){
+ btn.dataset.originalText=btn.textContent||'';
+ btn.textContent=loadingText;
+ btn.disabled=true;
+ btn.style.opacity='.7';
+ btn.style.cursor='not-allowed';
+ return;
+ }
+ btn.textContent=btn.dataset.originalText||btn.textContent||'';
+ btn.disabled=false;
+ btn.style.opacity='1';
+ btn.style.cursor='pointer';
+}
+async function saveEdit(){
+ const n=document.getElementById('inName').value.trim();
+ const e=document.getElementById('inEmail').value.trim().toLowerCase();
+ if(!n){ toast('Digite seu nome.'); return; }
+ if(!e||!e.includes('@')){ toast('Digite um email válido.'); return; }
+
+ setButtonLoading('btnEditSalvar','Salvando...',true);
+ try{
+   const profileData=await api('/api/profile',{ method:'PATCH', body:JSON.stringify({ name:n }) });
+   if(!profileData?._ok){
+     toast(profileData?.error||'Não foi possível atualizar seu perfil agora.');
+     return;
+   }
+
+   let emailChanged=false;
+   if(e!==String(uEmail||'').trim().toLowerCase()){
+     const emailData=await api('/api/profile/email',{ method:'POST', body:JSON.stringify({ email:e }) });
+     if(!emailData?._ok){
+       toast(emailData?.error||'Não foi possível solicitar a troca de email.');
+       return;
+     }
+     emailChanged=true;
+   }
+
+   uName=n;
+   if(!emailChanged) uEmail=e;
+   closeEdit();
+   renderProf();
+   toast(emailChanged?'Perfil salvo. Verifique seu novo email para confirmar a alteração.':'Perfil atualizado com sucesso!');
+ }catch(_){
+   toast('Erro ao salvar. Tente novamente.');
+ }finally{
+   setButtonLoading('btnEditSalvar','Salvando...',false);
+ }
+}
 
 // DRAWER MOBILE
 function openDrawer(){
@@ -1948,15 +2004,38 @@ function toggleFaq(el){
 
 function openSeg(){ document.getElementById('mSeg').style.display='flex'; }
 function closeSeg(){ document.getElementById('mSeg').style.display='none'; }
-function saveSeg(){
+async function saveSeg(){
  const atual = document.getElementById('segAtual').value;
  const nova = document.getElementById('segNova').value;
  const conf = document.getElementById('segConf').value;
- if(!atual){ toast('Digite sua senha atual.'); return; }
- if(nova.length < 6){ toast('Nova senha precisa ter mínimo 6 caracteres.'); return; }
+ if(!isRecoveryFlow && !atual){ toast('Digite sua senha atual.'); return; }
+ if(nova.length < 8 || !/[A-Za-z]/.test(nova) || !/\d/.test(nova)){ toast('Nova senha precisa ter ao menos 8 caracteres com letras e números.'); return; }
  if(nova !== conf){ toast('As senhas não coincidem.'); return; }
- closeSeg();
- toast('Senha alterada com sucesso! ');
+ setButtonLoading('btnSegSalvar','Salvando...',true);
+ try{
+   const data=await api('/api/profile/password',{
+     method:'POST',
+     body:JSON.stringify({ currentPassword:atual, newPassword:nova, recovery:isRecoveryFlow })
+   });
+   if(data?._ok){
+     document.getElementById('segAtual').value='';
+     document.getElementById('segNova').value='';
+     document.getElementById('segConf').value='';
+     closeSeg();
+     toast(data?.message||'Senha alterada com sucesso!');
+     if(isRecoveryFlow){
+       const cleanUrl=new URL(window.location.href);
+       cleanUrl.searchParams.delete('auth_flow');
+       history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
+     }
+   }else{
+     toast(data?.error||'Não foi possível alterar a senha agora.');
+   }
+ }catch(_){
+   toast('Erro ao alterar senha. Tente novamente.');
+ }finally{
+   setButtonLoading('btnSegSalvar','Salvando...',false);
+ }
 }
 
 // SUPORTE 
@@ -1966,52 +2045,64 @@ function closeFaq(){ document.getElementById('mFaq').style.display='none'; }
 function openContato(){ document.getElementById('mContato').style.display='flex'; }
 function closeContato(){ document.getElementById('mContato').style.display='none'; }
 async function enviarContato(){
+ const subjectSel = document.getElementById('contatoAssunto');
  const msg = document.getElementById('contatoMsg').value.trim();
- if(!msg){ toast('Descreva sua dúvida.'); return; }
- toast('Enviando...');
+ const subject = (subjectSel?.value||'Dúvida/Suporte').trim();
+ if(subject.length < 3 || subject.length > 160){ toast('Assunto inválido.'); return; }
+ if(msg.length < 10 || msg.length > 2000){ toast('Mensagem deve ter entre 10 e 2000 caracteres.'); return; }
+ setButtonLoading('btnContatoEnviar','Enviando...',true);
  try{
  const data = await api('/api/support',{
  method:'POST',
  body:JSON.stringify({
- subject: 'Dúvida/Suporte',
+ type: 'support',
+ subject,
  message: msg
  })
  });
  if(data?._ok && data?.ok){
  closeContato();
  document.getElementById('contatoMsg').value='';
- toast('Mensagem enviada! Retornaremos em até 24h ');
+ toast('Mensagem enviada! Retornaremos em até 24h.');
  } else {
  toast(data?.error?.message||data?.error||'Erro ao enviar. Tente novamente.');
  }
- }catch(e){
+}catch(e){
  toast('Erro ao enviar. Verifique sua conexão.');
+ }finally{
+ setButtonLoading('btnContatoEnviar','Enviando...',false);
  }
 }
 
 function openBug(){ document.getElementById('mBug').style.display='flex'; }
 function closeBug(){ document.getElementById('mBug').style.display='none'; }
 async function enviarBug(){
+ const tipoSel = document.getElementById('bugTipo');
  const desc = document.getElementById('bugDesc').value.trim();
- if(!desc){ toast('Descreva o problema.'); return; }
- toast('Enviando...');
+ const tipo = (tipoSel?.value||'Outro').trim();
+ const subject = `Bug: ${tipo}`.slice(0,160);
+ if(desc.length < 10 || desc.length > 2000){ toast('Descrição deve ter entre 10 e 2000 caracteres.'); return; }
+ setButtonLoading('btnBugEnviar','Enviando...',true);
  try{
  const data = await api('/api/support',{
  method:'POST',
  body:JSON.stringify({
- subject: 'Reporte de Problema',
+ type: 'bug',
+ subject,
  message: desc
  })
  });
  if(data?._ok && data?.ok){
  closeBug();
  document.getElementById('bugDesc').value='';
- toast('Problema reportado! Obrigado ');
+ toast('Problema reportado! Obrigado.');
  } else {
  toast(data?.error?.message||data?.error||'Erro ao enviar. Tente novamente.');
  }
- }catch(e){
+}catch(e){
  toast('Erro ao enviar. Verifique sua conexão.');
+ }finally{
+ setButtonLoading('btnBugEnviar','Enviando...',false);
  }
 }
 
@@ -2099,7 +2190,15 @@ window.addEventListener('resize', updateSidebar);
 
 // INIT 
 const urlParams=new URLSearchParams(window.location.search);
+const hashParamsInit=new URLSearchParams(window.location.hash.slice(1));
 const OAUTH_IN_FLIGHT_KEY='lc_oauth_in_flight';
+const authFlowMode=(
+  urlParams.get('auth_flow')||
+  urlParams.get('type')||
+  hashParamsInit.get('type')||
+  ''
+).trim().toLowerCase();
+const isRecoveryFlow=authFlowMode==='recovery';
 
 function sleep(ms){ return new Promise((resolve)=>setTimeout(resolve,ms)); }
 
@@ -2121,9 +2220,20 @@ function extractOAuthPayload(){
  const tokenFromHash=hashParams.get('access_token');
  const tokenFromQuery=queryParams.get('access_token');
  const accessToken=(tokenFromHash||tokenFromQuery||'').trim()||null;
+ const tokenHash=(queryParams.get('token_hash')||hashParams.get('token_hash')||'').trim()||null;
+ const flowType=(queryParams.get('type')||hashParams.get('type')||queryParams.get('auth_flow')||'').trim().toLowerCase()||null;
+ const errorCode=(hashParams.get('error_code')||queryParams.get('error_code')||'').trim().toLowerCase()||null;
  const oauthError=hashParams.get('error_description')||hashParams.get('error')||queryParams.get('error_description')||queryParams.get('error')||null;
- const isOAuthReturn=Boolean(accessToken||oauthError||queryParams.get('oauth')==='google'||hasOauthInFlightFlag());
- return { accessToken, oauthError, isOAuthReturn };
+ const hasAuthMarkers=Boolean(
+   tokenHash||
+   queryParams.get('code')||
+   queryParams.get('token_hash')||
+   queryParams.get('auth_flow')||
+   queryParams.get('type')||
+   hashParams.get('type')
+ );
+ const isOAuthReturn=Boolean(accessToken||oauthError||hasAuthMarkers||queryParams.get('oauth')==='google'||hasOauthInFlightFlag());
+ return { accessToken, tokenHash, flowType, errorCode, oauthError, isOAuthReturn };
 }
 
 function cleanOAuthUrl(){
@@ -2139,6 +2249,8 @@ function cleanOAuthUrl(){
  cleanUrl.searchParams.delete('provider_refresh_token');
  cleanUrl.searchParams.delete('type');
  cleanUrl.searchParams.delete('code');
+ cleanUrl.searchParams.delete('token_hash');
+ cleanUrl.searchParams.delete('error_code');
  cleanUrl.searchParams.delete('error');
  cleanUrl.searchParams.delete('error_description');
  history.replaceState(null,'',cleanUrl.pathname + (cleanUrl.search||''));
@@ -2164,16 +2276,47 @@ function applySessionProfile(sessData){
  if(prof.theme){ const sd=prof.theme==='dark'; if(sd!==dark)toggleTheme(); }
 }
 
+function setRecoveryPasswordMode(enabled){
+ const wrap=document.getElementById('segAtualWrap');
+ const title=document.getElementById('segTitle');
+ const atualInput=document.getElementById('segAtual');
+ if(wrap) wrap.style.display=enabled?'none':'block';
+ if(title) title.textContent=enabled?'Criar nova senha':'Alterar Senha';
+ if(enabled&&atualInput) atualInput.value='';
+}
+
 renderNavigation();
+setRecoveryPasswordMode(isRecoveryFlow);
 
 // Verificar sessão existente
 (async function checkSession(){
  const oauthPayload = extractOAuthPayload();
+ if(!oauthPayload.accessToken && isRecoveryFlow && oauthPayload.tokenHash){
+   const verifyRecovery = await api('/api/auth/recovery/verify', {
+     method: 'POST',
+     body: JSON.stringify({ token_hash: oauthPayload.tokenHash, type: 'recovery' })
+   });
+   if(verifyRecovery?._ok && verifyRecovery?.token){
+     oauthPayload.accessToken = verifyRecovery.token;
+   } else {
+     cleanOAuthUrl();
+     clearOauthInFlightFlag();
+     show('sAuth',false);
+     const msg=(verifyRecovery?.error||'Link de recuperação inválido ou expirado. Solicite um novo email.').trim();
+     showAuthError(msg);
+     updateSidebar();
+     return;
+   }
+ }
  if(oauthPayload.oauthError){
    cleanOAuthUrl();
    clearOauthInFlightFlag();
    show('sAuth',false);
-   showAuthError('Falha no login com Google. Tente novamente.');
+   const isExpiredRecovery = isRecoveryFlow && oauthPayload.errorCode==='otp_expired';
+   showAuthError(isExpiredRecovery
+     ? 'Seu link de recuperação expirou. Solicite um novo email de redefinição.'
+     : 'Falha na autenticação. Tente novamente.'
+   );
    updateSidebar();
    return;
  }
@@ -2187,6 +2330,14 @@ renderNavigation();
      applySessionProfile(sessionAfterOAuth);
      clearOauthInFlightFlag();
      enterApp();
+     if(authFlowMode==='email_change'){
+       toast('Email confirmado com sucesso! Seu perfil foi atualizado.');
+     }
+     if(isRecoveryFlow){
+       setRecoveryPasswordMode(true);
+       openSeg();
+       toast('Agora defina sua nova senha para concluir a recuperação.');
+     }
      updateSidebar();
      return;
    }
@@ -2224,6 +2375,10 @@ renderNavigation();
    setTimeout(()=>toast('Pagamento aprovado! A confirmação final ocorre via webhook. Atualize em alguns segundos.'),500);
  }
  enterApp();
+ if(isRecoveryFlow){
+   setRecoveryPasswordMode(true);
+   openSeg();
+ }
  updateSidebar();
 })();
 

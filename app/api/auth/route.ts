@@ -11,6 +11,23 @@ const supabase = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
+async function syncProfileEmail(userId: string, email?: string | null) {
+  if (!email) return;
+  const normalized = email.trim().toLowerCase();
+  if (!normalized) return;
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('email')
+    .eq('id', userId)
+    .maybeSingle();
+
+  const current = typeof profile?.email === 'string' ? profile.email.trim().toLowerCase() : '';
+  if (current === normalized) return;
+
+  await supabase.from('profiles').update({ email: normalized }).eq('id', userId);
+}
+
 function resolvePublicUrl(req: Request): string {
   const url = new URL(req.url);
   const requestOrigin = `${url.protocol}//${url.host}`;
@@ -66,6 +83,7 @@ export async function POST(req: Request) {
       }
 
     // Buscar perfil — sanitizado
+    await syncProfileEmail(data.user.id, data.user.email || email);
     const { data: profile } = await supabase
       .from('profiles')
       .select('id, name, email, plan, theme')
@@ -77,7 +95,7 @@ export async function POST(req: Request) {
       return okResponse({
       token: data.session?.access_token,
       expiresAt: data.session?.expires_at,
-      user: sanitizeProfile({ ...(profile || { id: data.user.id, email }), plan: billing.hasProAccess ? 'pro' : 'free' }),
+      user: sanitizeProfile({ ...(profile || { id: data.user.id, email: data.user.email || email }), email: data.user.email || profile?.email || email, plan: billing.hasProAccess ? 'pro' : 'free' }),
       billing,
     });
     }
@@ -196,7 +214,7 @@ export async function POST(req: Request) {
       }
 
     await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${publicUrl}/app.html?reset=true`
+      redirectTo: `${publicUrl}/auth/callback?auth_flow=recovery`
     });
 
     // Sempre retornar ok — não revelar se email existe
@@ -233,6 +251,8 @@ export async function GET(req: Request) {
     return errorResponse('Sessão expirada', 401);
   }
 
+  await syncProfileEmail(user.id, user.email);
+
   const { data: profile } = await supabase
     .from('profiles')
     .select('id, name, email, plan, theme')
@@ -241,7 +261,11 @@ export async function GET(req: Request) {
 
   const billing = await getBillingState(user.id);
   return okResponse({
-    user: sanitizeProfile({ ...(profile || { id: user.id, email: user.email }), plan: billing.hasProAccess ? 'pro' : 'free' }),
+    user: sanitizeProfile({
+      ...(profile || { id: user.id, email: user.email }),
+      email: user.email || profile?.email || '',
+      plan: billing.hasProAccess ? 'pro' : 'free'
+    }),
     billing,
   });
 }

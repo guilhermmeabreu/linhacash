@@ -23,6 +23,13 @@ export async function GET(req: Request) {
 
   if (!profile) return errorResponse('Perfil não encontrado', 404);
 
+  const authEmail = (session.email || '').trim().toLowerCase();
+  const profileEmail = (profile.email || '').trim().toLowerCase();
+  if (authEmail && authEmail !== profileEmail) {
+    await supabase.from('profiles').update({ email: authEmail }).eq('id', session.userId);
+    profile.email = authEmail;
+  }
+
   const billing = await getBillingState(session.userId!);
   return okResponse({
     profile: sanitizeProfile({ ...profile, plan: billing.hasProAccess ? 'pro' : 'free' }),

@@ -295,6 +295,30 @@ function setupTracking(){
 
 setupTracking();
 
+// Se links de auth (recovery/confirm) caírem na landing, redireciona para o app
+// preservando query/hash para o fluxo de callback.
+(function normalizeAuthRedirect(){
+  const q = new URLSearchParams(window.location.search);
+  const h = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  const hasAuthPayload = Boolean(
+    h.get('access_token') ||
+    q.get('access_token') ||
+    q.get('code') ||
+    q.get('token_hash') ||
+    h.get('error') ||
+    q.get('error') ||
+    h.get('error_code') ||
+    q.get('error_code') ||
+    h.get('type') === 'recovery' ||
+    q.get('type') === 'recovery' ||
+    q.get('auth_flow') === 'recovery' ||
+    q.get('auth_flow') === 'email_change'
+  );
+  if (!hasAuthPayload) return;
+  const target = `/app.html${window.location.search || ''}${window.location.hash || ''}`;
+  window.location.replace(target);
+})();
+
 if ('IntersectionObserver' in window) {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
