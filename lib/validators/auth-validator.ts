@@ -29,11 +29,25 @@ export function validateAdminLogin(body: unknown) {
 
 export function validateSupportPayload(body: unknown) {
   const input = ensureObject(body);
+  const type = typeof input.type === 'string' ? input.type.trim().toLowerCase() : 'support';
+  if (!['support', 'bug'].includes(type)) {
+    throw new ValidationError('type must be support or bug');
+  }
+
+  const subject = asString(input.subject, 'subject', 160).trim();
+  if (subject.length < 3) {
+    throw new ValidationError('subject must have at least 3 characters');
+  }
+
+  const message = asString(input.message, 'message', 2000).trim();
+  if (message.length < 10) {
+    throw new ValidationError('message must have at least 10 characters');
+  }
+
   return {
-    name: asString(input.name, 'name', 120),
-    email: asEmail(input.email),
-    subject: typeof input.subject === 'string' ? input.subject.trim().slice(0, 160) : 'Sem assunto',
-    message: asString(input.message, 'message', 2000),
+    type: type as 'support' | 'bug',
+    subject,
+    message,
   };
 }
 

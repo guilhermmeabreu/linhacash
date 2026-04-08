@@ -17,6 +17,7 @@ const API_KEY = process.env.NBA_API_KEY!;
 const BASE_URL = 'v2.nba.api-sports.io';
 const SEASON = 2025;
 const SEASON_STATS = 2024;
+let playerStatsColumnsPromise: Promise<Set<string>> | null = null;
 
 const logs: string[] = [];
 function log(msg: string) {
@@ -33,6 +34,27 @@ function apiGet(path: string): Promise<any> {
       res.on('end', () => { try { resolve(JSON.parse(data)); } catch (e) { reject(e); } });
     }).on('error', reject);
   });
+}
+
+async function getPlayerStatsColumns(): Promise<Set<string>> {
+  if (!playerStatsColumnsPromise) {
+    playerStatsColumnsPromise = (async () => {
+      const { data, error } = await supabase
+        .from('information_schema.columns')
+        .select('column_name')
+        .eq('table_schema', 'public')
+        .eq('table_name', 'player_stats');
+
+      if (error || !data) {
+        log(`Aviso: não foi possível ler colunas de player_stats (${error?.message || 'desconhecido'})`);
+        return new Set<string>();
+      }
+
+      return new Set<string>(data.map((row: { column_name: string }) => row.column_name));
+    })();
+  }
+
+  return playerStatsColumnsPromise;
 }
 
 async function fetchGames() {
@@ -94,7 +116,8 @@ async function fetchPlayers(teamId: number) {
   const players = data.response.map((p: any) => ({
     api_id: p.id, name: `${p.firstname} ${p.lastname}`,
     team: p.teams?.[0]?.name || '', team_id: teamId,
-    position: p.leagues?.standard?.pos || ''
+    position: p.leagues?.standard?.pos || '',
+    photo: p.photo || null,
   }));
   await supabase.from('players').upsert(players, { onConflict: 'api_id' });
   log(`${players.length} jogadores time ${teamId} salvos!`);
@@ -104,15 +127,31 @@ async function fetchPlayers(teamId: number) {
 async function fetchPlayerStats(playerId: number, apiPlayerId: number) {
   const data = await apiGet(`/players/statistics?id=${apiPlayerId}&season=${SEASON_STATS}`);
   if (!data.response || data.response.length === 0) return;
-  const stats = data.response.slice(0, 20).map((s: any) => ({
-    player_id: playerId, game_date: s.game?.date || null,
-    opponent: s.team?.name || '', is_home: true,
-    points: s.points || 0, rebounds: s.totReb || 0,
-    assists: s.assists || 0, three_pointers: s.tpm || 0,
-    fgm: s.fgm || 0,
-    fga: s.fga || 0,
-    minutes: parseInt(s.min) || 0
-  }));
+  const columns = await getPlayerStatsColumns();
+  const has = (column: string) => columns.has(column);
+  const stats = data.response.slice(0, 20).map((s: any) => {
+    const entry: Record<string, unknown> = {
+      player_id: playerId,
+      game_date: s.game?.date || null,
+      opponent: s.team?.name || '',
+      is_home: true,
+      points: s.points || 0,
+      rebounds: s.totReb || 0,
+      assists: s.assists || 0,
+      three_pointers: s.tpm || 0,
+      fgm: s.fgm || 0,
+      fga: s.fga || 0,
+      minutes: parseInt(s.min) || 0,
+    };
+
+    if (has('steals')) entry.steals = s.steals || 0;
+    if (has('blocks')) entry.blocks = s.blocks || 0;
+    if (has('fg2a')) entry.fg2a = s.p2a || 0;
+    if (has('fg3a')) entry.fg3a = s.p3a || 0;
+    if (has('three_pa')) entry.three_pa = s.p3a || 0;
+
+    return entry;
+  });
   await supabase.from('player_stats').upsert(stats);
 }
 
@@ -154,6 +193,7 @@ async function saveLog(status: string, games: number, errors: string[]) {
 
 export async function GET(req: Request) {
   const origin = req.headers.get('origin') || undefined;
+  const requestPath = new URL(req.url).pathname;
   const startedAt = Date.now();
   logs.length = 0;
   const errors: string[] = [];
@@ -165,14 +205,31 @@ export async function GET(req: Request) {
     }
 
     const auth = await requireCronRequest(req);
-    console.info('[SYNC]', JSON.stringify({ event: 'start', origin: auth.origin }));
+    const startedAtIso = new Date(startedAt).toISOString();
+    console.info('[SYNC]', JSON.stringify({
+      event: 'start',
+      source: auth.origin,
+      timestamp: startedAtIso,
+      path: requestPath,
+    }));
 
     log('=== LinhaCash Sync Iniciado ===');
     const games = await fetchGames();
     gamesCount = games.length;
     if (games.length === 0) {
+      const durationMs = Date.now() - startedAt;
       await saveLog('no_games', 0, []);
-      await auditLog('sync_execution', { origin: auth.origin, status: 'no_games', durationMs: Date.now() - startedAt });
+      console.info('[SYNC]', JSON.stringify({
+        event: 'finish',
+        source: auth.origin,
+        path: requestPath,
+        success: true,
+        status: 'no_games',
+        durationMs,
+        games: 0,
+        errors: 0,
+      }));
+      await auditLog('sync_execution', { origin: auth.origin, status: 'no_games', durationMs });
       return NextResponse.json({ message: 'Nenhum jogo hoje', logs });
     }
 
@@ -197,13 +254,48 @@ export async function GET(req: Request) {
     invalidateCacheByPrefix('metrics:');
     invalidateCacheByPrefix('admin:');
     const durationMs = Date.now() - startedAt;
-    console.info('[SYNC]', JSON.stringify({ event: 'finish', origin: auth.origin, success: true, durationMs, errors: errors.length }));
+    console.info('[SYNC]', JSON.stringify({
+      event: 'finish',
+      source: auth.origin,
+      path: requestPath,
+      success: true,
+      status: 'success',
+      durationMs,
+      games: gamesCount,
+      errors: errors.length,
+    }));
     await auditLog('sync_execution', { origin: auth.origin, status: 'success', durationMs, errors: errors.length });
     return NextResponse.json({ message: 'Sync completo!', games: gamesCount, errors: errors.length, logs });
   } catch (e: any) {
     const durationMs = Date.now() - startedAt;
-    log(`ERRO CRÍTICO: ${e?.message || 'unknown'}`);
-    await saveLog('error', gamesCount, [String(e?.message || 'unknown')]);
+    const errorMessage = String(e?.message || 'unknown');
+    const appErrorCode = e instanceof AppError ? e.code : undefined;
+
+    if (appErrorCode === 'AUTHORIZATION_ERROR' || appErrorCode === 'AUTHENTICATION_ERROR') {
+      console.warn('[SYNC]', JSON.stringify({
+        event: 'cron_auth_failed',
+        path: requestPath,
+        hasAuthorizationHeader: Boolean(req.headers.get('authorization')),
+        hasCronSecretHeader: Boolean(req.headers.get('x-cron-secret')),
+        errorCode: appErrorCode,
+        status: e.status,
+        message: errorMessage,
+      }));
+    }
+
+    log(`ERRO CRÍTICO: ${errorMessage}`);
+    await saveLog('error', gamesCount, [errorMessage]);
+    console.info('[SYNC]', JSON.stringify({
+      event: 'finish',
+      path: requestPath,
+      success: false,
+      status: 'error',
+      durationMs,
+      games: gamesCount,
+      errors: errors.length + 1,
+      errorCode: appErrorCode || 'INTERNAL_ERROR',
+      message: errorMessage,
+    }));
     await auditLog('sync_execution', { status: 'error', durationMs });
     if (e instanceof AppError) return fail(e, origin);
     return NextResponse.json({ error: 'Sync failed', logs }, { status: 500 });
