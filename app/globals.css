@@ -19,7 +19,7 @@
   --lc-danger: #ef4444;
 
   /* Border + effects */
-  --lc-border: #1f1f1f;
+  --lc-border: #1a1a1a;
   --lc-border-strong: #2b2b2b;
   --lc-shadow-subtle: 0 8px 24px rgba(0, 0, 0, 0.28);
 
@@ -113,7 +113,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: -0.01em;
 }
 

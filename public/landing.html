@@ -6,6 +6,9 @@
 <meta name="description" content="LinhaCash entrega leitura rápida dos props da NBA em português para você decidir com mais confiança."/>
 <title>LinhaCash | Análise para NBA</title>
 <link rel="icon" href="/logo.png"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
 <script>
 (function () {
   try {
@@ -19,124 +22,82 @@
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#070908;--s1:#0f1512;--s2:#141d19;--bd:#24312b;--bd2:#30453c;--tx:#ecf5f1;--mt:#95a99f;--green:#00e676;--green-soft:rgba(0,230,118,.16);--space-1:8px;--space-2:12px;--space-3:16px;--space-4:24px;--space-5:34px;--space-6:52px}
-html.light{--bg:#f3f8f5;--s1:#ffffff;--s2:#f7fbf8;--bd:#cfddd5;--bd2:#b8cbc1;--tx:#16241e;--mt:#5f746a;--green:#00b861;--green-soft:rgba(0,184,97,.14)}
-html,body{font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);scroll-behavior:smooth}
-body{overflow-x:hidden}
+:root{--bg:#000;--surface:#0a0a0a;--border:#1a1a1a;--text:#fff;--muted:#888;--accent:#22c55e;--accent-soft:rgba(34,197,94,.15)}
+html.light{--bg:#f7f8f7;--surface:#fff;--border:#d9ded9;--text:#111;--muted:#5d655f;--accent:#16a34a;--accent-soft:rgba(22,163,74,.14)}
+html,body{background:var(--bg);color:var(--text);font-family:'Inter',-apple-system,Segoe UI,Roboto,sans-serif;scroll-behavior:smooth}
 a{text-decoration:none;color:inherit}
-.wrap{width:min(100%,1160px);margin:0 auto;padding:0 clamp(16px,3vw,var(--space-4))}
-img,svg{max-width:100%;height:auto}
-nav{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bd);backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 90%, transparent)}
-.ninner{height:70px;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;line-height:1}
+body{min-height:100svh;overflow-x:hidden}
+.wrap{width:min(1120px,100% - 40px);margin-inline:auto}
+.mono{font-family:'JetBrains Mono',ui-monospace,monospace}
+nav{position:sticky;top:0;z-index:20;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px)}
+.ninner{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;letter-spacing:-.03em}
 .logo img{width:28px;height:28px}
-.brand-accent{color:var(--green)}
-.nav-actions{display:flex;gap:10px;align-items:center}
-.btn{padding:11px 17px;border:1px solid var(--bd2);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:border-color .25s,color .25s,transform .25s,background .25s,box-shadow .25s; background:transparent;color:var(--tx);cursor:pointer;display:inline-flex;justify-content:center;align-items:center;line-height:1}
-.btn:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
-.btn.primary{background:var(--green);border-color:var(--green);color:#00160b}
-.btn.primary:hover{color:#00160b;filter:brightness(.95)}
-#theme{width:40px;height:40px;display:grid;place-items:center;padding:0}
-#theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-main section{padding:78px 0;border-top:1px solid var(--bd)}
-.hero{padding:62px 0 58px;position:relative;overflow:hidden;min-height:calc(100vh - 70px);min-height:calc(100svh - 70px);display:grid;place-items:center}
-.hero::before{content:'';position:absolute;inset:-20% -10% auto;background:radial-gradient(circle at top,rgba(0,230,118,.14),transparent 56%);height:72%;pointer-events:none}
-.hero-inner{position:relative;width:min(100%,780px);margin:0 auto;text-align:center}
-h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spacing:-.03em;text-wrap:balance}
-.subtitle{margin:15px auto 0;color:color-mix(in srgb,var(--mt) 92%, var(--tx) 8%);font-size:18px;line-height:1.6;max-width:36ch}
-.hero-cta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}
-.hero-cta .btn.primary{min-width:216px;box-shadow:0 8px 20px rgba(0,230,118,.2)}
-.hero-cta .btn.secondary{background:color-mix(in srgb,var(--s1) 82%, transparent 18%);border-color:color-mix(in srgb,var(--bd2) 68%, var(--tx) 32%);min-width:196px;color:color-mix(in srgb,var(--tx) 92%, var(--mt) 8%)}
-.hero-microcopy{margin-top:12px;font-size:12px;color:var(--mt);line-height:1.5}
-.hero-scroll{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;place-items:center;width:34px;height:34px;color:var(--mt);opacity:.72;transition:opacity .25s ease,transform .25s ease}
-.hero-scroll:hover{opacity:1;transform:translateX(-50%) translateY(1px)}
-.hero-scroll svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;animation:scrollHint 1.8s ease-in-out infinite}
-@keyframes scrollHint{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
-.h2{font-size:clamp(32px,4.2vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.14;text-align:center;text-wrap:balance;max-width:22ch;margin:0 auto}
-.p{margin:12px auto 0;color:var(--mt);font-size:17px;line-height:1.65;max-width:700px;text-align:center}
-.tag{font-size:11px;padding:4px 8px;border:1px solid var(--bd2);text-transform:uppercase;letter-spacing:.05em}
+.brand-accent{color:var(--accent)}
+.nav-actions{display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 16px;border:1px solid var(--border);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;background:transparent;color:var(--text);cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#03150a;font-weight:900}
+.btn.primary:hover{color:#03150a;filter:brightness(.95)}
+#theme{width:40px;padding:0}
+#theme svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none}
+.hero{position:relative;border-bottom:1px solid var(--border)}
+.hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% -20%,rgba(34,197,94,.15),transparent 70%)}
+.hero-inner{position:relative;padding:88px 0 80px;display:grid;gap:22px;max-width:860px}
+.kicker{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(2.25rem,7vw,5rem);font-weight:900;letter-spacing:-.045em;line-height:1}
+.subtitle{max-width:58ch;color:var(--muted);font-size:1.03rem;line-height:1.7}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px}
+.hero-microcopy{font-size:12px;color:var(--muted)}
+main section{padding:64px 0;border-bottom:1px solid var(--border)}
+.h2{font-size:clamp(1.65rem,4.2vw,3rem);font-weight:900;letter-spacing:-.04em;line-height:1.08;max-width:22ch}
+.p{margin-top:12px;color:var(--muted);font-size:1rem;line-height:1.7;max-width:66ch}
+.proof-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.proof-item{border:1px solid var(--border);background:var(--surface);padding:16px;display:grid;gap:8px}
+.proof-item strong{font-size:1.4rem;font-weight:900;letter-spacing:-.03em}
+.proof-item span{font-size:12px;color:var(--muted);line-height:1.6}
 .steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px}
-.step{padding:24px;border:1px solid color-mix(in srgb,var(--bd) 82%, var(--tx) 18%);background:linear-gradient(180deg,color-mix(in srgb,var(--s1) 88%, transparent 12%),color-mix(in srgb,var(--s2) 92%, transparent 8%));box-shadow:0 6px 16px rgba(0,0,0,.12);transition:.25s}
-.step:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.16)}
-.n{font-size:12px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.step h3{margin-top:9px;font-size:20px;letter-spacing:-.01em;line-height:1.25}
-.step p{margin-top:10px;color:var(--mt);font-size:14px;line-height:1.62}
-.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:34px}
-.plan{background:var(--s1);border:1px solid var(--bd);padding:32px}
-.plan.pro{border-color:var(--green);box-shadow:0 0 0 1px var(--green-soft) inset}
-.plan h3{font-size:24px;letter-spacing:-.01em}
-.price{font-size:44px;font-weight:800;letter-spacing:-.03em;margin:8px 0}
-.small{font-size:13px;color:var(--mt);line-height:1.65}
-.list{margin:18px 0 24px;display:grid;gap:8px}
-.list li{list-style:none;font-size:14px;color:var(--mt)}
-.list li.on{color:var(--tx)}
-.price-note{margin-top:14px;padding:10px 12px;border:1px solid var(--bd2);background:var(--s2);font-size:12px;color:var(--mt);line-height:1.5}
+.step{border:1px solid var(--border);background:var(--surface);padding:22px}
+.step .n{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.step h3{margin-top:8px;font-size:1.2rem;font-weight:900;letter-spacing:-.02em}
+.step p{margin-top:10px;color:var(--muted);line-height:1.65;font-size:.95rem}
+.value-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:26px}
+.value-panel{border:1px solid var(--border);background:var(--surface);padding:22px}
+.value-list{display:grid;gap:10px;margin-top:14px}
+.value-list li{list-style:none;color:var(--muted);line-height:1.65}
+.value-list li strong{color:var(--text);font-weight:600}
+.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}
+.plan{border:1px solid var(--border);background:var(--surface);padding:24px}
+.plan.pro{border-color:var(--accent)}
+.plan h3{font-size:1.45rem;font-weight:900;letter-spacing:-.02em}
+.price{margin-top:8px;font-size:2.2rem;letter-spacing:-.035em;font-weight:900}
+.small{margin-top:6px;font-size:13px;color:var(--muted);line-height:1.65}
+.list{margin:16px 0 20px;display:grid;gap:8px}
+.list li{list-style:none;color:var(--muted);font-size:14px}
+.list li.on{color:var(--text)}
+.price-note{margin-top:12px;padding:12px;border:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.6}
 .final{text-align:center}
-.final p{max-width:630px;margin:14px auto 26px;color:var(--mt);line-height:1.65}
-.footer{border-top:1px solid var(--bd);padding:28px 0}
-.footer-content{max-width:700px;margin:0 auto;text-align:center;display:grid;gap:8px}
-.footer-brand{font-weight:800;letter-spacing:-.02em}
-.footer-desc{font-size:14px;color:var(--mt);line-height:1.6}
-.footer-meta{font-size:13px;color:var(--mt)}
-.footer-links{font-size:13px;color:var(--tx)}
-.footer-links a{color:var(--tx);opacity:.95}
-.footer-links a:hover{color:var(--green);opacity:1}
-.footer-contact{font-size:13px}
-.footer-contact a{color:var(--tx)}
-.disclaimer{font-size:12px;color:var(--mt);line-height:1.55;max-width:64ch;margin:0 auto}
-.copy{font-size:12px;color:var(--mt)}
-.fade{opacity:0;transform:translateY(12px);animation:fadeUp .7s ease forwards}
-.delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}
-@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
-.reveal.is-visible{opacity:1;transform:translateY(0)}
-@media (max-width:1024px){.steps,.plans{grid-template-columns:1fr}}
-@media (max-width:768px){
-  .wrap{padding:0 18px}
-  .ninner{height:auto;min-height:66px;padding:9px 0;align-items:center;gap:10px}
-  .logo{font-size:18px;gap:8px}
-  .logo img{width:24px;height:24px}
-  .nav-actions{margin-left:auto;gap:8px}
+.final .h2{margin-inline:auto}
+.final .p{margin-inline:auto}
+.footer{padding:28px 0 34px}
+.footer-content{display:grid;gap:8px;text-align:center;max-width:720px;margin-inline:auto}
+.footer-brand{font-weight:900;letter-spacing:-.02em}
+.footer-desc,.footer-meta,.footer-links,.footer-contact,.disclaimer,.copy{font-size:13px;color:var(--muted);line-height:1.6}
+.footer-links a,.footer-contact a{color:var(--text)}
+.footer-links a:hover,.footer-contact a:hover{color:var(--accent)}
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .45s ease}
+.reveal.is-visible{opacity:1;transform:none}
+@media (max-width:980px){
+  .proof-strip,.steps,.plans,.value-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .wrap{width:min(1120px,100% - 30px)}
+  .ninner{min-height:62px}
   .nav-actions .btn:not(.primary):not(#theme){display:none}
-  .nav-actions .btn.primary{padding:10px 14px;font-size:11px;letter-spacing:.045em}
-  #theme{width:32px;height:32px;opacity:.72;border-color:transparent}
-  #theme svg{width:14px;height:14px}
-  main section{padding:72px 0}
-  .hero{padding:28px 0 34px;min-height:calc(100vh - 66px);min-height:calc(100svh - 66px);min-height:calc(100dvh - 66px)}
-  .hero-inner{max-width:430px;min-height:100%;display:flex;flex-direction:column;justify-content:center}
-  h1{font-size:clamp(30px,7.4vw,36px);line-height:1.16;letter-spacing:-.022em}
-  .subtitle{margin-top:18px;font-size:15px;line-height:1.7;max-width:unset}
-  .hero-cta{margin-top:20px;gap:10px;flex-direction:column}
-  .hero-cta .btn.primary,.hero-cta .btn.secondary{width:100%;min-width:0}
-  .hero-cta .btn.secondary{font-size:11px;letter-spacing:.05em;background:var(--s2)}
-  .hero-microcopy{margin-top:14px;padding:0 8px}
-  .hero-scroll{bottom:calc(14px + env(safe-area-inset-bottom))}
-  .steps{margin-top:24px;gap:10px}
-  .step{padding:18px 16px}
-  .step h3{font-size:18px}
-  .step p{font-size:13px;line-height:1.58}
-  .plans{margin-top:26px}
-  .plan{padding:22px 18px}
-  .price{font-size:36px}
-  .final p{margin:16px auto 24px}
-}
-@media (max-width:520px){
-  .btn{padding:10px 14px;font-size:11px}
-  .h2{font-size:clamp(24px,7.4vw,30px)}
-  .p{font-size:15px;line-height:1.62}
-  .hero{padding-top:24px;padding-bottom:30px}
-  .hero-inner{max-width:390px}
-  h1{font-size:clamp(26px,7.4vw,32px);line-height:1.24}
-  .subtitle{font-size:14px;line-height:1.66}
-  main section{padding:68px 0}
-  .list li,.small,.disclaimer{overflow-wrap:break-word}
-  .footer{padding:24px 0 28px}
-}
-@media (max-width:400px){
-  .logo{font-size:17px}
-  .nav-actions .btn.primary{padding:9px 12px;font-size:10px}
-  .hero-cta{gap:8px}
-  .hero-microcopy{font-size:11px}
+  .hero-inner{padding:60px 0 52px;gap:18px}
+  h1{font-size:clamp(1.95rem,10vw,3rem)}
+  main section{padding:56px 0}
+  .btn{min-height:40px}
 }
 </style>
 </head>
@@ -152,43 +113,74 @@ h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spac
   </div>
 </nav>
 
-<header class="hero wrap">
-  <div class="hero-inner">
-    <h1 class="fade">Veja o que os números realmente mostram</h1>
-    <p class="subtitle fade delay-1">Tendências, desempenho recente e contexto real dos jogadores. Organizados para você decidir mais rápido.</p>
-    <div class="hero-cta fade delay-2">
+<header class="hero">
+  <div class="wrap hero-inner">
+    <p class="kicker reveal">NBA Props Intelligence</p>
+    <h1 class="reveal">Análise premium para entender props da NBA em segundos.</h1>
+    <p class="subtitle reveal">LinhaCash organiza linhas, contexto recente e sinais-chave dos jogadores em uma leitura direta, para decisões rápidas e mais confiantes.</p>
+    <div class="hero-cta reveal">
       <a class="btn primary" href="/app.html">Ver jogos de hoje</a>
-      <a class="btn secondary" href="#planos">Ver planos</a>
+      <a class="btn" href="#como-funciona">Como funciona</a>
     </div>
-    <p class="hero-microcopy fade delay-2">Sem cartão de crédito · Plano gratuito disponível</p>
+    <p class="hero-microcopy reveal">Plano Free disponível · Upgrade para Pro quando quiser</p>
   </div>
-  <a class="hero-scroll" href="#como-funciona" aria-label="Rolar para seção Como funciona">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-  </a>
 </header>
 
 <main>
+  <section>
+    <div class="wrap proof-strip">
+      <article class="proof-item reveal"><strong class="mono">L5 · L10 · H2H</strong><span>Leitura objetiva dos recortes que mais impactam props.</span></article>
+      <article class="proof-item reveal"><strong class="mono">1 clique</strong><span>Abra o jogador e veja os dados essenciais sem ruído visual.</span></article>
+      <article class="proof-item reveal"><strong class="mono">Free + Pro</strong><span>Valide no plano gratuito e escale com profundidade no Pro.</span></article>
+    </div>
+  </section>
+
   <section id="como-funciona">
     <div class="wrap">
       <h2 class="h2 reveal">Como funciona</h2>
-      <p class="p reveal">Escolha o jogo, analise o jogador e veja as métricas que realmente ajudam na decisão.</p>
+      <p class="p reveal">Três passos para transformar volume de dados em decisão prática antes da aposta.</p>
       <div class="steps">
-        <article class="step reveal"><span class="n">Passo 1</span><h3>Escolha o jogo</h3><p>Abra os confrontos do dia e entre direto no duelo que quer analisar.</p></article>
-        <article class="step reveal"><span class="n">Passo 2</span><h3>Abra o jogador</h3><p>Veja os props principais em um modal claro, com os dados que realmente importam.</p></article>
-        <article class="step reveal"><span class="n">Passo 3</span><h3>Tome sua decisão</h3><p>Compare linha, fase recente e contexto. Menos dúvida antes de entrar na aposta.</p></article>
+        <article class="step reveal"><span class="n">Passo 1</span><h3>Escolha o jogo</h3><p>Entre na rodada do dia e selecione o confronto que você quer estudar.</p></article>
+        <article class="step reveal"><span class="n">Passo 2</span><h3>Abra o jogador</h3><p>Visualize linha, odds e métricas de desempenho em um fluxo direto.</p></article>
+        <article class="step reveal"><span class="n">Passo 3</span><h3>Decida com contexto</h3><p>Compare tendências e ajuste sua leitura sem navegar por múltiplas telas.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2 class="h2 reveal">Produto feito para leitura rápida, sem poluição visual.</h2>
+      <p class="p reveal">Estrutura editorial, foco em números e experiência de análise orientada por contexto real de jogo.</p>
+      <div class="value-grid">
+        <article class="value-panel reveal">
+          <h3>O que você ganha</h3>
+          <ul class="value-list">
+            <li><strong>Velocidade:</strong> visão instantânea dos recortes mais úteis.</li>
+            <li><strong>Consistência:</strong> mesma estrutura para todos os jogos e jogadores.</li>
+            <li><strong>Clareza:</strong> menos distrações, mais sinal analítico.</li>
+          </ul>
+        </article>
+        <article class="value-panel reveal">
+          <h3>Para quem é</h3>
+          <ul class="value-list">
+            <li>Apostadores que acompanham NBA diariamente.</li>
+            <li>Usuários que querem validar leitura no Free antes de assinar.</li>
+            <li>Pessoas que precisam decidir rápido, com método.</li>
+          </ul>
+        </article>
       </div>
     </div>
   </section>
 
   <section id="planos">
     <div class="wrap">
-      <h2 class="h2 reveal">Escolha o nível de análise que faz sentido para você</h2>
-      <p class="p reveal">Comece gratuitamente com acesso essencial ou libere todos os jogos, jogadores e métricas com o plano Pro.</p>
+      <h2 class="h2 reveal">Escolha seu plano</h2>
+      <p class="p reveal">Comece no Free e avance para Pro quando quiser cobertura total.</p>
       <div class="plans">
         <article class="plan reveal">
           <h3>Free</h3>
-          <div class="price">R$0</div>
-          <div class="small">Ideal para testar a rotina e sentir a experiência do LinhaCash.</div>
+          <div class="price mono">R$0</div>
+          <div class="small">Para começar sem custo e validar sua rotina de análise.</div>
           <ul class="list">
             <li class="on">Todos os jogos visíveis na rodada</li>
             <li class="on">1 jogo liberado por dia</li>
@@ -199,17 +191,17 @@ h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spac
         </article>
         <article class="plan pro reveal">
           <h3>Pro</h3>
-          <div class="price">R$24,90 <span style="font-size:15px;font-weight:600">/mês</span></div>
-          <div class="small">Para quem acompanha NBA todos os dias e quer ler props com profundidade.</div>
+          <div class="price mono">R$24,90 <span style="font-size:14px;font-family:Inter,sans-serif;font-weight:600">/mês</span></div>
+          <div class="small">Para máxima profundidade em jogadores, jogos e métricas.</div>
           <ul class="list">
             <li class="on">Todos os jogos da rodada</li>
             <li class="on">Todos os jogadores</li>
             <li class="on">Todas as estatísticas liberadas</li>
-            <li class="on">Mais contexto para decisões rápidas</li>
+            <li class="on">Contexto completo para decisão rápida</li>
           </ul>
           <div class="price-note">
-            <strong style="color:var(--tx)">Pro anual: R$197/ano</strong><br/>
-            Equivalente a R$16,41/mês, com economia de aproximadamente 34%.
+            <strong style="color:var(--text)">Pro anual: R$197/ano</strong><br/>
+            Equivalente a R$16,41/mês, com economia aproximada de 34%.
           </div>
           <div style="margin-top:16px"><a class="btn primary" href="/app.html">Assinar Pro</a></div>
         </article>
@@ -217,10 +209,12 @@ h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spac
     </div>
   </section>
 
-  <section class="final wrap">
-    <h2 class="h2 reveal">Comece com o essencial. Desbloqueie a visão completa.</h2>
-    <p class="reveal">Acesse um jogo gratuitamente ou libere todos os jogadores, métricas e análises com o plano Pro.</p>
-    <a class="btn primary reveal" href="/app.html">Criar conta grátis</a>
+  <section class="final">
+    <div class="wrap">
+      <h2 class="h2 reveal">Pronto para analisar a rodada com mais confiança?</h2>
+      <p class="p reveal">Crie sua conta gratuita agora e desbloqueie o Pro quando quiser acesso completo.</p>
+      <a class="btn primary reveal" href="/app.html">Criar conta grátis</a>
+    </div>
   </section>
 </main>
 
@@ -294,8 +288,6 @@ function setupTracking(){
 
 setupTracking();
 
-// Se links de auth (recovery/confirm) caírem na landing, redireciona para o app
-// preservando query/hash para o fluxo de callback.
 (function normalizeAuthRedirect(){
   const q = new URLSearchParams(window.location.search);
   const h = new URLSearchParams(window.location.hash.replace(/^#/, ''));

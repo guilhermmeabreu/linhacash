@@ -11,8 +11,8 @@ export default function AdminLogin() {
   const [dark, setDark] = useState(true);
 
   const palette = dark
-    ? { bg: '#070b09', card: '#0f1512', border: '#24312b', input: '#141d19', text: '#ebf5ef', muted: '#8ea69a' }
-    : { bg: '#eff5f2', card: '#ffffff', border: '#ccdad3', input: '#f8fbfa', text: '#12201a', muted: '#567066' };
+    ? { bg: '#000000', surface: '#0a0a0a', border: '#1a1a1a', input: '#0f0f0f', text: '#f5f5f5', muted: '#888888', accent: '#22c55e' }
+    : { bg: '#f4f6f4', surface: '#ffffff', border: '#d5ddd6', input: '#fbfdfb', text: '#101412', muted: '#5f6a62', accent: '#16a34a' };
 
   const toggleTheme = () => {
     const next = !dark;
@@ -53,28 +53,39 @@ export default function AdminLogin() {
 
   return (
     <div style={{ minHeight: '100vh', background: palette.bg, display: 'grid', placeItems: 'center', padding: 'clamp(16px,3vw,28px)', fontFamily: 'Inter, sans-serif' }}>
-      <button onClick={toggleTheme} style={{ position: 'fixed', top: 20, right: 20, width: 40, height: 40, border: `1px solid ${palette.border}`, background: palette.card, color: palette.muted, cursor: 'pointer', fontSize: 16 }}>
+      <button
+        onClick={toggleTheme}
+        style={{ position: 'fixed', top: 18, right: 18, width: 38, height: 38, border: `1px solid ${palette.border}`, background: palette.surface, color: palette.muted, cursor: 'pointer', fontSize: 15 }}
+        aria-label="Alternar tema"
+      >
         {dark ? '☾' : '☀'}
       </button>
 
-      <div style={{ width: '100%', maxWidth: 500, background: palette.card, border: `1px solid ${palette.border}`, padding: 'clamp(22px,3vw,34px)', boxShadow: dark ? '0 26px 48px rgba(0,0,0,.36)' : '0 16px 30px rgba(18,32,26,.09)' }}>
-        <p style={{ fontSize: 11, color: '#00c768', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 12, fontWeight: 700 }}>Admin Access · LinhaCash</p>
-        <h1 style={{ fontSize: 'clamp(30px,4vw,36px)', fontWeight: 800, marginBottom: 8, color: palette.text, letterSpacing: '-.03em', lineHeight: 1.08 }}>Painel de operação</h1>
-        <p style={{ fontSize: 14, color: palette.muted, marginBottom: 22, lineHeight: 1.62, maxWidth: 460 }}>Acesse um ambiente seguro para gerenciar usuários, planos e sincronização de dados.</p>
+      <div style={{ width: '100%', maxWidth: 520, background: palette.surface, border: `1px solid ${palette.border}`, padding: 'clamp(24px,3vw,34px)' }}>
+        <p style={{ fontSize: 11, color: palette.accent, textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 12, fontWeight: 600 }}>Admin Access · LinhaCash</p>
+        <h1 style={{ fontSize: 'clamp(30px,4vw,42px)', fontWeight: 900, marginBottom: 8, color: palette.text, letterSpacing: '-.04em', lineHeight: 1 }}>Painel de operação</h1>
+        <p style={{ fontSize: 14, color: palette.muted, marginBottom: 24, lineHeight: 1.65, maxWidth: 460 }}>Acesse um ambiente seguro para gerenciar usuários, assinaturas e sincronização de dados.</p>
 
-        <label style={{ fontSize: 12, color: palette.muted, fontWeight: 600 }}>Email</label>
+        <label style={{ fontSize: 11, color: palette.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em' }}>Email</label>
         <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" placeholder="admin@linhacash.com" style={{ width: '100%', margin: '6px 0 12px', padding: 13, minHeight: 46, border: `1px solid ${palette.border}`, background: palette.input, color: palette.text, outline: 'none' }} />
 
-        <label style={{ fontSize: 12, color: palette.muted, fontWeight: 600 }}>Senha</label>
+        <label style={{ fontSize: 11, color: palette.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em' }}>Senha</label>
         <input value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} type="password" placeholder="••••••••" style={{ width: '100%', margin: '6px 0 12px', padding: 13, minHeight: 46, border: `1px solid ${palette.border}`, background: palette.input, color: palette.text, outline: 'none' }} />
 
-
-        <label style={{ fontSize: 12, color: palette.muted, fontWeight: 600 }}>Código 2FA (se habilitado)</label>
-        <input value={totpCode} onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} type="text" inputMode="numeric" placeholder="000000" style={{ width: '100%', margin: '6px 0 14px', padding: 13, minHeight: 46, border: `1px solid ${palette.border}`, background: palette.input, color: palette.text, outline: 'none' }} />
+        <label style={{ fontSize: 11, color: palette.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.08em' }}>Código 2FA (se habilitado)</label>
+        <input
+          value={totpCode}
+          onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+          onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+          type="text"
+          inputMode="numeric"
+          placeholder="000000"
+          style={{ width: '100%', margin: '6px 0 14px', padding: 13, minHeight: 46, border: `1px solid ${palette.border}`, background: palette.input, color: palette.text, outline: 'none', fontFamily: 'JetBrains Mono, monospace' }}
+        />
 
         {error && <div style={{ fontSize: 13, marginBottom: 12, border: '1px solid rgba(240,82,82,.5)', background: 'rgba(240,82,82,.1)', color: '#f29b9b', padding: 10 }}>{error}</div>}
 
-        <button disabled={loading} onClick={handleLogin} style={{ width: '100%', minHeight: 48, padding: 12, background: loading ? '#6f8379' : '#00e676', border: 'none', color: '#06200f', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.8 : 1 }}>
+        <button disabled={loading} onClick={handleLogin} style={{ width: '100%', minHeight: 48, padding: 12, background: loading ? '#6f8379' : palette.accent, border: 'none', color: '#06200f', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.8 : 1, textTransform: 'uppercase', letterSpacing: '.04em' }}>
           {loading ? 'Validando acesso...' : 'Entrar no painel'}
         </button>
       </div>
