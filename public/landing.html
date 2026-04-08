@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="description" content="LinhaCash entrega leitura rápida dos props da NBA em português para você decidir com mais confiança."/>
-<title>LinhaCash | Análise para NBA</title>
+<meta name="description" content="LinhaCash organiza leitura de props da NBA em português para decisões mais rápidas e embasadas."/>
+<title>LinhaCash | Análise premium para props NBA</title>
 <link rel="icon" href="/logo.png"/>
 <script>
 (function () {
@@ -19,198 +19,241 @@
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#070908;--s1:#0f1512;--s2:#141d19;--bd:#24312b;--bd2:#30453c;--tx:#ecf5f1;--mt:#95a99f;--green:#00e676;--green-soft:rgba(0,230,118,.16);--space-1:8px;--space-2:12px;--space-3:16px;--space-4:24px;--space-5:34px;--space-6:52px}
-html.light{--bg:#f3f8f5;--s1:#ffffff;--s2:#f7fbf8;--bd:#cfddd5;--bd2:#b8cbc1;--tx:#16241e;--mt:#5f746a;--green:#00b861;--green-soft:rgba(0,184,97,.14)}
+:root{--bg:#000000;--s1:#0a0a0a;--s2:#111111;--bd:#1f1f1f;--bd2:#2b2b2b;--tx:#ffffff;--mt:#888888;--green:#22c55e;--green-soft:rgba(34,197,94,.14);--sp-1:8px;--sp-2:12px;--sp-3:16px;--sp-4:24px;--sp-5:40px;--sp-6:72px}
+html.light{--bg:#f8faf8;--s1:#ffffff;--s2:#f2f5f3;--bd:#dde5df;--bd2:#cad5cd;--tx:#0e1511;--mt:#5f6d64;--green:#1ea754;--green-soft:rgba(30,167,84,.16)}
 html,body{font-family:Inter,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--tx);scroll-behavior:smooth}
-body{overflow-x:hidden}
+body{overflow-x:hidden;line-height:1.5}
 a{text-decoration:none;color:inherit}
-.wrap{width:min(100%,1160px);margin:0 auto;padding:0 clamp(16px,3vw,var(--space-4))}
-img,svg{max-width:100%;height:auto}
-nav{position:sticky;top:0;z-index:30;border-bottom:1px solid var(--bd);backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg) 90%, transparent)}
-.ninner{height:70px;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.wrap{width:min(100%,1160px);margin:0 auto;padding:0 clamp(18px,3vw,var(--sp-4))}
+nav{position:sticky;top:0;z-index:40;border-bottom:1px solid var(--bd);background:color-mix(in srgb,var(--bg) 88%, transparent);backdrop-filter:blur(14px)}
+.nav-inner{height:72px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
 .logo img{width:28px;height:28px}
 .brand-accent{color:var(--green)}
+.nav-links{display:flex;gap:18px;align-items:center}
+.nav-link{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--mt);transition:color .2s ease}
+.nav-link:hover{color:var(--tx)}
 .nav-actions{display:flex;gap:10px;align-items:center}
-.btn{padding:11px 17px;border:1px solid var(--bd2);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:border-color .25s,color .25s,transform .25s,background .25s,box-shadow .25s; background:transparent;color:var(--tx);cursor:pointer;display:inline-flex;justify-content:center;align-items:center;line-height:1}
-.btn:hover{border-color:var(--green);color:var(--green);transform:translateY(-1px)}
-.btn.primary{background:var(--green);border-color:var(--green);color:#00160b}
-.btn.primary:hover{color:#00160b;filter:brightness(.95)}
-#theme{width:40px;height:40px;display:grid;place-items:center;padding:0}
-#theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
-main section{padding:78px 0;border-top:1px solid var(--bd)}
-.hero{padding:62px 0 58px;position:relative;overflow:hidden;min-height:calc(100vh - 70px);min-height:calc(100svh - 70px);display:grid;place-items:center}
-.hero::before{content:'';position:absolute;inset:-20% -10% auto;background:radial-gradient(circle at top,rgba(0,230,118,.14),transparent 56%);height:72%;pointer-events:none}
-.hero-inner{position:relative;width:min(100%,780px);margin:0 auto;text-align:center}
-h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spacing:-.03em;text-wrap:balance}
-.subtitle{margin:15px auto 0;color:color-mix(in srgb,var(--mt) 92%, var(--tx) 8%);font-size:18px;line-height:1.6;max-width:36ch}
-.hero-cta{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:24px}
-.hero-cta .btn.primary{min-width:216px;box-shadow:0 8px 20px rgba(0,230,118,.2)}
-.hero-cta .btn.secondary{background:color-mix(in srgb,var(--s1) 82%, transparent 18%);border-color:color-mix(in srgb,var(--bd2) 68%, var(--tx) 32%);min-width:196px;color:color-mix(in srgb,var(--tx) 92%, var(--mt) 8%)}
-.hero-microcopy{margin-top:12px;font-size:12px;color:var(--mt);line-height:1.5}
-.hero-scroll{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);display:grid;place-items:center;width:34px;height:34px;color:var(--mt);opacity:.72;transition:opacity .25s ease,transform .25s ease}
-.hero-scroll:hover{opacity:1;transform:translateX(-50%) translateY(1px)}
-.hero-scroll svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;animation:scrollHint 1.8s ease-in-out infinite}
-@keyframes scrollHint{0%,100%{transform:translateY(-2px)}50%{transform:translateY(2px)}}
-.h2{font-size:clamp(32px,4.2vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.14;text-align:center;text-wrap:balance;max-width:22ch;margin:0 auto}
-.p{margin:12px auto 0;color:var(--mt);font-size:17px;line-height:1.65;max-width:700px;text-align:center}
-.tag{font-size:11px;padding:4px 8px;border:1px solid var(--bd2);text-transform:uppercase;letter-spacing:.05em}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:28px}
-.step{padding:24px;border:1px solid color-mix(in srgb,var(--bd) 82%, var(--tx) 18%);background:linear-gradient(180deg,color-mix(in srgb,var(--s1) 88%, transparent 12%),color-mix(in srgb,var(--s2) 92%, transparent 8%));box-shadow:0 6px 16px rgba(0,0,0,.12);transition:.25s}
-.step:hover{border-color:var(--green);transform:translateY(-2px);box-shadow:0 10px 22px rgba(0,0,0,.16)}
-.n{font-size:12px;color:var(--green);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
-.step h3{margin-top:9px;font-size:20px;letter-spacing:-.01em;line-height:1.25}
-.step p{margin-top:10px;color:var(--mt);font-size:14px;line-height:1.62}
-.plans{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:34px}
-.plan{background:var(--s1);border:1px solid var(--bd);padding:32px}
-.plan.pro{border-color:var(--green);box-shadow:0 0 0 1px var(--green-soft) inset}
-.plan h3{font-size:24px;letter-spacing:-.01em}
-.price{font-size:44px;font-weight:800;letter-spacing:-.03em;margin:8px 0}
-.small{font-size:13px;color:var(--mt);line-height:1.65}
-.list{margin:18px 0 24px;display:grid;gap:8px}
+.btn{min-height:42px;padding:0 16px;border:1px solid var(--bd2);font-size:12px;letter-spacing:.05em;text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:var(--tx);transition:.2s ease;cursor:pointer}
+.btn:hover{border-color:var(--green);color:var(--green)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#042312}
+.btn.primary:hover{color:#042312;filter:brightness(.96)}
+.btn.ghost{background:var(--s1)}
+#theme{width:40px;padding:0;display:grid;place-items:center}
+#theme svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.9}
+main section{padding:var(--sp-6) 0;border-top:1px solid var(--bd)}
+.hero{border-top:none;padding:88px 0 72px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:30px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:4px 10px;border:1px solid var(--bd2);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mt)}
+.eyebrow::before{content:'';width:6px;height:6px;border-radius:999px;background:var(--green)}
+h1{margin-top:18px;font-size:clamp(36px,5.8vw,64px);line-height:1.03;letter-spacing:-.04em;max-width:12ch;text-wrap:balance}
+.subtitle{margin-top:18px;font-size:18px;color:var(--mt);line-height:1.62;max-width:42ch}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero-note{margin-top:10px;color:var(--mt);font-size:12px}
+.preview{border:1px solid var(--bd);background:linear-gradient(180deg,color-mix(in srgb,var(--s1) 84%, transparent),color-mix(in srgb,var(--s2) 90%, transparent));padding:22px}
+.preview-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--bd)}
+.preview-title{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--mt)}
+.preview-match{margin-top:8px;font-size:20px;font-weight:700;letter-spacing:-.02em}
+.tag{font-size:11px;color:var(--green);border:1px solid color-mix(in srgb,var(--green) 50%, var(--bd) 50%);background:var(--green-soft);padding:5px 8px}
+.kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:16px}
+.kpi{border:1px solid var(--bd);background:var(--bg);padding:12px}
+.kpi-label{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.06em}
+.kpi-value{margin-top:6px;font-size:22px;font-weight:700;letter-spacing:-.03em}
+.kpi-sub{margin-top:4px;font-size:12px;color:var(--mt)}
+.proof-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:1px solid var(--bd)}
+.proof-item{padding:18px;border-right:1px solid var(--bd);background:var(--s1)}
+.proof-item:last-child{border-right:none}
+.proof-label{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.07em}
+.proof-value{margin-top:8px;font-size:24px;font-weight:800;letter-spacing:-.03em}
+.proof-desc{margin-top:4px;font-size:13px;color:var(--mt)}
+.h2{font-size:clamp(28px,4vw,46px);line-height:1.1;letter-spacing:-.03em;max-width:18ch}
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:30px}
+.section-copy{max-width:54ch;color:var(--mt)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.step{padding:24px 22px;border:1px solid var(--bd);background:var(--s1)}
+.step-num{font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:.08em}
+.step h3{margin-top:10px;font-size:22px;letter-spacing:-.02em}
+.step p{margin-top:10px;font-size:14px;color:var(--mt)}
+.value-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;align-items:stretch}
+.value-copy{padding:26px;border:1px solid var(--bd);background:var(--s1)}
+.value-list{display:grid;gap:14px;margin-top:18px}
+.value-list li{list-style:none;padding-left:20px;position:relative;color:var(--mt)}
+.value-list li::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--green);position:absolute;left:0;top:.45em}
+.value-rail{padding:24px;border:1px solid var(--bd);background:var(--s1);display:grid;gap:14px}
+.rail-item{padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.rail-item:last-child{padding-bottom:0;border-bottom:none}
+.rail-label{font-size:11px;color:var(--mt);text-transform:uppercase;letter-spacing:.06em}
+.rail-value{margin-top:6px;font-size:27px;letter-spacing:-.03em;font-weight:800}
+.plans-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.plan{padding:26px;border:1px solid var(--bd);background:var(--s1)}
+.plan.pro{border-color:color-mix(in srgb,var(--green) 45%, var(--bd) 55%)}
+.plan h3{font-size:26px;letter-spacing:-.02em}
+.price{margin-top:10px;font-size:44px;font-weight:800;letter-spacing:-.03em}
+.price span{font-size:15px;font-weight:600;color:var(--mt)}
+.small{margin-top:10px;color:var(--mt);font-size:14px;line-height:1.6}
+.list{margin-top:16px;display:grid;gap:8px}
 .list li{list-style:none;font-size:14px;color:var(--mt)}
 .list li.on{color:var(--tx)}
-.price-note{margin-top:14px;padding:10px 12px;border:1px solid var(--bd2);background:var(--s2);font-size:12px;color:var(--mt);line-height:1.5}
-.final{text-align:center}
-.final p{max-width:630px;margin:14px auto 26px;color:var(--mt);line-height:1.65}
-.footer{border-top:1px solid var(--bd);padding:28px 0}
-.footer-content{max-width:700px;margin:0 auto;text-align:center;display:grid;gap:8px}
+.price-note{margin-top:16px;padding:10px 12px;border:1px solid var(--bd2);background:var(--s2);font-size:12px;color:var(--mt)}
+.final{padding-top:82px;padding-bottom:82px;text-align:center}
+.final h2{margin:0 auto;max-width:16ch}
+.final p{margin:16px auto 28px;max-width:60ch;color:var(--mt)}
+.footer{border-top:1px solid var(--bd);padding:30px 0 36px}
+.footer-content{max-width:720px;margin:0 auto;text-align:center;display:grid;gap:8px}
 .footer-brand{font-weight:800;letter-spacing:-.02em}
-.footer-desc{font-size:14px;color:var(--mt);line-height:1.6}
-.footer-meta{font-size:13px;color:var(--mt)}
-.footer-links{font-size:13px;color:var(--tx)}
-.footer-links a{color:var(--tx);opacity:.95}
-.footer-links a:hover{color:var(--green);opacity:1}
-.footer-contact{font-size:13px}
-.footer-contact a{color:var(--tx)}
-.disclaimer{font-size:12px;color:var(--mt);line-height:1.55;max-width:64ch;margin:0 auto}
-.copy{font-size:12px;color:var(--mt)}
-.fade{opacity:0;transform:translateY(12px);animation:fadeUp .7s ease forwards}
-.delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}
-@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
-.reveal.is-visible{opacity:1;transform:translateY(0)}
-@media (max-width:1024px){.steps,.plans{grid-template-columns:1fr}}
-@media (max-width:768px){
-  .wrap{padding:0 18px}
-  .ninner{height:auto;min-height:66px;padding:9px 0;align-items:center;gap:10px}
-  .logo{font-size:18px;gap:8px}
+.footer-desc,.footer-meta,.disclaimer,.copy{color:var(--mt)}
+.footer-links a:hover,.footer-contact a:hover{color:var(--green)}
+.fade{opacity:0;transform:translateY(10px);animation:fadeUp .65s ease forwards}
+.delay-1{animation-delay:.08s}.delay-2{animation-delay:.16s}.delay-3{animation-delay:.24s}
+.reveal{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.reveal.is-visible{opacity:1;transform:none}
+@keyframes fadeUp{to{opacity:1;transform:none}}
+@media (max-width:1024px){
+  .hero-grid,.value-grid{grid-template-columns:1fr}
+  .proof-strip{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .proof-item:nth-child(2){border-right:none}
+  .proof-item:nth-child(-n+2){border-bottom:1px solid var(--bd)}
+  .steps,.plans-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .nav-inner{height:auto;min-height:64px;padding:10px 0;gap:8px}
+  .nav-links{display:none}
+  .logo{font-size:18px}
   .logo img{width:24px;height:24px}
-  .nav-actions{margin-left:auto;gap:8px}
-  .nav-actions .btn:not(.primary):not(#theme){display:none}
-  .nav-actions .btn.primary{padding:10px 14px;font-size:11px;letter-spacing:.045em}
-  #theme{width:32px;height:32px;opacity:.72;border-color:transparent}
-  #theme svg{width:14px;height:14px}
-  main section{padding:72px 0}
-  .hero{padding:28px 0 34px;min-height:calc(100vh - 66px);min-height:calc(100svh - 66px);min-height:calc(100dvh - 66px)}
-  .hero-inner{max-width:430px;min-height:100%;display:flex;flex-direction:column;justify-content:center}
-  h1{font-size:clamp(30px,7.4vw,36px);line-height:1.16;letter-spacing:-.022em}
-  .subtitle{margin-top:18px;font-size:15px;line-height:1.7;max-width:unset}
-  .hero-cta{margin-top:20px;gap:10px;flex-direction:column}
-  .hero-cta .btn.primary,.hero-cta .btn.secondary{width:100%;min-width:0}
-  .hero-cta .btn.secondary{font-size:11px;letter-spacing:.05em;background:var(--s2)}
-  .hero-microcopy{margin-top:14px;padding:0 8px}
-  .hero-scroll{bottom:calc(14px + env(safe-area-inset-bottom))}
-  .steps{margin-top:24px;gap:10px}
-  .step{padding:18px 16px}
-  .step h3{font-size:18px}
-  .step p{font-size:13px;line-height:1.58}
-  .plans{margin-top:26px}
-  .plan{padding:22px 18px}
-  .price{font-size:36px}
-  .final p{margin:16px auto 24px}
-}
-@media (max-width:520px){
-  .btn{padding:10px 14px;font-size:11px}
-  .h2{font-size:clamp(24px,7.4vw,30px)}
-  .p{font-size:15px;line-height:1.62}
-  .hero{padding-top:24px;padding-bottom:30px}
-  .hero-inner{max-width:390px}
-  h1{font-size:clamp(26px,7.4vw,32px);line-height:1.24}
-  .subtitle{font-size:14px;line-height:1.66}
-  main section{padding:68px 0}
-  .list li,.small,.disclaimer{overflow-wrap:break-word}
-  .footer{padding:24px 0 28px}
-}
-@media (max-width:400px){
-  .logo{font-size:17px}
-  .nav-actions .btn.primary{padding:9px 12px;font-size:10px}
-  .hero-cta{gap:8px}
-  .hero-microcopy{font-size:11px}
+  .nav-actions .btn.primary{padding:0 12px;font-size:11px}
+  #theme{width:34px;min-height:34px}
+  .hero{padding-top:56px;padding-bottom:54px}
+  h1{font-size:clamp(30px,10vw,42px)}
+  .subtitle{font-size:15px}
+  .hero-cta{flex-direction:column}
+  .hero-cta .btn{width:100%}
+  .proof-strip{grid-template-columns:1fr}
+  .proof-item{border-right:none;border-bottom:1px solid var(--bd)}
+  .proof-item:last-child{border-bottom:none}
+  .section-head{display:block;margin-bottom:22px}
+  .h2{font-size:clamp(24px,9vw,34px)}
 }
 </style>
 </head>
 <body>
 <nav>
-  <div class="wrap ninner">
+  <div class="wrap nav-inner">
     <a class="logo" href="/landing.html"><img src="/logo.png" alt="LinhaCash"/><span>Linha<span class="brand-accent">Cash</span></span></a>
+    <div class="nav-links">
+      <a class="nav-link" href="#como-funciona">Como funciona</a>
+      <a class="nav-link" href="#planos">Planos</a>
+    </div>
     <div class="nav-actions">
       <button class="btn" id="theme" aria-label="Alternar tema"></button>
-      <a class="btn" href="#planos">Planos</a>
-      <a class="btn primary" href="/app.html">Começar grátis</a>
+      <a class="btn primary" href="/app.html">Entrar no app</a>
     </div>
   </div>
 </nav>
 
-<header class="hero wrap">
-  <div class="hero-inner">
-    <h1 class="fade">Veja o que os números realmente mostram</h1>
-    <p class="subtitle fade delay-1">Tendências, desempenho recente e contexto real dos jogadores. Organizados para você decidir mais rápido.</p>
-    <div class="hero-cta fade delay-2">
-      <a class="btn primary" href="/app.html">Ver jogos de hoje</a>
-      <a class="btn secondary" href="#planos">Ver planos</a>
-    </div>
-    <p class="hero-microcopy fade delay-2">Sem cartão de crédito · Plano gratuito disponível</p>
-  </div>
-  <a class="hero-scroll" href="#como-funciona" aria-label="Rolar para seção Como funciona">
-    <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
-  </a>
-</header>
-
 <main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow fade">Análise NBA orientada por dados</span>
+        <h1 class="fade delay-1">Leitura clara de props para decidir com mais precisão.</h1>
+        <p class="subtitle fade delay-2">LinhaCash organiza tendência recente, linha atual e contexto do jogador em segundos. Menos ruído, mais decisão.</p>
+        <div class="hero-cta fade delay-3">
+          <a class="btn primary" href="/app.html">Começar grátis</a>
+          <a class="btn ghost" href="#planos">Ver Free vs Pro</a>
+        </div>
+        <p class="hero-note fade delay-3">Sem cartão no plano Free · upgrade quando quiser</p>
+      </div>
+
+      <aside class="preview fade delay-2" aria-label="Prévia de análise">
+        <div class="preview-top">
+          <div>
+            <p class="preview-title">Prévia de leitura</p>
+            <p class="preview-match">LAL vs BOS · LeBron James</p>
+          </div>
+          <span class="tag">PROP: PTS 26.5</span>
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi"><p class="kpi-label">Últimos 10</p><p class="kpi-value">28.4</p><p class="kpi-sub">média de pontos</p></div>
+          <div class="kpi"><p class="kpi-label">Over linha</p><p class="kpi-value">70%</p><p class="kpi-sub">7 de 10 jogos</p></div>
+          <div class="kpi"><p class="kpi-label">Uso ofensivo</p><p class="kpi-value">31.2%</p><p class="kpi-sub">últimos 5 jogos</p></div>
+          <div class="kpi"><p class="kpi-label">Minutos</p><p class="kpi-value">36.8</p><p class="kpi-sub">consistência recente</p></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap reveal" aria-label="Provas de valor">
+    <div class="proof-strip">
+      <article class="proof-item"><p class="proof-label">Leitura</p><p class="proof-value">Rápida</p><p class="proof-desc">Métricas relevantes em uma visão objetiva.</p></article>
+      <article class="proof-item"><p class="proof-label">Contexto</p><p class="proof-value">Completo</p><p class="proof-desc">Janela recente, linha e consistência lado a lado.</p></article>
+      <article class="proof-item"><p class="proof-label">Rotina</p><p class="proof-value">Diária</p><p class="proof-desc">Acesse os jogos do dia e vá direto ao ponto.</p></article>
+      <article class="proof-item"><p class="proof-label">Decisão</p><p class="proof-value">Mais clara</p><p class="proof-desc">Menos interpretação solta, mais direção prática.</p></article>
+    </div>
+  </section>
+
   <section id="como-funciona">
     <div class="wrap">
-      <h2 class="h2 reveal">Como funciona</h2>
-      <p class="p reveal">Escolha o jogo, analise o jogador e veja as métricas que realmente ajudam na decisão.</p>
-      <div class="steps">
-        <article class="step reveal"><span class="n">Passo 1</span><h3>Escolha o jogo</h3><p>Abra os confrontos do dia e entre direto no duelo que quer analisar.</p></article>
-        <article class="step reveal"><span class="n">Passo 2</span><h3>Abra o jogador</h3><p>Veja os props principais em um modal claro, com os dados que realmente importam.</p></article>
-        <article class="step reveal"><span class="n">Passo 3</span><h3>Tome sua decisão</h3><p>Compare linha, fase recente e contexto. Menos dúvida antes de entrar na aposta.</p></article>
+      <div class="section-head reveal">
+        <h2 class="h2">Como funciona</h2>
+        <p class="section-copy">Fluxo direto para análise de props: escolha o jogo, abra o jogador e compare linha com desempenho recente.</p>
       </div>
+      <div class="steps">
+        <article class="step reveal"><p class="step-num">Passo 1</p><h3>Selecione o jogo</h3><p>Veja a rodada e entre no confronto que você quer estudar.</p></article>
+        <article class="step reveal"><p class="step-num">Passo 2</p><h3>Leia o jogador</h3><p>Acompanhe métricas úteis para props sem navegar em telas confusas.</p></article>
+        <article class="step reveal"><p class="step-num">Passo 3</p><h3>Decida melhor</h3><p>Use tendência, contexto e linha para uma decisão mais embasada.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap value-grid">
+      <article class="value-copy reveal">
+        <h2 class="h2">O que você recebe no LinhaCash</h2>
+        <ul class="value-list">
+          <li>Leitura de props com foco em jogador, linha e janela recente.</li>
+          <li>Comparação rápida entre consistência, volume e eficiência.</li>
+          <li>Visão pronta para rotina de quem aposta em NBA com frequência.</li>
+          <li>Estrutura limpa para decidir sem excesso de informação visual.</li>
+        </ul>
+      </article>
+      <aside class="value-rail reveal" aria-label="Indicadores de produto">
+        <div class="rail-item"><p class="rail-label">Foco do produto</p><p class="rail-value">Player Props NBA</p></div>
+        <div class="rail-item"><p class="rail-label">Forma de leitura</p><p class="rail-value">Dados organizados</p></div>
+        <div class="rail-item"><p class="rail-label">Objetivo</p><p class="rail-value">Decisão mais consistente</p></div>
+      </aside>
     </div>
   </section>
 
   <section id="planos">
     <div class="wrap">
-      <h2 class="h2 reveal">Escolha o nível de análise que faz sentido para você</h2>
-      <p class="p reveal">Comece gratuitamente com acesso essencial ou libere todos os jogos, jogadores e métricas com o plano Pro.</p>
-      <div class="plans">
+      <div class="section-head reveal">
+        <h2 class="h2">Free para começar. Pro para profundidade total.</h2>
+        <p class="section-copy">Entre sem custo para validar a rotina. Faça upgrade para destravar todos os jogos, jogadores e métricas.</p>
+      </div>
+      <div class="plans-grid">
         <article class="plan reveal">
           <h3>Free</h3>
-          <div class="price">R$0</div>
-          <div class="small">Ideal para testar a rotina e sentir a experiência do LinhaCash.</div>
+          <p class="price">R$0</p>
+          <p class="small">Entrada ideal para conhecer o fluxo e testar sua rotina diária.</p>
           <ul class="list">
-            <li class="on">Todos os jogos visíveis na rodada</li>
+            <li class="on">Visualização da rodada completa</li>
             <li class="on">1 jogo liberado por dia</li>
             <li class="on">1 jogador por time</li>
-            <li>Acesso parcial às estatísticas</li>
+            <li>Acesso parcial às métricas</li>
           </ul>
           <a class="btn" href="/app.html">Começar no Free</a>
         </article>
         <article class="plan pro reveal">
           <h3>Pro</h3>
-          <div class="price">R$24,90 <span style="font-size:15px;font-weight:600">/mês</span></div>
-          <div class="small">Para quem acompanha NBA todos os dias e quer ler props com profundidade.</div>
+          <p class="price">R$24,90 <span>/mês</span></p>
+          <p class="small">Plano para quem acompanha NBA diariamente e quer leitura completa.</p>
           <ul class="list">
             <li class="on">Todos os jogos da rodada</li>
             <li class="on">Todos os jogadores</li>
             <li class="on">Todas as estatísticas liberadas</li>
             <li class="on">Mais contexto para decisões rápidas</li>
           </ul>
-          <div class="price-note">
-            <strong style="color:var(--tx)">Pro anual: R$197/ano</strong><br/>
-            Equivalente a R$16,41/mês, com economia de aproximadamente 34%.
-          </div>
+          <p class="price-note"><strong style="color:var(--tx)">Pro anual: R$197/ano</strong><br/>Equivale a R$16,41/mês (economia aproximada de 34%).</p>
           <div style="margin-top:16px"><a class="btn primary" href="/app.html">Assinar Pro</a></div>
         </article>
       </div>
@@ -218,8 +261,8 @@ h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spac
   </section>
 
   <section class="final wrap">
-    <h2 class="h2 reveal">Comece com o essencial. Desbloqueie a visão completa.</h2>
-    <p class="reveal">Acesse um jogo gratuitamente ou libere todos os jogadores, métricas e análises com o plano Pro.</p>
+    <h2 class="h2 reveal">Comece no Free hoje. Evolua para Pro quando quiser profundidade total.</h2>
+    <p class="reveal">LinhaCash foi feito para leitura rápida de dados relevantes antes da decisão. Sem fricção, sem ruído.</p>
     <a class="btn primary reveal" href="/app.html">Criar conta grátis</a>
   </section>
 </main>
@@ -228,7 +271,7 @@ h1{font-size:clamp(36px,4.6vw,56px);font-weight:800;line-height:1.08;letter-spac
   <div class="wrap">
     <div class="footer-content">
       <div class="footer-brand">LinhaCash</div>
-      <p class="footer-desc">Leitura objetiva de estatísticas e props da NBA para decidir melhor antes de apostar.</p>
+      <p class="footer-desc">Análise objetiva de props da NBA para decisões melhores, com foco em clareza e velocidade.</p>
       <p class="footer-links"><a href="/termos">Termos de uso</a> · <a href="/privacidade">Política de privacidade</a></p>
       <p class="footer-contact"><a href="mailto:contato@linhacash.com">contato@linhacash.com</a></p>
       <p class="disclaimer">Uso responsável: o LinhaCash não é casa de apostas, não intermedia apostas e não garante resultados.</p>
@@ -294,8 +337,6 @@ function setupTracking(){
 
 setupTracking();
 
-// Se links de auth (recovery/confirm) caírem na landing, redireciona para o app
-// preservando query/hash para o fluxo de callback.
 (function normalizeAuthRedirect(){
   const q = new URLSearchParams(window.location.search);
   const h = new URLSearchParams(window.location.hash.replace(/^#/, ''));
