@@ -1,4 +1,23 @@
+@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@theme {
+  --color-background: #000000;
+  --color-surface: #0a0a0a;
+  --color-accent: #22c55e;
+  --color-muted: #888888;
+  --color-border: #1f1f1f;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+  html,
+  body {
+    @apply bg-background text-white antialiased;
+    font-family: var(--font-sans);
+  }
+}
 
 * {
   box-sizing: border-box;
@@ -154,6 +173,11 @@ textarea {
 
 .lc-mono {
   font-family: var(--lc-font-mono);
+  letter-spacing: 0.01em;
+}
+
+.numeric-data {
+  font-family: var(--font-mono);
   letter-spacing: 0.01em;
 }
 
