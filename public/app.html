@@ -583,39 +583,6 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
 .analytics-value{margin-top:6px;font-size:20px;font-family:var(--font-mono);font-weight:700}
 .pro-placeholder{margin:0 16px 16px;border:1px dashed rgba(0,230,118,.35);background:rgba(0,230,118,.06);padding:14px;font-size:12px;line-height:1.5;color:#bdeccf}
 
-/* PROP DETALHE INLINE */
-.prop-inline{width:100%;margin:4px 0 0;padding:6px 8px 10px;background:transparent;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:7px;font-family:Hele,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif}
-.prop-nav{display:flex;align-items:center;justify-content:flex-start;gap:8px}
-.prop-back{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:none;background:none;color:var(--tx);padding:0;font-size:12px;font-weight:700;cursor:pointer;line-height:1}
-.prop-back:hover{color:var(--green)}
-.match-row{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:.06em}
-.match-row strong{color:var(--tx);font-size:11px;letter-spacing:.01em;text-transform:none}
-.prop-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:1px}
-.prop-tab{border:none;padding:4px 8px;font-size:10px;font-weight:800;color:#9ea6ad;cursor:pointer;white-space:nowrap;background:transparent;border-radius:999px;letter-spacing:.04em}
-.prop-tab.on{color:#04150c;background:#2fe074}.prop-tab.lk{opacity:.45}
-.identity-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding-bottom:2px}
-.identity-left{min-width:0}
-.identity-meta{font-size:10px;color:#98a1aa;text-transform:uppercase;letter-spacing:.06em}
-.identity-name{margin-top:2px;font-size:20px;font-weight:800;line-height:1.05;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.identity-right{text-align:right}
-.line-main{font-size:15px;font-weight:800;color:#8ff2b4;font-family:var(--font-mono)}
-.line-odds{margin-top:2px;font-size:10px;color:#a8b2bb;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.summary-strip{display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07);padding:5px 0;overflow-x:auto;white-space:nowrap}
-.sum-tag{font-size:9px;color:#8e98a3;text-transform:uppercase;letter-spacing:.06em}
-.sum-val{font-size:10px;color:#e8edf2;font-weight:800;font-family:var(--font-mono)}
-.sum-sep{opacity:.22}
-.chart-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
-.line-adjust{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.chart-caption{font-size:10px;color:var(--mt);margin-bottom:1px;letter-spacing:.03em;text-transform:uppercase}
-.chart-legend{font-size:9px;color:color-mix(in srgb,var(--tx) 46%,var(--mt) 54%);font-weight:700}
-.chartsec{padding:0}
-.cbars{height:360px;background:transparent;border:none;padding:8px 2px 0}
-.cdates{margin-top:4px}
-.window-row{display:flex;justify-content:center;gap:6px;padding-top:2px}
-.wbtn{border:none;background:transparent;color:#8f99a3;font-size:10px;font-weight:800;letter-spacing:.05em;padding:2px 6px;cursor:pointer}
-.wbtn.on{color:var(--green)}
-@media(max-width:760px){.identity-name{font-size:17px}.cbars{height:240px}}
-
 @media(max-width:1023px){
   .auth-layout{display:block;padding:0;min-height:auto}
   .auth-panel .awrap{max-width:500px;padding:28px 24px 44px;background:transparent;border:none;box-shadow:none}
@@ -1137,23 +1104,6 @@ const dataServices = {
     } finally {
       delete PLAYER_FETCH_PROMISES[gameId];
     }
-  },
-  async fetchPlayerStats(playerId, stat) {
-    const key=`${playerId}:${stat}`;
-    if(METRICS_FETCH_PROMISES[key]) return METRICS_FETCH_PROMISES[key];
-    METRICS_FETCH_PROMISES[key]=(async()=>{
-      const payload = await api(`/api/metrics?playerId=${playerId}&stat=${stat}`);
-      return {
-        metrics: payload?.metrics || null,
-        games: Array.isArray(payload?.games) ? payload.games : [],
-        availableStats: Array.isArray(payload?.availableStats) ? payload.availableStats : [],
-      };
-    })();
-    try{
-      return await METRICS_FETCH_PROMISES[key];
-    } finally{
-      delete METRICS_FETCH_PROMISES[key];
-    }
   }
 };
 
@@ -1162,33 +1112,12 @@ async function useGamesData() {
   return { games, hasData: games.length > 0 };
 }
 
-async function useStatsData(playerId, stat) {
-  const response = await dataServices.fetchPlayerStats(playerId, stat);
-  const safeResponse = response || {};
-  return {
-    metrics: safeResponse.metrics || null,
-    games: Array.isArray(safeResponse.games) ? safeResponse.games : [],
-    availableStats: Array.isArray(safeResponse.availableStats) ? safeResponse.availableStats : [],
-    hasData: Boolean(safeResponse.metrics || (safeResponse.games || []).length),
-  };
-}
-
 function renderGamesSkeleton(){
   return new Array(4).fill(0).map(()=>'<div class="skeleton sk-card"></div>').join('');
 }
 
 function renderPlayersSkeleton(){
   return new Array(6).fill(0).map(()=>'<div class="skeleton sk-list"></div>').join('');
-}
-
-function renderPropModalSkeleton(){
-  return `
-  <div style="padding:16px">
-    <div class="skeleton sk-list" style="height:72px;margin-bottom:12px"></div>
-    <div class="skeleton sk-list" style="height:44px;margin-bottom:12px"></div>
-    <div class="skeleton sk-list" style="height:180px;margin-bottom:12px"></div>
-    <div class="skeleton sk-list" style="height:120px"></div>
-  </div>`;
 }
 
 function renderEmptyState(title, message){
@@ -1249,9 +1178,9 @@ function setAuthLoading(buttonId, loadingText, active) {
 }
 
 // STATE 
-let GAMES=[],PBG={},METRICS={},PLAYER_GAMES={},PLAYER_MODAL_CACHE={};
-let PLAYER_FETCH_PROMISES={},METRICS_FETCH_PROMISES={};
-let cGame=null,cPlayer=null,cStat='PTS',cLine=null,cModalPlayerId=null,cDetailView='players',cWindow='L10';
+let GAMES=[],PBG={};
+let PLAYER_FETCH_PROMISES={};
+let cGame=null,cStat='PTS';
 let stack=['sBoot'];
 let plan='free',dark=document.documentElement.classList.contains('dark'),billingState=null;
 let uName='Usuário',uEmail='usuario@email.com';
@@ -1494,7 +1423,7 @@ function getFreeUnlockedGameId(games){
 
 // S2: JOGADORES 
 async function openGame(id){
- cGame=GAMES.find(g=>g.id===id);cStat='PTS';cPlayer=null;cModalPlayerId=null;cLine=null;cDetailView='players';
+ cGame=GAMES.find(g=>g.id===id);cStat='PTS';
  if(!cGame) return;
  const openedGameId=id;
  track('game_opened',{game_id:id,away_team:cGame?.away_team||null,home_team:cGame?.home_team||null});
@@ -1525,9 +1454,7 @@ async function openGame(id){
  el.addEventListener('click',function(){
  if(el.dataset.lk==='1'){track('locked_pro_feature_clicked',{context:'game_markets',market:el.dataset.stat});openPro();return;}
  document.querySelectorAll('#s2chips .schip').forEach(function(c){c.classList.remove('on');});
- el.classList.add('on');cStat=el.dataset.stat;track('market_changed',{context:'game_players',market:cStat,game_id:cGame?.id||null});
- if(cDetailView==='detail'&&cModalPlayerId){changeTab(cStat);return;}
- renderPRows();
+ el.classList.add('on');cStat=el.dataset.stat;track('market_changed',{context:'game_players',market:cStat,game_id:cGame?.id||null});renderPRows();
  });
  });
  nav(2);
@@ -1548,7 +1475,6 @@ function setS2Stat(s,el){
 }
 
 async function renderPRows(){
- if(cDetailView==='detail') return;
  let ps=getCurrentPlayers();
  if(!Array.isArray(ps)) ps=[];
  if(!pro()){
@@ -1580,181 +1506,9 @@ async function renderPRows(){
 
 // S3: DETALHE 
 async function openPlayer(id){
- cPlayer=getCurrentPlayers().find(p=>p.id===id);if(!cPlayer)return;
- cStat='PTS';cLine=null;cModalPlayerId=id;cDetailView='detail';cWindow='L10';
- track('player_modal_opened',{player_id:id,player_name:cPlayer?.name||null,game_id:cGame?.id||null});
- const container=document.getElementById('plist');
- if(container) container.innerHTML=renderPropModalSkeleton();
- await ensureMarketData(id,cStat);
- renderPropModal();
- ensurePlayerModalData(id);
-}
-async function changeTab(s,el){
- s=normalizeUiStat(s);
- if(!pro()&&!SFREE.includes(s)){track('locked_pro_feature_clicked',{context:'player_modal_tab',market:s,player_id:cModalPlayerId||null});openPro();return;}
- cStat=s;cLine=null;cDetailView='detail';cWindow='L10';
- track('market_changed',{context:'player_modal',market:s,player_id:cModalPlayerId||null});
- if(!METRICS[cModalPlayerId]?.[s]&&!(PLAYER_GAMES[cModalPlayerId]?.[s]||[]).length){
-   const container=document.getElementById('plist');
-   if(container) container.innerHTML=renderPropModalSkeleton();
-   await ensureMarketData(cModalPlayerId,s);
- }
- renderPropModal();
-}
-function adjLine(d){
- const base=cLine!==null?cLine:getDefaultLine(cModalPlayerId,cStat);
- cLine=Math.max(.5,half(base+d));
- track('line_adjusted',{player_id:cModalPlayerId||null,market:cStat,line:cLine,delta:d});
- renderPropModal();
-}
-function backToPlayers(){
- cPlayer=null;cModalPlayerId=null;cLine=null;cDetailView='players';cWindow='L10';
- renderPRows();
-}
-
-async function ensurePlayerModalData(playerId){
- if(PLAYER_MODAL_CACHE[playerId]) return PLAYER_MODAL_CACHE[playerId];
- const availableMarkets=pro()?STATS:SFREE;
- PLAYER_MODAL_CACHE[playerId]=true;
- idle(function(){
-   availableMarkets.forEach(function(market){
-     if(market===cStat) return;
-     ensureMarketData(playerId,market);
-   });
- });
- return true;
-}
-
-async function ensureMarketData(playerId,market){
- METRICS[playerId]=METRICS[playerId]||{};
- PLAYER_GAMES[playerId]=PLAYER_GAMES[playerId]||{};
- if(METRICS[playerId][market]||(PLAYER_GAMES[playerId][market]||[]).length){
-   return {metrics:METRICS[playerId][market]||null,games:PLAYER_GAMES[playerId][market]||[]};
- }
- const response=await useStatsData(playerId,market);
- if(response.metrics) METRICS[playerId][market]=response.metrics;
- if(response.games?.length) PLAYER_GAMES[playerId][market]=response.games;
- return response;
-}
-
-function getPlayerPropModalData(player, market){
- const metric=METRICS[player.id]?.[market]||null;
- const games=PLAYER_GAMES[player.id]?.[market]||[];
- const values=games.map(g=>Number(g.value||0));
- const avg=values.length?Number((values.reduce((a,b)=>a+b,0)/values.length).toFixed(1)):null;
- const line=cLine!==null?cLine:getDefaultLine(player.id, market);
- const opp=cGame?(cGame.home_team===player.team?cGame.away_team:cGame.home_team):'—';
- const defenseRank=((player.id*7)%30)+1;
- return { metric, games, values, avg, line, opp, defenseRank, gameTime:cGame?new Date(cGame.game_time).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'--:--' };
-}
-
-function getDefaultLine(playerId, market){
- const metricLine=METRICS[playerId]?.[market]?.line;
- if(metricLine) return half(metricLine);
- const p=getCurrentPlayers().find(x=>x.id===playerId);
- return defLine(p||{line:8},market);
-}
-
-function getHitRateSummary(games, line){
- const windows=[5,10,20,30];
- const base=windows.map((size)=>buildHitWindow(`L${size}`,games.slice(0,size),line,false));
- const h2h=buildHitWindow('H2H',[],line,true);
- return [...base,h2h];
-}
-
-function buildHitWindow(label, sourceGames, line, isH2H){
- if(isH2H) return { label, locked:!pro(), missing:true, pct:null, hits:0, total:0, note:'Sem recorte H2H no dataset atual' };
- if((label==='L20'||label==='L30')&&!pro()) return { label, locked:true, pct:null, hits:0, total:0, note:'Disponível no Pro' };
- const total=sourceGames.length;
- if(!total) return { label, locked:false, missing:true, pct:null, hits:0, total:0, note:'Dados limitados' };
- const hits=sourceGames.filter(g=>Number(g.value||0)>=line).length;
- const pct=Math.round((hits/total)*100);
- return { label, locked:false, missing:false, pct, hits, total, note:`${hits}/${total}` };
-}
-
-function getRecentGameBars(games, line){
- const scoped=getGamesByWindow(games,cWindow);
- const recent=scoped.slice(0,12).reverse();
- const maxVal=Math.max(line,...recent.map(g=>Number(g.value||0)),1);
- return recent.map((g)=>{const v=Number(g.value||0);const h=Math.max(8,Math.round((v/maxVal)*100));const tone=v>line?'hit':(v===line?'tie':'miss');return {value:v,height:h,tone,label:formatGameLabel(g.date)};});
-}
-
-function getGamesByWindow(games,windowKey){
- const source=Array.isArray(games)?games:[];
- if(windowKey==='L5') return source.slice(0,5);
- if(windowKey==='L20') return source.slice(0,20);
- if(windowKey==='H2H') return [];
- return source.slice(0,10);
-}
-
-function setPropWindow(windowKey){
- cWindow=windowKey;
- renderPropModal();
-}
-
-function formatGameLabel(dateStr){
- if(!dateStr) return '—';
- const d=new Date(dateStr);
- return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-}
-
-function renderPropModal(){
- if(!cPlayer||!cModalPlayerId) return;
- cDetailView='detail';
- const container=document.getElementById('plist');
- if(!container) return;
- const modalData=getPlayerPropModalData(cPlayer,cStat);
- const bars=getRecentGameBars(modalData.games,modalData.line);
- const summary=getHitRateSummary(modalData.games,modalData.line);
- const linePct=Math.min(96,Math.max(4,(modalData.line/Math.max(modalData.line,...bars.map(b=>b.value),1))*100));
- const matchupCls=modalData.defenseRank<=10?'good':(modalData.defenseRank<=20?'neutral':'bad');
- const matchupText=modalData.defenseRank<=10?'Favorável':(modalData.defenseRank<=20?'Neutro':'Difícil');
- const tabs=STATS.map((s)=>{const lk=!pro()&&!SFREE.includes(s);return `<button class="prop-tab ${cStat===s?'on':''} ${lk?'lk':''}" onclick="${lk?'openPro()':`changeTab('${s}')`}">${s}${lk?' · Pro':''}</button>`;}).join('');
- const sumLabels=['H2H','L5','L10','L20'];
- const summaryStrip=[
-  `<span class="sum-tag">25/26</span>`,
-  ...sumLabels.flatMap((label)=>{
-    const item=summary.find((row)=>row.label===label);
-    const pct=item?.locked?'🔒':(item?.pct===null?'—':`${item.pct}%`);
-    return [`<span class="sum-sep">|</span>`,`<span class="sum-tag">${label}</span>`,`<span class="sum-val">${pct}</span>`];
-  }),
-  `<span class="sum-sep">|</span>`,
-  `<span class="sum-tag">24/25</span>`
- ].join('');
- const windows=['L5','L10','L20','H2H'].map((window)=>`<button class="wbtn ${cWindow===window?'on':''}" onclick="setPropWindow('${window}')">${window}</button>`).join('');
- const barsHtml=bars.length?bars.map((b)=>`<div class="ccol"><div class="cbar ${b.tone}" style="height:${b.height}%"><span class="cbarv">${b.value}</span></div></div>`).join(''):'<div style="padding:14px;color:var(--mt);font-size:12px">Dados recentes limitados para este mercado.</div>';
- const labelsHtml=bars.map((b)=>`<div class="cdate">${b.label}</div>`).join('');
- const edge=modalData.avg===null?null:Number((modalData.avg-modalData.line).toFixed(1));
- const lineOdds=edge===null?'—':(edge>=0?'Over lean':'Under lean');
- container.innerHTML=`
-<div class="prop-inline">
- <div class="prop-nav"><button class="prop-back" onclick="backToPlayers()">←</button></div>
- <div class="match-row"><span>MATCHUP</span><strong>${cGame?.away_team||'—'} vs ${cGame?.home_team||'—'}</strong><span class="match-pill ${matchupCls}">${matchupText}</span></div>
- <div class="prop-tabs">${tabs}</div>
- <div class="identity-row">
-  <div class="identity-left">
-   <div class="identity-meta">${cPlayer.team} · ${cPlayer.position||'—'} · OPP ${modalData.opp}</div>
-   <div class="identity-name">${cPlayer.name}</div>
-  </div>
-  <div class="identity-right">
-   <div class="line-main">${modalData.line}</div>
-   <div class="line-odds">${lineOdds}</div>
-  </div>
- </div>
- <div class="summary-strip">${summaryStrip}</div>
- <div class="chart-top">
-  <div><div class="chart-caption">DEF RANK #${modalData.defenseRank} · ${modalData.gameTime}</div><div class="chart-legend">Verde = over linha · Vermelho = under linha</div></div>
-  <div class="line-adjust"><div class="avgb">Média <span class="val">${modalData.avg===null?'—':modalData.avg}</span></div></div>
- </div>
- <div class="chartsec">
-  <div class="cbars">
-   <div class="cref" style="bottom:${linePct}%"><span class="creflbl">Linha ${modalData.line}</span></div>
-   ${barsHtml}
-  </div>
-  <div class="cdates">${labelsHtml}</div>
- </div>
- <div class="window-row">${windows}</div>
- </div>`;
+ const selected=getCurrentPlayers().find((p)=>p.id===id);
+ if(!selected) return;
+ toast('Detalhes do jogador indisponíveis no momento.');
 }
 
 // S4: PERFIL 
