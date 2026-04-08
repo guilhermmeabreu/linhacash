@@ -40,13 +40,13 @@ export function TabsRoot({ value, defaultValue = '', onValueChange, className, .
 
   return (
     <TabsContext.Provider value={{ value: activeValue, setValue }}>
-      <div className={cn('w-full', className)} {...props} />
+      <div className={cn('lc-tabs', className)} {...props} />
     </TabsContext.Provider>
   );
 }
 
 export function TabsList({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div role="tablist" className={cn('inline-flex gap-2 border-b border-border pb-2', className)} {...props} />;
+  return <div role="tablist" className={cn('lc-tabs-list', className)} {...props} />;
 }
 
 interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -62,11 +62,7 @@ export function TabsTrigger({ className, value, ...props }: TabsTriggerProps) {
       role="tab"
       aria-selected={isActive}
       type="button"
-      className={cn(
-        'min-h-8 border border-transparent px-3 text-xs uppercase tracking-wide text-muted transition-colors hover:text-white',
-        isActive && 'border-accent/40 bg-accent/15 text-accent',
-        className,
-      )}
+      className={cn('lc-tab-trigger', isActive && 'is-active', className)}
       onClick={() => tabs.setValue(value)}
       {...props}
     />
@@ -80,5 +76,5 @@ interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
 export function TabsContent({ className, value, ...props }: TabsContentProps) {
   const tabs = useTabsContext();
   if (tabs.value !== value) return null;
-  return <div role="tabpanel" className={cn('pt-4', className)} {...props} />;
+  return <div role="tabpanel" className={cn('lc-tab-content', className)} {...props} />;
 }
