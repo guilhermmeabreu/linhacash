@@ -581,7 +581,6 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
 .analytics-card{border:1px solid var(--bd);background:var(--s2);padding:12px}
 .analytics-title{font-size:10px;color:var(--mt);text-transform:uppercase;letter-spacing:.08em}
 .analytics-value{margin-top:6px;font-size:20px;font-family:var(--font-mono);font-weight:700}
-.pro-placeholder{margin:0 16px 16px;border:1px dashed rgba(0,230,118,.35);background:rgba(0,230,118,.06);padding:14px;font-size:12px;line-height:1.5;color:#bdeccf}
 
 /* PROP DETALHE INLINE */
 .prop-inline{width:100%;margin:8px 0 0;padding:10px 14px 14px;background:linear-gradient(180deg,#0d0d0d,#070707);border-top:1px solid rgba(255,255,255,.1);display:flex;flex-direction:column;gap:10px}
@@ -622,7 +621,6 @@ button:focus-visible,.schip:focus-visible,.stab:focus-visible,.abtn:focus-visibl
 .prop-context{display:flex;gap:8px;overflow-x:auto}
 .context-pill{border:1px solid rgba(255,255,255,.14);padding:5px 10px;font-size:11px;color:var(--mt2);font-weight:700;white-space:nowrap;border-radius:999px}
 .context-pill.on{color:var(--tx);border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.1)}
-.context-pill.ph{opacity:.45}
 .prop-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}
 @media(max-width:760px){.hit-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.prop-inline{margin:0;border-radius:0}.prop-title{max-width:65vw}.prop-match{padding:8px}.cbars{height:220px}.prop-bottom{flex-direction:column;align-items:stretch}}
 
@@ -1139,8 +1137,7 @@ const dataServices = {
         position: player.position || 'N/A',
         line: Number(player.line || 0),
       }));
-      if (players.length) return players;
-      return createPlaceholderPlayers(gameContext);
+      return players;
     })();
     try{
       return await PLAYER_FETCH_PROMISES[gameId];
@@ -1202,21 +1199,7 @@ function renderPropModalSkeleton(){
 }
 
 function renderEmptyState(title, message){
-  return `<div class="empty-state"><div class="empty-title">${title}</div><div class="empty-sub">${message}</div></div>`;
-}
-
-function createPlaceholderPlayers(gameContext){
-  const homeTeamName = gameContext?.home_team || 'Time da casa';
-  const awayTeamName = gameContext?.away_team || 'Time visitante';
-  const homeTeamId = Number(gameContext?.home_team_id || -1);
-  const awayTeamId = Number(gameContext?.away_team_id || -2);
-  const baseId = Number(gameContext?.id || Date.now()) * 1000;
-  return [
-    { id: baseId + 1, name: `${homeTeamName} — Jogador A`, team_id: homeTeamId, team: homeTeamName, position: '—', line: 0, is_placeholder: true },
-    { id: baseId + 2, name: `${awayTeamName} — Jogador A`, team_id: awayTeamId, team: awayTeamName, position: '—', line: 0, is_placeholder: true },
-    { id: baseId + 3, name: `${homeTeamName} — Jogador B`, team_id: homeTeamId, team: homeTeamName, position: '—', line: 0, is_placeholder: true },
-    { id: baseId + 4, name: `${awayTeamName} — Jogador B`, team_id: awayTeamId, team: awayTeamName, position: '—', line: 0, is_placeholder: true },
-  ];
+  return `<div class="empty-state"><div class="empty-title">${title}</div>${message?`<div class="empty-sub">${message}</div>`:''}</div>`;
 }
 
 const NAV_ITEMS = [
@@ -1567,8 +1550,7 @@ async function renderPRows(){
      return true;
    });
  }
- if(!ps.length){ document.getElementById('plist').innerHTML=renderEmptyState('Nenhum jogador encontrado','Sem jogadores disponíveis para este confronto no momento.'); return; }
- const hasPlaceholderPlayers=ps.some((p)=>Boolean(p?.is_placeholder));
+ if(!ps.length){ document.getElementById('plist').innerHTML=renderEmptyState('No data available yet',''); return; }
  document.getElementById('plist').innerHTML=ps.map((p)=>{
  if(!p||!p.id) return '';
  const teamLabel=p.team||'Time não informado';
@@ -1576,13 +1558,10 @@ async function renderPRows(){
  const ln=p.line>0?half(p.line):'—';
  return `<div class="prow2" onclick="openPlayer(${p.id})" role="button" tabindex="0">
  <div class="prav" style="background:linear-gradient(135deg,${clr}cc,${clr}66)">${ini(p.name||'Jogador')}</div>
- <div style="flex:1;min-width:0"><div class="prnm">${p.name||'Jogador'}</div><div class="prmt">${p.position||'—'} · ${teamLabel}${p?.is_placeholder?' · Placeholder':''}</div></div>
+ <div style="flex:1;min-width:0"><div class="prnm">${p.name||'Jogador'}</div><div class="prmt">${p.position||'—'} · ${teamLabel}</div></div>
  <div class="prrt"><div class="prln">${ln}</div></div>
  </div>`;
  }).join('');
- if(hasPlaceholderPlayers){
-  document.getElementById('plist').insertAdjacentHTML('afterbegin','<div class="empty-sub" style="margin:0 0 12px;padding:0 4px">Dados de jogadores em modo placeholder até a sincronização completa.</div>');
- }
 }
 
 // S3: DETALHE 
@@ -1707,9 +1686,9 @@ function renderPropModal(){
   {label:'AWAY',active:false},
   {label:'REG SEASON',active:true},
   {label:'PLAYOFFS',active:false},
-  {label:'WIN',active:false,placeholder:true},
-  {label:'LOSS',active:false,placeholder:true},
- ].map((item)=>`<span class="context-pill ${item.active?'on':''} ${item.placeholder?'ph':''}">${item.label}</span>`).join('');
+  {label:'WIN',active:false},
+  {label:'LOSS',active:false},
+ ].map((item)=>`<span class="context-pill ${item.active?'on':''}">${item.label}</span>`).join('');
  const hitStrip=summary.map((card)=>`<div class="hit-pill ${card.locked?'lock':''}"><div class="hlabel">${card.label}</div><div class="hval">${card.locked?'🔒':(card.pct===null?'—':card.pct+'%')}</div><div class="hmeta">${card.locked?'Pro':card.note}</div></div>`).join('');
  const barsHtml=bars.length?bars.map((b)=>`<div class="ccol"><div class="cbar ${b.tone}" style="height:${b.height}%"><span class="cbarv">${b.value}</span></div></div>`).join(''):'<div style="padding:14px;color:var(--mt);font-size:12px">Dados recentes limitados para este mercado.</div>';
  const labelsHtml=bars.map((b)=>`<div class="cdate">${b.label}</div>`).join('');
