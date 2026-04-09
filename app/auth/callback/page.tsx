@@ -12,7 +12,7 @@ export default function AuthCallbackPage() {
       return;
     }
 
-    const target = `/app.html${window.location.search || ''}${window.location.hash || ''}`;
+    const target = `/app${window.location.search || ''}${window.location.hash || ''}`;
     window.location.replace(target);
   }, []);
 

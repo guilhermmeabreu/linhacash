@@ -203,10 +203,24 @@ export function DashboardView() {
   const selectedMetricsStatus = selectedPlayerId ? metricsStatusByPlayer[selectedPlayerId]?.[selectedStat] ?? 'idle' : 'idle';
   const selectedMetricsError = selectedPlayerId ? metricsErrorByPlayer[selectedPlayerId]?.[selectedStat] ?? null : null;
   const marketLocked = isLockedStat(selectedStat, plan);
+  const checkoutNotice = useMemo(() => {
+    const checkoutStatus = (searchParams.get('status') || '').toLowerCase();
+    if (checkoutStatus === 'success') return 'Pagamento confirmado! Seu plano Pro será liberado em instantes.';
+    if (checkoutStatus === 'pending') return 'Pagamento pendente. Assim que for confirmado, seu acesso será atualizado.';
+    if (checkoutStatus === 'failure') return 'Pagamento não concluído. Você pode tentar novamente quando quiser.';
+    return null;
+  }, [searchParams]);
+  const oauthQueryError = useMemo(() => {
+    const error = searchParams.get('error_description') || searchParams.get('error');
+    return error ? 'Não foi possível concluir o login com Google. Tente novamente.' : null;
+  }, [searchParams]);
 
   const syncQueryString = useCallback(
     (nextState: { gameId: number | null; stat: Stat; playerId: number | null }) => {
       const params = new URLSearchParams(searchParams.toString());
+      ['status', 'oauth', 'access_token', 'refresh_token', 'token_type', 'expires_in', 'expires_at', 'code', 'error', 'error_description', 'type'].forEach((key) => {
+        params.delete(key);
+      });
 
       if (nextState.gameId) params.set('g', String(nextState.gameId));
       else params.delete('g');
@@ -351,6 +365,27 @@ export function DashboardView() {
 
     setGamesStatus('ready');
   }, [initialGameId]);
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const authMarkers = ['access_token', 'refresh_token', 'token_type', 'expires_in', 'expires_at', 'code', 'error', 'error_description', 'type'];
+    const accessToken = hashParams.get('access_token') || queryParams.get('access_token');
+
+    if (accessToken) {
+      window.localStorage.setItem('lc_token', accessToken);
+    }
+
+    const shouldCleanHash = authMarkers.some((key) => hashParams.has(key));
+    const shouldCleanQuery = ['status', 'oauth', ...authMarkers].some((key) => queryParams.has(key));
+    if (shouldCleanHash || shouldCleanQuery) {
+      const cleanParams = new URLSearchParams(queryParams.toString());
+      ['status', 'oauth', ...authMarkers].forEach((key) => cleanParams.delete(key));
+      const nextQuery = cleanParams.toString();
+      const nextUrl = `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ''}`;
+      window.history.replaceState(window.history.state, '', nextUrl);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -702,17 +737,25 @@ export function DashboardView() {
           </Surface>
         </div>
 
-        {errorMessage ? (
+        {(errorMessage || oauthQueryError) ? (
           <Surface className={styles.errorBox}>
             <div className={styles.errorContent}>
               <AlertCircle size={16} />
-              <p>{errorMessage}</p>
+              <p>{errorMessage || oauthQueryError}</p>
             </div>
             {authTokenMissing ? (
-              <Button variant="secondary" size="sm" onClick={() => window.location.assign('/app.html')}>
-                Abrir fluxo legado
+              <Button variant="secondary" size="sm" onClick={() => window.location.assign('/login')}>
+                Ir para login
               </Button>
             ) : null}
+          </Surface>
+        ) : null}
+        {checkoutNotice ? (
+          <Surface className={styles.errorBox}>
+            <div className={styles.errorContent}>
+              <Crown size={16} />
+              <p>{checkoutNotice}</p>
+            </div>
           </Surface>
         ) : null}
       </ContentContainer>

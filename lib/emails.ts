@@ -105,7 +105,7 @@ export function emailProAtivado(name: string, plan: string) {
           <p style="margin:4px 0;color:#ccc">✓ H2H vs adversário</p>
         </td></tr>
       </table>
-      <p style="font-size:13px;color:#555">Dúvidas? Responda este email ou acesse <a href="${PUBLIC_SITE_URL}/app.html" style="color:#00e676">linhacash.com.br</a></p>
+      <p style="font-size:13px;color:#555">Dúvidas? Responda este email ou acesse <a href="${PUBLIC_SITE_URL}/app" style="color:#00e676">linhacash.com.br</a></p>
     `)
   };
 }
