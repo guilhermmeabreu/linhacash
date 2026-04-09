@@ -49,7 +49,7 @@ export function LoginForm() {
       return;
     }
     localStorage.setItem('lc_token', data.token);
-    window.location.assign('/app.html');
+    window.location.assign('/app');
   }
 
   async function onForgot() {

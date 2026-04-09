@@ -56,9 +56,9 @@ export async function POST(req: Request) {
     const body: Record<string, unknown> = {
       items: [{ title, quantity: 1, currency_id: 'BRL', unit_price: price }],
       back_urls: {
-        success: `${publicBaseUrl}/app.html?status=success`,
-        failure: `${publicBaseUrl}/app.html?status=failure`,
-        pending: `${publicBaseUrl}/app.html?status=pending`,
+        success: `${publicBaseUrl}/app?status=success`,
+        failure: `${publicBaseUrl}/app?status=failure`,
+        pending: `${publicBaseUrl}/app?status=pending`,
       },
       auto_return: 'approved',
       notification_url: `${publicBaseUrl}/api/webhook/mp`,

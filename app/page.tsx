@@ -92,8 +92,8 @@ export default function LandingPage() {
           <Link href="/signup">
             <Button size="lg">Começar agora</Button>
           </Link>
-          <Link href="/app.html">
-            <Button size="lg" variant="secondary">Abrir app legado</Button>
+          <Link href="/app">
+            <Button size="lg" variant="secondary">Abrir dashboard</Button>
           </Link>
         </div>
       </section>
