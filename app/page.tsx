@@ -115,7 +115,7 @@ export default function LandingPage() {
         <div className="lc-public-container">
           <p>Uso responsável: o LinhaCash não é casa de apostas e não intermedia apostas.</p>
           <p>
-            <Link href="/termos">Termos</Link> · <Link href="/privacidade">Privacidade</Link> · <a href="mailto:contato@linhacash.com">Contato</a>
+            <Link href="/termos">Termos</Link> · <Link href="/privacidade">Privacidade</Link> · <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
           </p>
         </div>
       </footer>

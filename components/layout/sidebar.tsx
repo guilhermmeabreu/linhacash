@@ -1,7 +1,8 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { BarChart3, LucideIcon } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/ui/cn';
+import { LinhaCashLogo } from './linhacash-logo';
 
 export interface SidebarItem {
   key: string;
@@ -15,15 +16,13 @@ interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   items?: SidebarItem[];
   activeKey?: string;
   footer?: React.ReactNode;
+  onItemClick?: (item: SidebarItem) => void;
 }
 
-export function Sidebar({ className, items = [], activeKey, footer, ...props }: SidebarProps) {
+export function Sidebar({ className, items = [], activeKey, footer, onItemClick, ...props }: SidebarProps) {
   return (
     <nav className={cn('lc-sidebar', className)} {...props}>
-      <Link href="/" className="lc-sidebar-brand" aria-label="LinhaCash">
-        <span className="lc-sidebar-brand-icon"><BarChart3 size={16} /></span>
-        <span className="lc-sidebar-brand-text">Linha<span>Cash</span></span>
-      </Link>
+      <LinhaCashLogo href="/app" className="lc-sidebar-brand" ariaLabel="LinhaCash dashboard" />
 
       <div className="lc-sidebar-nav">
         {items.map((item) => {
@@ -43,7 +42,7 @@ export function Sidebar({ className, items = [], activeKey, footer, ...props }: 
           }
 
           return (
-            <Link key={item.key} href={item.href} className={cn('lc-sidebar-item', active && 'is-active')}>
+            <Link key={item.key} href={item.href} className={cn('lc-sidebar-item', active && 'is-active')} onClick={() => onItemClick?.(item)}>
               <Icon size={16} aria-hidden="true" />
               <span>{item.label}</span>
             </Link>
