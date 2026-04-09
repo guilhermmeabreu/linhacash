@@ -25,6 +25,7 @@ import {
   ContentContainer,
   MobileSidebar,
   Sidebar,
+  ThemeToggle,
   TopBar,
 } from '@/components/layout';
 import {
@@ -46,6 +47,7 @@ type Stat = (typeof STATS)[number];
 
 type Plan = 'free' | 'pro';
 type DashboardViewMode = 'games' | 'players' | 'detail' | 'profile';
+type Theme = 'dark' | 'light';
 
 type Game = {
   id: number;
@@ -84,6 +86,15 @@ type PlayerGameSample = {
   date: string | null;
   value: number | null;
   minutes: number | null;
+};
+
+type ProfileData = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  plan: Plan;
+  theme?: Theme | null;
+  created_at?: string | null;
 };
 
 type ChartBarTone = 'hit' | 'miss' | 'tie';
@@ -169,7 +180,14 @@ export function DashboardView() {
     return Number.isFinite(parsed) ? parsed : null;
   }, [searchParams]);
 
-  const [view, setView] = useState<DashboardViewMode>(() => (searchParams.get('view') === 'profile' ? 'profile' : 'games'));
+  const [view, setView] = useState<DashboardViewMode>(() => {
+    if (searchParams.get('view') === 'profile') return 'profile';
+    const playerIdFromQuery = Number(searchParams.get('p'));
+    if (Number.isFinite(playerIdFromQuery) && playerIdFromQuery > 0) return 'detail';
+    const gameIdFromQuery = Number(searchParams.get('g'));
+    if (Number.isFinite(gameIdFromQuery) && gameIdFromQuery > 0) return 'players';
+    return 'games';
+  });
   const [searchTerm, setSearchTerm] = useState('');
   const [lineAdjustment, setLineAdjustment] = useState(0);
 
@@ -191,6 +209,8 @@ export function DashboardView() {
   const [metricsErrorByPlayer, setMetricsErrorByPlayer] = useState<Record<number, Partial<Record<Stat, string | null>>>>({});
   const [plan, setPlan] = useState<Plan>('free');
   const [planLoaded, setPlanLoaded] = useState(false);
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [profileStatus, setProfileStatus] = useState<ResourceStatus>('idle');
 
   const gamesRequestRef = useRef(0);
   const playersRequestRef = useRef<Record<number, number>>({});
@@ -426,17 +446,23 @@ export function DashboardView() {
       if (!token) {
         if (!canceled) {
           setPlan('free');
+          setProfile(null);
           setPlanLoaded(true);
         }
         return;
       }
 
-      const result = await apiFetch<{ profile?: { plan?: Plan } }>('/api/profile');
+      setProfileStatus('loading');
+      const result = await apiFetch<{ profile?: ProfileData }>('/api/profile');
       if (canceled) return;
 
       if (result.ok) {
         const resolvedPlan = result.data.profile?.plan === 'pro' ? 'pro' : 'free';
         setPlan(resolvedPlan);
+        setProfile(result.data.profile ?? null);
+        setProfileStatus(result.data.profile ? 'ready' : 'empty');
+      } else {
+        setProfileStatus('error');
       }
 
       setPlanLoaded(true);
@@ -546,17 +572,45 @@ export function DashboardView() {
 
   const canGoBack = view === 'players' || view === 'detail';
   const activeSidebarKey = view === 'profile' ? 'perfil' : 'dashboard';
+  const profileSince = profile?.created_at
+    ? new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    : null;
 
   return (
     <AppShell
-      sidebar={<Sidebar items={sidebarItems} activeKey={activeSidebarKey} footer={<Badge variant="success">Live data active</Badge>} />}
-      mobileSidebar={<MobileSidebar items={sidebarItems} activeKey={activeSidebarKey} footer={<Badge variant="success">Live data active</Badge>} />}
+      sidebar={(
+        <Sidebar
+          items={sidebarItems}
+          activeKey={activeSidebarKey}
+          onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
+          footer={(
+            <div className={styles.sidebarFooterInfo}>
+              <Badge variant="success">Live data active</Badge>
+              <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
+            </div>
+          )}
+        />
+      )}
+      mobileSidebar={(
+        <MobileSidebar
+          items={sidebarItems}
+          activeKey={activeSidebarKey}
+          onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
+          footer={(
+            <div className={styles.sidebarFooterInfo}>
+              <Badge variant="success">Live data active</Badge>
+              <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
+            </div>
+          )}
+        />
+      )}
       topbar={
         <TopBar
           title={topTitle}
           context={view === 'games' ? `Hoje · ${formatTodayLabel()}` : null}
           actions={
             <div className={styles.topbarBadges}>
+              <ThemeToggle />
               {planLoaded ? (
                 <Badge variant={plan === 'pro' ? 'success' : 'default'}>
                   {plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}
@@ -837,6 +891,19 @@ export function DashboardView() {
 
               <div className={styles.profileGrid}>
                 <Surface className={styles.profileCard}>
+                  <h3>Dados do perfil</h3>
+                  {profileStatus === 'loading' ? <p>Carregando dados da conta...</p> : null}
+                  {profileStatus === 'error' ? <p>Não foi possível carregar seus dados agora.</p> : null}
+                  {profile ? (
+                    <div className={styles.profileMetaList}>
+                      <p><strong>Nome:</strong> {profile.name || 'Não informado'}</p>
+                      <p><strong>Email:</strong> {profile.email || 'Não informado'}</p>
+                      <p><strong>Membro desde:</strong> {profileSince || 'N/D'}</p>
+                    </div>
+                  ) : null}
+                </Surface>
+
+                <Surface className={styles.profileCard}>
                   <h3>Plano e cobrança</h3>
                   <p>{plan === 'pro' ? 'Você está no Pro com recursos completos.' : 'Atualize para liberar todos os jogos e mercados.'}</p>
                   <div className={styles.profileActions}>
@@ -850,6 +917,7 @@ export function DashboardView() {
                   <div className={styles.profileLinks}>
                     <Link href="/termos"><Shield size={14} /> Termos de uso</Link>
                     <Link href="/privacidade"><Lock size={14} /> Política de privacidade</Link>
+                    <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
                     <button type="button" onClick={() => window.location.assign('/login')}><LogOut size={14} /> Sair da conta</button>
                   </div>
                 </Surface>

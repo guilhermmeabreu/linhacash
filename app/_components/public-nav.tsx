@@ -1,17 +1,12 @@
-import { BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { LinhaCashLogo } from '@/components/layout';
 
 export function PublicNav() {
   return (
     <header className="lc-public-nav">
       <div className="lc-public-container">
-        <Link href="/" className="lc-brand" aria-label="LinhaCash home">
-          <span className="lc-brand-icon"><BarChart3 size={17} /></span>
-          <span>
-            Linha<span>Cash</span>
-          </span>
-        </Link>
+        <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
         <nav className="lc-public-actions">
           <a href="#como-funciona">Como funciona</a>
           <a href="#planos">Planos</a>

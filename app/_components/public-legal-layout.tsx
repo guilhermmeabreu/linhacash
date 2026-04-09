@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { BarChart3 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import { LinhaCashLogo } from '@/components/layout';
 
 export function PublicLegalLayout({
   title,
@@ -15,12 +15,7 @@ export function PublicLegalLayout({
     <main className="lc-legal-page">
       <div className="lc-legal-shell">
         <header className="lc-legal-header">
-          <Link href="/" className="lc-brand" aria-label="LinhaCash home">
-            <span className="lc-brand-icon"><BarChart3 size={16} /></span>
-            <span>
-              Linha<span>Cash</span>
-            </span>
-          </Link>
+          <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
           <p>Última atualização: {updatedAt}</p>
         </header>
 
@@ -34,7 +29,7 @@ export function PublicLegalLayout({
         <p>
           <Link href="/termos">Termos de uso</Link> · <Link href="/privacidade">Política de privacidade</Link>
         </p>
-        <p><a href="mailto:contato@linhacash.com">contato@linhacash.com</a></p>
+        <p><a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a></p>
         <p>Uso responsável: o LinhaCash não é casa de apostas e não garante resultados.</p>
       </footer>
     </main>
@@ -50,7 +45,7 @@ export function LegalSection({ title, children }: { title: string; children: Rea
   );
 }
 
-export const listStyle: React.CSSProperties = {
+export const listStyle: CSSProperties = {
   paddingLeft: '1rem',
   marginTop: '0.5rem',
   display: 'grid',
