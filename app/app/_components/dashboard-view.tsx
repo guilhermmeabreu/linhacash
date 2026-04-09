@@ -7,6 +7,7 @@ import {
   CalendarDays,
   ChevronRight,
   Crown,
+  X,
   LayoutDashboard,
   Lock,
   LogOut,
@@ -116,8 +117,8 @@ type ResourceStatus = 'idle' | 'loading' | 'ready' | 'empty' | 'error';
 
 const sidebarItems = [
   { key: 'dashboard', label: 'Jogos do dia', href: '/app', icon: LayoutDashboard },
-  { key: 'calendario', label: 'Calendário', href: '/app', icon: CalendarDays, disabled: true },
-  { key: 'stats', label: 'Classificação', href: '/app', icon: BarChart3, disabled: true },
+  { key: 'calendario', label: 'Calendário', href: '/app', icon: CalendarDays, disabled: true, secondary: true },
+  { key: 'stats', label: 'Classificação', href: '/app', icon: BarChart3, disabled: true, secondary: true },
   { key: 'perfil', label: 'Meu perfil', href: '/app?view=profile', icon: UserRound },
 ];
 
@@ -150,6 +151,14 @@ async function apiFetch<T>(path: string): Promise<ApiResult<T>> {
 function formatTipoff(gameTime: string) {
   const date = new Date(gameTime);
   return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function shortTeamName(name: string) {
+  return name
+    .split(' ')
+    .slice(-1)[0]
+    ?.slice(0, 3)
+    .toUpperCase();
 }
 
 function formatTodayLabel() {
@@ -211,6 +220,11 @@ export function DashboardView() {
   const [planLoaded, setPlanLoaded] = useState(false);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [profileStatus, setProfileStatus] = useState<ResourceStatus>('idle');
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [upgradePlan, setUpgradePlan] = useState<'mensal' | 'anual'>('anual');
+  const [upgradeCode, setUpgradeCode] = useState('');
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState<string | null>(null);
 
   const gamesRequestRef = useRef(0);
   const playersRequestRef = useRef<Record<number, number>>({});
@@ -250,6 +264,12 @@ export function DashboardView() {
     if (checkoutStatus === 'failure') return 'Pagamento não concluído. Você pode tentar novamente quando quiser.';
     return null;
   }, [searchParams]);
+
+  useEffect(() => {
+    if (searchParams.get('open') === 'checkout' && plan !== 'pro') {
+      setUpgradeOpen(true);
+    }
+  }, [plan, searchParams]);
 
   const oauthQueryError = useMemo(() => {
     const error = searchParams.get('error_description') || searchParams.get('error');
@@ -519,9 +539,43 @@ export function DashboardView() {
 
   const handleStatChange = useCallback((value: string) => {
     const nextStat = resolveInitialStat(value);
-    if (isLockedStat(nextStat, plan)) return;
+    if (isLockedStat(nextStat, plan)) {
+      setUpgradeOpen(true);
+      return;
+    }
     setSelectedStat(nextStat);
   }, [plan]);
+
+  const openUpgradeSurface = useCallback(() => {
+    setUpgradeError(null);
+    setUpgradeOpen(true);
+  }, []);
+
+  const startCheckout = useCallback(async () => {
+    setUpgradeLoading(true);
+    setUpgradeError(null);
+    try {
+      const token = getAuthToken();
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ plan: upgradePlan, referralCode: upgradeCode.trim() || undefined }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data?.url) {
+        setUpgradeError(data?.error || 'Não foi possível iniciar o checkout agora.');
+        return;
+      }
+      window.location.href = data.url as string;
+    } catch {
+      setUpgradeError('Falha ao iniciar checkout. Tente novamente em instantes.');
+    } finally {
+      setUpgradeLoading(false);
+    }
+  }, [upgradeCode, upgradePlan]);
 
   const getChartBarClassName = useCallback((tone: ChartBarTone) => {
     if (tone === 'hit') return `${styles.chartBar} ${styles.chartBarHit}`;
@@ -585,8 +639,8 @@ export function DashboardView() {
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
             <div className={styles.sidebarFooterInfo}>
-              <Badge variant="success">Live data active</Badge>
-              <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
+              <strong>{profile?.name || 'Guilherme'}</strong>
+              <span>{plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}</span>
             </div>
           )}
         />
@@ -598,16 +652,16 @@ export function DashboardView() {
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
             <div className={styles.sidebarFooterInfo}>
-              <Badge variant="success">Live data active</Badge>
-              <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
+              <strong>{profile?.name || 'Guilherme'}</strong>
+              <span>{plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}</span>
             </div>
           )}
         />
       )}
       topbar={
         <TopBar
-          title={topTitle}
-          context={view === 'games' ? `Hoje · ${formatTodayLabel()}` : null}
+          showBrand={false}
+          context={view === 'games' ? `Hoje · ${formatTodayLabel()}` : topTitle}
           actions={
             <div className={styles.topbarBadges}>
               <ThemeToggle compact />
@@ -648,28 +702,51 @@ export function DashboardView() {
               ) : null}
 
               <div className={`${styles.gameGrid} technical-grid`}>
-                {games.map((game) => (
-                  <button
-                    key={game.id}
-                    type="button"
-                    className={`${styles.gameCard} technical-item`}
-                    onClick={() => {
-                      setSelectedGameId(game.id);
-                      setSelectedPlayerId(null);
-                      setSearchTerm('');
-                      setView('players');
-                    }}
-                  >
-                    <div className={styles.gameCardTime}>{formatTipoff(game.game_time)}</div>
-                    <div className={styles.gameCardTeams}>
-                      <div className={styles.teamBadge}>{game.away_team.slice(0, 2).toUpperCase()}</div>
-                      <div className={styles.gameVs}>VS</div>
-                      <div className={styles.teamBadge}>{game.home_team.slice(0, 2).toUpperCase()}</div>
-                    </div>
-                    <p className={styles.gameMatchup}>{game.away_team} vs {game.home_team}</p>
-                    <div className={styles.gameCta}>Ver jogadores <ChevronRight size={14} /></div>
-                  </button>
-                ))}
+                {games.map((game, index) => {
+                  const locked = plan !== 'pro' && index > 0;
+                  return (
+                    <article
+                      key={game.id}
+                      className={`${styles.gameCard} technical-item ${locked ? styles.gameCardLocked : ''}`}
+                      aria-label={`${game.away_team} versus ${game.home_team}`}
+                    >
+                      {locked ? (
+                        <div className={styles.gameLockBadge}>
+                          <Lock size={12} />
+                        </div>
+                      ) : null}
+                      <div className={styles.gameCardTime}>{formatTipoff(game.game_time)}</div>
+                      <div className={styles.gameCardTeams}>
+                        <div className={styles.teamBadge}>
+                          {game.away_logo ? <img src={game.away_logo} alt={game.away_team} loading="lazy" /> : shortTeamName(game.away_team)}
+                        </div>
+                        <div className={styles.gameVs}>vs</div>
+                        <div className={styles.teamBadge}>
+                          {game.home_logo ? <img src={game.home_logo} alt={game.home_team} loading="lazy" /> : shortTeamName(game.home_team)}
+                        </div>
+                      </div>
+                      <p className={styles.gameMatchup}>{game.away_team} <span>vs</span> {game.home_team}</p>
+                      <div className={styles.gameCardDivider} />
+                      <button
+                        type="button"
+                        className={`${styles.gameCtaButton} ${locked ? styles.gameCtaLocked : ''}`}
+                        onClick={() => {
+                          if (locked) {
+                            openUpgradeSurface();
+                            return;
+                          }
+                          setSelectedGameId(game.id);
+                          setSelectedPlayerId(null);
+                          setSearchTerm('');
+                          setView('players');
+                        }}
+                      >
+                        {locked ? 'DESBLOQUEAR NO PRO' : 'VER JOGADORES'}
+                        {!locked ? <ChevronRight size={14} /> : <Lock size={12} />}
+                      </button>
+                    </article>
+                  );
+                })}
               </div>
             </section>
           ) : null}
@@ -712,7 +789,10 @@ export function DashboardView() {
                       <Surface className={styles.lockedStateBox}>
                         <div className={styles.lockedTitle}><Lock size={14} /> Este mercado está no plano Pro</div>
                         <p className={styles.stateText}>No fluxo gratuito, mercados ativos: {FREE_STATS.join(' · ')}.</p>
-                        <Button size="sm" variant="secondary" onClick={() => setSelectedStat('PTS')}>Voltar para PTS</Button>
+                        <div className={styles.lockedActions}>
+                          <Button size="sm" variant="secondary" onClick={() => setSelectedStat('PTS')}>Voltar para PTS</Button>
+                          <Button size="sm" onClick={openUpgradeSurface}>Ver planos Pro</Button>
+                        </div>
                       </Surface>
                     ) : null}
 
@@ -907,7 +987,7 @@ export function DashboardView() {
                   <h3>Plano e cobrança</h3>
                   <p>{plan === 'pro' ? 'Você está no Pro com recursos completos.' : 'Atualize para liberar todos os jogos e mercados.'}</p>
                   <div className={styles.profileActions}>
-                    {plan !== 'pro' ? <Link href="/app?open=checkout"><Button size="sm">Assinar Pro</Button></Link> : null}
+                    {plan !== 'pro' ? <Button size="sm" onClick={openUpgradeSurface}>Assinar Pro</Button> : null}
                     <Link href="/app?view=games"><Button size="sm" variant="secondary">Ver dashboard</Button></Link>
                   </div>
                 </Surface>
@@ -945,6 +1025,51 @@ export function DashboardView() {
                 <p>{checkoutNotice}</p>
               </div>
             </Surface>
+          ) : null}
+
+          {upgradeOpen ? (
+            <div className={styles.upgradeOverlay} role="dialog" aria-modal="true" aria-label="Assinar plano Pro">
+              <Surface className={styles.upgradeModal}>
+                <button type="button" className={styles.upgradeClose} onClick={() => setUpgradeOpen(false)} aria-label="Fechar">
+                  <X size={16} />
+                </button>
+                <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
+                <h3>Escolha seu plano</h3>
+                <p className={styles.upgradeSubtitle}>Plano anual com desconto: <strong>R$197/ano</strong> comparado ao mensal.</p>
+                <div className={styles.upgradePlans}>
+                  <button
+                    type="button"
+                    className={`${styles.upgradePlanBtn} ${upgradePlan === 'mensal' ? styles.isSelected : ''}`}
+                    onClick={() => setUpgradePlan('mensal')}
+                  >
+                    <span>Mensal</span>
+                    <strong>R$24,90/mês</strong>
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.upgradePlanBtn} ${upgradePlan === 'anual' ? styles.isSelected : ''}`}
+                    onClick={() => setUpgradePlan('anual')}
+                  >
+                    <span>Anual · Melhor custo</span>
+                    <strong>R$197/ano</strong>
+                    <small>Desconto aplicado no ciclo anual</small>
+                  </button>
+                </div>
+                <label className={styles.upgradeField}>
+                  Código de indicação / cupom
+                  <input
+                    value={upgradeCode}
+                    onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                    placeholder="Opcional"
+                    maxLength={20}
+                  />
+                </label>
+                {upgradeError ? <p className={styles.upgradeError}>{upgradeError}</p> : null}
+                <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
+                  {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
+                </Button>
+              </Surface>
+            </div>
           ) : null}
         </div>
       </ContentContainer>
