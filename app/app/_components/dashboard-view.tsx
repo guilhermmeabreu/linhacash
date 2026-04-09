@@ -650,15 +650,15 @@ export function DashboardView() {
       topbar={
         <TopBar
           showBrand={false}
-          context={view === 'games' ? `Hoje · ${formatTodayLabel()}` : topTitle}
+          context={view === 'games' ? null : topTitle}
+          leading={canGoBack ? (
+            <Button size="sm" variant="ghost" onClick={() => setView(view === 'detail' ? 'players' : 'games')}>
+              <ArrowLeft size={14} />
+            </Button>
+          ) : null}
           actions={
             <div className={styles.topbarBadges}>
               <ThemeToggle compact />
-              {canGoBack ? (
-                <Button size="sm" variant="ghost" onClick={() => setView(view === 'detail' ? 'players' : 'games')}>
-                  <ArrowLeft size={14} />
-                </Button>
-              ) : null}
             </div>
           }
         />
@@ -668,6 +668,7 @@ export function DashboardView() {
         <div className={styles.dashboardCanvas}>
           {view === 'games' ? (
             <section className={styles.gamesView}>
+              <p className={styles.gamesDateLine}>Hoje · {formatTodayLabel()}</p>
               {gamesStatus === 'loading' ? (
                 <Surface className={styles.statePanelInline}><p className={styles.stateText}>Carregando jogos...</p></Surface>
               ) : null}

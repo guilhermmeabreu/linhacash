@@ -68,6 +68,14 @@
   margin: 0 auto;
 }
 
+.gamesDateLine {
+  color: var(--lc-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.55rem;
+}
+
 .gameGrid {
   display: grid;
   gap: 0.9rem;
@@ -156,10 +164,10 @@
 .gameMatchup {
   font-size: 0.72rem;
   font-weight: 700;
-  color: color-mix(in srgb, var(--lc-text) 87%, var(--lc-muted) 13%);
+  color: color-mix(in srgb, var(--lc-text) 86%, var(--lc-muted) 14%);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
+  gap: 1rem;
 }
 
 .gameMatchup span {
@@ -174,8 +182,11 @@
 }
 
 .gameMatchup span:last-child {
-  color: var(--lc-muted);
   text-align: left;
+}
+
+.gameCardLocked .gameMatchup span {
+  color: var(--lc-muted);
 }
 
 .gameCardDivider {
