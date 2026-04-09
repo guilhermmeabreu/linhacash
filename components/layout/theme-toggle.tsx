@@ -14,7 +14,11 @@ function applyTheme(theme: Theme) {
   window.localStorage.setItem('theme', theme);
 }
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  compact?: boolean;
+}
+
+export function ThemeToggle({ compact = false }: ThemeToggleProps) {
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof document === 'undefined') return 'dark';
     return document.documentElement.classList.contains('light') ? 'light' : 'dark';
@@ -37,7 +41,7 @@ export function ThemeToggle() {
       title={theme === 'dark' ? 'Ativar tema claro' : 'Ativar tema escuro'}
     >
       {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
-      {theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+      {!compact ? (theme === 'dark' ? 'Tema claro' : 'Tema escuro') : null}
     </Button>
   );
 }

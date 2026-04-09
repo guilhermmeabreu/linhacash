@@ -610,7 +610,7 @@ export function DashboardView() {
           context={view === 'games' ? `Hoje · ${formatTodayLabel()}` : null}
           actions={
             <div className={styles.topbarBadges}>
-              <ThemeToggle />
+              <ThemeToggle compact />
               {planLoaded ? (
                 <Badge variant={plan === 'pro' ? 'success' : 'default'}>
                   {plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}

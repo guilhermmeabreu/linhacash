@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { LinhaCashLogo } from '@/components/layout';
+import { LinhaCashLogo, ThemeToggle } from '@/components/layout';
 
 export function AuthLayout({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
     <main className="lc-auth-page">
       <section className="lc-auth-card lc-surface lc-surface-elevated">
+        <div className="lc-auth-theme-toggle">
+          <ThemeToggle compact />
+        </div>
         <LinhaCashLogo
           href="/"
           className="lc-auth-brand"

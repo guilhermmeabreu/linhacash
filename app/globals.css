@@ -106,7 +106,7 @@
   --space-3: 12px;
   --space-4: 16px;
   --space-5: 24px;
-  --shadow-sm: var(--lc-shadow-subtle);
+  --shadow-sm: none;
 }
 
 html.light {
@@ -255,7 +255,7 @@ textarea {
 .lc-surface-elevated {
   background: var(--lc-surface-elevated);
   border-color: var(--lc-border-strong);
-  box-shadow: var(--lc-shadow-subtle);
+  box-shadow: none;
 }
 
 .lc-separator { border: 0; border-top: 1px solid var(--lc-border); margin: var(--lc-space-2) 0; }
@@ -539,16 +539,14 @@ textarea {
   margin-bottom: var(--lc-space-3);
 }
 .lc-sidebar-brand-icon {
-  width: 2.05rem;
-  height: 2.05rem;
+  width: 1.4rem;
+  height: 1.4rem;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--lc-accent) 15%, var(--lc-surface) 85%);
-  border: 1px solid color-mix(in srgb, var(--lc-accent) 30%, var(--lc-border) 70%);
 }
 .lc-sidebar-brand-icon img {
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .lc-brand-text,
@@ -559,16 +557,14 @@ textarea {
 .lc-sidebar-badge { font-size: .52rem; color: var(--lc-muted); letter-spacing: .08em; }
 
 .lc-brand-icon {
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.4rem;
+  height: 1.4rem;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--lc-accent) 15%, var(--lc-surface) 85%);
-  border: 1px solid color-mix(in srgb, var(--lc-accent) 30%, var(--lc-border) 70%);
 }
 .lc-brand-icon img {
-  width: 1.05rem;
-  height: 1.05rem;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 
@@ -576,11 +572,11 @@ textarea {
   margin-right: 0.2rem;
 }
 .lc-topbar-brand .lc-brand-icon {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 .lc-topbar-brand .lc-brand-text {
-  font-size: 0.98rem;
+  font-size: 0.9rem;
   letter-spacing: -0.02em;
 }
 .lc-public-actions a {
@@ -628,13 +624,12 @@ textarea {
 
 .lc-auth-page { background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.16), transparent 55%), var(--lc-bg); }
 .lc-auth-card { width: min(100%, 31rem); }
+.lc-auth-theme-toggle { justify-self: end; }
 .lc-auth-brand-icon {
   width: 3.6rem;
   height: 3.6rem;
   display: grid;
   place-items: center;
-  background: var(--lc-accent);
-  color: #06150c;
 }
 .lc-auth-form label {
   font-size: 0.65rem;
@@ -657,8 +652,8 @@ textarea {
 .lc-auth-divider span { position: relative; background: var(--lc-surface); color: var(--lc-muted); font-size: 0.6rem; text-transform: uppercase; letter-spacing: .08em; padding: 0 .5rem; }
 .lc-google-btn { text-transform: uppercase; letter-spacing: .08em; font-size: 0.66rem; font-weight: 900; }
 
-.lc-legal-page { min-height: 100dvh; background: #050505; }
-.lc-legal-shell { width: min(100% - 2rem, 60rem); margin: 0 auto; padding: 1.7rem 0 2.2rem; }
+.lc-legal-page { min-height: 100dvh; background: var(--lc-bg); }
+.lc-legal-shell { width: min(100% - 2rem, 70rem); margin: 0 auto; padding: 1.7rem 0 2.2rem; }
 .lc-legal-header {
   border-bottom: 1px solid var(--lc-border);
   padding-bottom: 1rem;
@@ -667,6 +662,11 @@ textarea {
   justify-content: space-between;
   gap: .7rem;
   flex-wrap: wrap;
+}
+.lc-legal-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
 }
 .lc-legal-header p { color: var(--lc-muted); font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; }
 .lc-legal-content { width: min(100%, 48rem); margin: 0 auto; }

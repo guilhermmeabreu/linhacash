@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
-import { LinhaCashLogo } from '@/components/layout';
+import { LinhaCashLogo, ThemeToggle } from '@/components/layout';
 
 export function PublicLegalLayout({
   title,
@@ -16,7 +16,10 @@ export function PublicLegalLayout({
       <div className="lc-legal-shell">
         <header className="lc-legal-header">
           <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
-          <p>Última atualização: {updatedAt}</p>
+          <div className="lc-legal-header-actions">
+            <ThemeToggle compact />
+            <p>Última atualização: {updatedAt}</p>
+          </div>
         </header>
 
         <section className="lc-legal-content">
