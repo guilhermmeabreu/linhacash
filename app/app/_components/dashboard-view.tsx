@@ -676,7 +676,6 @@ export function DashboardView() {
         <div className={styles.dashboardCanvas}>
           {view === 'games' ? (
             <section className={styles.gamesView}>
-              <div className={styles.sectionRule} />
               {gamesStatus === 'loading' ? (
                 <Surface className={styles.statePanelInline}><p className={styles.stateText}>Carregando jogos...</p></Surface>
               ) : null}
@@ -718,7 +717,10 @@ export function DashboardView() {
                           {game.home_logo ? <img src={game.home_logo} alt={game.home_team} loading="lazy" /> : shortTeamName(game.home_team)}
                         </div>
                       </div>
-                      <p className={styles.gameMatchup}>{game.away_team} <span>x</span> {game.home_team}</p>
+                      <p className={styles.gameMatchup}>
+                        <span>{game.away_team}</span>
+                        <span>{game.home_team}</span>
+                      </p>
                       <div className={styles.gameCardDivider} />
                       <button
                         type="button"

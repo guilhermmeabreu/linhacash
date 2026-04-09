@@ -68,11 +68,6 @@
   margin: 0 auto;
 }
 
-.sectionRule {
-  border-top: 1px solid var(--lc-border);
-  margin-bottom: 0.25rem;
-}
-
 .gameGrid {
   display: grid;
   gap: 0.9rem;
@@ -157,20 +152,19 @@
 }
 
 .gameMatchup {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  color: color-mix(in srgb, var(--lc-text) 86%, var(--lc-muted) 14%);
+  color: color-mix(in srgb, var(--lc-text) 87%, var(--lc-muted) 13%);
+  display: grid;
+  gap: 0.12rem;
 }
 
-.gameMatchup span {
+.gameMatchup span:last-child {
   color: var(--lc-muted);
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 
 .gameCardDivider {
-  border-top: 1px solid var(--lc-border);
+  border-top: 1px solid color-mix(in srgb, var(--lc-border) 75%, transparent);
 }
 
 .gameCtaButton {
