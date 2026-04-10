@@ -16,17 +16,21 @@ WHERE player_id IN (
 DELETE FROM players
 WHERE api_id BETWEEN 910001 AND 910012;
 
--- Remove only this seed's two games for today
+-- Remove only this seed's mock games (fixed ids + today's fallback rows)
 DELETE FROM games
-WHERE game_date = (now() AT TIME ZONE 'America/Sao_Paulo')::date
-  AND (
-    (home_team = 'Los Angeles Lakers' AND away_team = 'Golden State Warriors')
-    OR
-    (home_team = 'Boston Celtics' AND away_team = 'Milwaukee Bucks')
+WHERE id IN (212, 213)
+   OR (
+    game_date = (now() AT TIME ZONE 'America/Sao_Paulo')::date
+    AND (
+      (home_team = 'Los Angeles Lakers' AND away_team = 'Golden State Warriors')
+      OR
+      (home_team = 'Boston Celtics' AND away_team = 'Milwaukee Bucks')
+    )
   );
 
 -- 1) Two games for today (BRT)
 INSERT INTO games (
+  id,
   game_date,
   home_team,
   away_team,
@@ -37,6 +41,7 @@ INSERT INTO games (
 )
 VALUES
   (
+    212,
     (now() AT TIME ZONE 'America/Sao_Paulo')::date,
     'Los Angeles Lakers',
     'Golden State Warriors',
@@ -46,6 +51,7 @@ VALUES
     'Scheduled'
   ),
   (
+    213,
     (now() AT TIME ZONE 'America/Sao_Paulo')::date,
     'Boston Celtics',
     'Milwaukee Bucks',
@@ -54,6 +60,9 @@ VALUES
     ((now() AT TIME ZONE 'America/Sao_Paulo')::date + time '22:30') AT TIME ZONE 'America/Sao_Paulo',
     'Scheduled'
   );
+
+-- Keep sequence aligned after explicit ids
+SELECT setval('games_id_seq', GREATEST((SELECT COALESCE(MAX(id), 1) FROM games), 1), true);
 
 -- 2) Players linked directly by team_id to the exact game team ids above
 INSERT INTO players (api_id, name, team_id, position)
