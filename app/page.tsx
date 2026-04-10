@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowDown, ArrowRight, CheckCircle2, Target, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PublicNav } from '@/app/_components/public-nav';
+import { LinhaCashLogo } from '@/components/layout';
 
 const plans = [
   {
@@ -19,7 +20,6 @@ const plans = [
     period: '/mês',
     annualPrice: 'R$197/ano',
     description: 'Para quem acompanha NBA todos os dias e quer leitura completa de props.',
-    annualDescription: 'Economia anual ativa: plano anual por R$197 com desconto real vs mensal.',
     features: ['Todos os jogos da rodada', 'Todos os jogadores liberados', 'Props e estatísticas completas', 'Contexto avançado (H2H, L20)'],
     cta: 'Assinar Pro',
     href: '/signup',
@@ -54,23 +54,28 @@ export default function LandingPage() {
       <PublicNav />
 
       <section className="lc-hero lc-public-container" id="hero">
-        <p className="lc-kicker">Plataforma de análise NBA</p>
-        <h1>
-          Decida com vantagem usando <span>dados acionáveis</span>
-        </h1>
-        <p>
-          Tendências, desempenho recente e contexto real dos jogadores da NBA. Tudo organizado em uma leitura objetiva para você agir com mais confiança.
-        </p>
-        <div className="lc-hero-cta">
-          <Link href="/signup">
-            <Button size="lg">Começar grátis <ArrowRight size={18} /></Button>
-          </Link>
+        <div className="lc-hero-content">
+          <h1>
+            Decida com vantagem.<br />
+            <span>Dados acionáveis em segundos.</span>
+          </h1>
+          <p>
+            Tendências, desempenho recente e contexto real dos jogadores da NBA em uma leitura objetiva para agir com mais confiança.
+          </p>
+          <div className="lc-hero-cta">
+            <Link href="/signup">
+              <Button size="lg">Começar grátis <ArrowRight size={18} /></Button>
+            </Link>
+            <a href="#planos" className="lc-hero-secondary-cta">
+              <Button variant="secondary" size="lg">Ver planos</Button>
+            </a>
+          </div>
+          <small>Sem cartão de crédito · plano gratuito disponível</small>
+          <a className="lc-scroll-hint" href="#como-funciona" aria-label="Ver mais conteúdo">
+            <ArrowDown size={16} />
+            <span>Role para ver mais</span>
+          </a>
         </div>
-        <small>Sem cartão de crédito · plano gratuito disponível</small>
-        <a className="lc-scroll-hint" href="#como-funciona" aria-label="Ver mais conteúdo">
-          <ArrowDown size={16} />
-          <span>Role para ver mais</span>
-        </a>
       </section>
 
       <section id="como-funciona" className="lc-public-container lc-step-section">
@@ -98,16 +103,16 @@ export default function LandingPage() {
         <div className="lc-plan-grid">
           {plans.map((plan) => (
             <article key={plan.name} className={`lc-surface ${plan.highlight ? 'lc-plan-highlight' : ''}`}>
-              {plan.highlight ? <div className="lc-plan-pill">Recomendado</div> : null}
+              {plan.highlight ? <div className="lc-plan-pill">Melhor escolha</div> : null}
               <h3>{plan.name}</h3>
               <strong>{plan.price}{plan.period ? <small>{plan.period}</small> : null}</strong>
               {'annualPrice' in plan ? (
-                <p className="lc-plan-annual-highlight">
-                  Plano anual: <strong>{plan.annualPrice}</strong> · com desconto vs plano mensal.
+                <p className="lc-plan-annual-inline">
+                  <span>R$197/ano</span>
+                  <small>R$16,41/mês no plano anual</small>
                 </p>
               ) : null}
               <p>{plan.description}</p>
-              {'annualDescription' in plan ? <p className="lc-plan-annual-note">{plan.annualDescription}</p> : null}
               <ul>
                 {plan.features.map((feature) => (
                   <li key={feature}>{feature}</li>
@@ -123,10 +128,18 @@ export default function LandingPage() {
 
       <footer className="lc-public-footer">
         <div className="lc-public-container">
-          <p>Uso responsável: o LinhaCash não é casa de apostas e não intermedia apostas.</p>
-          <p>
-            <Link href="/termos">Termos</Link> · <Link href="/privacidade">Privacidade</Link> · <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
-          </p>
+          <div className="lc-public-footer-brand">
+            <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
+            <p>Plataforma premium de leitura objetiva para props da NBA.</p>
+          </div>
+          <div className="lc-public-footer-links">
+            <a href="mailto:suporte@linhacash.com.br">suporte@linhacash.com.br</a>
+            <span aria-hidden>|</span>
+            <Link href="/termos">Termos</Link>
+            <span aria-hidden>|</span>
+            <Link href="/privacidade">Privacidade</Link>
+          </div>
+          <p className="lc-public-footer-note">Uso responsável: o LinhaCash não é casa de apostas e não intermedia apostas.</p>
         </div>
       </footer>
     </main>
