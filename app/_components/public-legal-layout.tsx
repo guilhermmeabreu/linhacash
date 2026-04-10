@@ -1,17 +1,14 @@
 import Link from 'next/link';
 import type { CSSProperties, ReactNode } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { LinhaCashLogo, ThemeToggle } from '@/components/layout';
 
 export function PublicLegalLayout({
   title,
   updatedAt,
-  backHref = '/app',
   children,
 }: {
   title: string;
   updatedAt: string;
-  backHref?: string;
   children: ReactNode;
 }) {
   return (
@@ -19,9 +16,6 @@ export function PublicLegalLayout({
       <div className="lc-legal-shell">
         <header className="lc-legal-header">
           <div className="lc-legal-header-left">
-            <Link href={backHref} className="lc-legal-back" aria-label="Voltar para o aplicativo">
-              <ArrowLeft size={16} />
-            </Link>
             <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
           </div>
           <div className="lc-legal-header-actions">
