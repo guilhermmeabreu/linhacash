@@ -54,23 +54,29 @@ export default function LandingPage() {
       <PublicNav />
 
       <section className="lc-hero lc-public-container" id="hero">
-        <p className="lc-kicker">Plataforma de análise NBA</p>
-        <h1>
-          Decida com vantagem usando <span>dados acionáveis</span>
-        </h1>
-        <p>
-          Tendências, desempenho recente e contexto real dos jogadores da NBA. Tudo organizado em uma leitura objetiva para você agir com mais confiança.
-        </p>
-        <div className="lc-hero-cta">
-          <Link href="/signup">
-            <Button size="lg">Começar grátis <ArrowRight size={18} /></Button>
-          </Link>
+        <div className="lc-hero-content">
+          <p className="lc-kicker">Plataforma de análise NBA</p>
+          <h1>
+            Decida com vantagem.<br />
+            <span>Dados acionáveis em segundos.</span>
+          </h1>
+          <p>
+            Tendências, desempenho recente e contexto real dos jogadores da NBA em uma leitura objetiva para agir com mais confiança.
+          </p>
+          <div className="lc-hero-cta">
+            <Link href="/signup">
+              <Button size="lg">Começar grátis <ArrowRight size={18} /></Button>
+            </Link>
+            <a href="#planos" className="lc-hero-secondary-cta">
+              <Button variant="secondary" size="lg">Ver planos</Button>
+            </a>
+          </div>
+          <small>Sem cartão de crédito · plano gratuito disponível</small>
+          <a className="lc-scroll-hint" href="#como-funciona" aria-label="Ver mais conteúdo">
+            <ArrowDown size={16} />
+            <span>Role para ver mais</span>
+          </a>
         </div>
-        <small>Sem cartão de crédito · plano gratuito disponível</small>
-        <a className="lc-scroll-hint" href="#como-funciona" aria-label="Ver mais conteúdo">
-          <ArrowDown size={16} />
-          <span>Role para ver mais</span>
-        </a>
       </section>
 
       <section id="como-funciona" className="lc-public-container lc-step-section">
