@@ -51,7 +51,7 @@ const STATS = ['PTS', 'AST', 'REB', '3PM', 'PA', 'PR', 'PRA', 'AR', 'DD', 'TD', 
 const FREE_STATS = ['PTS', '3PM'] as const;
 
 type Stat = (typeof STATS)[number];
-const SPLITS = ['L5', 'L10', 'L20', 'L30', 'Season', '24/25', 'H2H'] as const;
+const SPLITS = ['24/25', 'L5', 'L10', 'L20', 'L30', 'Season', 'H2H'] as const;
 type Split = (typeof SPLITS)[number];
 
 type Plan = 'free' | 'pro';
@@ -1031,8 +1031,18 @@ export function DashboardView() {
                                 </div>
                               </div>
                               <div className={styles.playerQuickStats}>
-                                <span>L10 avg {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</span>
-                                <span>Hit {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10 ? `${Math.round(Number(metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10))}%` : '—'}</span>
+                                <span>
+                                  <small>L10 AVG</small>
+                                  <strong>{metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
+                                </span>
+                                <span>
+                                  <small>HIT RATE</small>
+                                  <strong>
+                                    {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10
+                                      ? `${Math.round(Number(metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10))}%`
+                                      : '—'}
+                                  </strong>
+                                </span>
                               </div>
                               <div className={styles.playerLineBlock}>
                                 <small>Line</small>
@@ -1066,14 +1076,6 @@ export function DashboardView() {
                   </TabsList>
                 </TabsRoot>
               </div>
-              <TabsRoot value={selectedSplit} onValueChange={(value) => setSelectedSplit((SPLITS.includes(value as Split) ? value : 'L10') as Split)}>
-                <TabsList className={styles.splitTabs}>
-                  {SPLITS.map((split) => (
-                    <TabsTrigger key={split} value={split}>{split}</TabsTrigger>
-                  ))}
-                </TabsList>
-              </TabsRoot>
-
               <div className={styles.playerHero}>
                 <div>
                   <p className={styles.playerHeroMeta}>{selectedPlayer.team} • {selectedPlayer.position}</p>
@@ -1153,6 +1155,14 @@ export function DashboardView() {
                       )}
                     </div>
                   </div>
+
+                  <TabsRoot value={selectedSplit} onValueChange={(value) => setSelectedSplit((SPLITS.includes(value as Split) ? value : 'L10') as Split)}>
+                    <TabsList className={styles.splitTabs}>
+                      {SPLITS.map((split) => (
+                        <TabsTrigger key={split} value={split}>{split}</TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </TabsRoot>
                 </>
               ) : null}
             </section>
