@@ -66,6 +66,8 @@
 .profileView {
   width: min(100%, 78rem);
   margin: 0 auto;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .viewPanel {
@@ -354,6 +356,10 @@
   min-width: 0;
 }
 
+.playerMain > div {
+  min-width: 0;
+}
+
 .avatar {
   width: 2rem;
   height: 2rem;
@@ -370,6 +376,9 @@
 .playerName {
   font-size: 1.06rem;
   font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerMeta {
@@ -378,6 +387,9 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerLineBlock {
@@ -459,6 +471,7 @@
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
   background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
+  max-width: 100%;
 }
 
 .splitTabs :global(.lc-tab-trigger) {
@@ -579,10 +592,10 @@
   border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
   border-radius: 16px;
   background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%), color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%));
-  padding: 0.82rem 0.92rem;
+  padding: 0.7rem 0.78rem;
   display: grid;
-  gap: 0.56rem;
-  margin-top: 0.15rem;
+  gap: 0.45rem;
+  margin-top: 0.08rem;
   box-sizing: border-box;
 }
 
@@ -611,9 +624,9 @@
 .chartCanvas {
   position: relative;
   display: block;
-  min-height: 320px;
+  min-height: 260px;
   width: 100%;
-  padding: 0.25rem 0 0;
+  padding: 0.1rem 0 0;
   overflow: hidden;
 }
 
@@ -1134,7 +1147,7 @@
   }
 
   .chartCanvas {
-    min-height: 220px;
+    min-height: 200px;
   }
 
   .upgradeModal {
@@ -1159,9 +1172,9 @@
 @media (min-width: 860px) {
   .playerRow {
     display: grid;
-    grid-template-columns: clamp(220px, 23vw, 320px) minmax(0, 1fr) 76px;
+    grid-template-columns: clamp(220px, 22vw, 300px) minmax(0, 1fr) 72px;
     align-items: center;
-    column-gap: 0.46rem;
+    column-gap: 0.34rem;
   }
 
   .playerMain {

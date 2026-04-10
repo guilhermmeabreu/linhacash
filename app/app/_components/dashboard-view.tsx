@@ -1163,8 +1163,8 @@ export function DashboardView() {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             data={playerDetailModel.bars}
-                            margin={{ top: 12, right: 8, left: 2, bottom: 2 }}
-                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '12%' : playerDetailModel.bars.length <= 10 ? '10%' : playerDetailModel.bars.length <= 20 ? '8%' : '6%'}
+                            margin={{ top: 6, right: 4, left: 0, bottom: 0 }}
+                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '6%' : playerDetailModel.bars.length <= 10 ? '8%' : playerDetailModel.bars.length <= 20 ? '10%' : '12%'}
                           >
                             <CartesianGrid stroke="color-mix(in srgb, var(--lc-border) 55%, transparent)" strokeDasharray="2 4" vertical={false} />
                             <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 11 }} />
@@ -1177,7 +1177,7 @@ export function DashboardView() {
                               domain={[0, (max: number) => Math.max(max + 1, playerDetailModel.line + 1)]}
                             />
                             <Tooltip
-                              cursor={{ fill: 'color-mix(in srgb, var(--lc-accent) 8%, transparent)' }}
+                              cursor={false}
                               contentStyle={{
                                 border: '1px solid var(--lc-border)',
                                 background: 'color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%)',
@@ -1195,16 +1195,16 @@ export function DashboardView() {
                             />
                             <Bar
                               dataKey="value"
-                              radius={[2, 2, 0, 0]}
+                              radius={[1, 1, 0, 0]}
                               isAnimationActive={false}
                               maxBarSize={
                                 playerDetailModel.bars.length <= 5
-                                  ? 62
+                                  ? 66
                                   : playerDetailModel.bars.length <= 10
-                                    ? 48
+                                    ? 50
                                     : playerDetailModel.bars.length <= 20
-                                      ? 32
-                                      : 26
+                                      ? 34
+                                      : 28
                               }
                             >
                               <LabelList dataKey="value" position="top" fill="var(--lc-text)" fontSize={10} />
