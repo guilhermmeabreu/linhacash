@@ -730,6 +730,14 @@ export function DashboardView() {
     return `${styles.chartBar} ${styles.chartBarMiss}`;
   }, []);
 
+  const getSplitPctClassName = useCallback((value: string) => {
+    const pct = Number.parseInt(value.replace('%', ''), 10);
+    if (!Number.isFinite(pct)) return '';
+    if (pct >= 80) return styles.splitPctHigh;
+    if (pct >= 50) return styles.splitPctMid;
+    return styles.splitPctLow;
+  }, []);
+
   const playerDetailModel = useMemo(() => {
     if (!selectedPlayer) return null;
     const payload = selectedMetricsResource;
@@ -791,6 +799,8 @@ export function DashboardView() {
     });
     const edge = average === null ? null : Number((average - line).toFixed(1));
     const edgeLabel = edge === null ? 'N/D' : edge >= 0 ? 'Over lean' : 'Under lean';
+    const selectedSplitGames = games.length;
+    const selectedSplitHits = games.filter((sample) => sample.value >= line).length;
     return {
       allGames,
       games,
@@ -804,6 +814,8 @@ export function DashboardView() {
       metrics: payload?.metrics ?? null,
       splitMetrics,
       selectedSplitMetric,
+      selectedSplitGames,
+      selectedSplitHits,
     };
   }, [lineAdjustment, selectedMetricsResource, selectedPlayer, selectedSplit]);
 
@@ -1115,7 +1127,7 @@ export function DashboardView() {
                     {playerDetailModel.windows.map((window) => (
                       <div key={window.label}>
                         <span>{window.label}</span>
-                        <strong>{window.value}</strong>
+                        <strong className={getSplitPctClassName(window.value)}>{window.value}</strong>
                         <small>{window.note}</small>
                       </div>
                     ))}
@@ -1125,9 +1137,24 @@ export function DashboardView() {
                       <small>{selectedStat}</small>
                     </div>
                     <div>
+                      <span>Linha</span>
+                      <strong>{playerDetailModel.line.toFixed(1)}</strong>
+                      <small>Ajustada</small>
+                    </div>
+                    <div>
+                      <span>Edge</span>
+                      <strong>{playerDetailModel.edge === null ? '—' : `${playerDetailModel.edge > 0 ? '+' : ''}${playerDetailModel.edge}`}</strong>
+                      <small>{playerDetailModel.edgeLabel}</small>
+                    </div>
+                    <div>
                       <span>{selectedSplit}</span>
-                      <strong>{playerDetailModel.selectedSplitMetric?.value ?? '—'}</strong>
+                      <strong className={getSplitPctClassName(playerDetailModel.selectedSplitMetric?.value ?? '')}>{playerDetailModel.selectedSplitMetric?.value ?? '—'}</strong>
                       <small>{playerDetailModel.selectedSplitMetric?.note ?? 'Sem dados'}</small>
+                    </div>
+                    <div>
+                      <span>Amostra</span>
+                      <strong>{playerDetailModel.selectedSplitGames}</strong>
+                      <small>{playerDetailModel.selectedSplitHits} hits</small>
                     </div>
                   </div>
 
