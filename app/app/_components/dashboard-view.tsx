@@ -1067,7 +1067,7 @@ export function DashboardView() {
                                     <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
                                   </span>
                                 ))}
-                                <span>
+                                <span className={styles.playerQuickStatLine}>
                                   <small>LINE</small>
                                   <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                 </span>
@@ -1162,8 +1162,8 @@ export function DashboardView() {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             data={playerDetailModel.bars}
-                            margin={{ top: 16, right: 6, left: -14, bottom: 0 }}
-                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '28%' : playerDetailModel.bars.length <= 10 ? '16%' : '10%'}
+                            margin={{ top: 10, right: 8, left: -8, bottom: 0 }}
+                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '10%' : playerDetailModel.bars.length <= 10 ? '14%' : playerDetailModel.bars.length <= 20 ? '18%' : '22%'}
                           >
                             <CartesianGrid stroke="var(--lc-border)" strokeDasharray="2 4" vertical={false} />
                             <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 10 }} />
@@ -1189,7 +1189,20 @@ export function DashboardView() {
                               strokeDasharray="4 4"
                               label={{ value: `LINE ${playerDetailModel.line}`, fill: 'var(--lc-muted)', fontSize: 10, position: 'insideTopLeft' }}
                             />
-                            <Bar dataKey="value" radius={[8, 8, 0, 0]} isAnimationActive={false}>
+                            <Bar
+                              dataKey="value"
+                              radius={[8, 8, 0, 0]}
+                              isAnimationActive={false}
+                              barSize={
+                                playerDetailModel.bars.length <= 5
+                                  ? 42
+                                  : playerDetailModel.bars.length <= 10
+                                    ? 30
+                                    : playerDetailModel.bars.length <= 20
+                                      ? 20
+                                      : 14
+                              }
+                            >
                               {playerDetailModel.bars.map((bar, index) => (
                                 <Cell
                                   key={`${bar.label}-${index}`}

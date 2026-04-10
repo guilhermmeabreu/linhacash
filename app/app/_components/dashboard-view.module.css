@@ -327,13 +327,13 @@
 .playerRow {
   width: 100%;
   border-radius: 14px;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 84%, var(--lc-bg) 16%));
-  padding: 0.68rem 0.74rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
+  background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
+  padding: 0.78rem 0.82rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.56rem;
+  gap: 0.48rem;
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
@@ -348,6 +348,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
+  min-width: 0;
 }
 
 .avatar {
@@ -364,12 +365,12 @@
 }
 
 .playerName {
-  font-size: 0.88rem;
+  font-size: 0.98rem;
   font-weight: 800;
 }
 
 .playerMeta {
-  font-size: 0.61rem;
+  font-size: 0.66rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -398,7 +399,7 @@
 .playerQuickStats {
   display: none;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.34rem;
+  gap: 0.3rem;
   flex: 1;
 }
 
@@ -406,6 +407,7 @@
   display: grid;
   gap: 0.08rem;
   min-height: 1.7rem;
+  width: 100%;
   border-radius: 8px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 84%, transparent);
   background: color-mix(in srgb, var(--lc-surface-elevated) 80%, var(--lc-bg) 20%);
@@ -425,9 +427,13 @@
 
 .playerQuickStats span strong {
   color: var(--lc-text);
-  font-size: 0.74rem;
+  font-size: 0.82rem;
   font-family: var(--lc-font-mono);
   line-height: 1;
+}
+
+.playerQuickStatLine strong {
+  color: var(--lc-accent);
 }
 
 .detailTabsRow {
@@ -533,7 +539,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   background: var(--lc-border);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.24rem;
 }
 
 .quickStatsGrid > div {
@@ -570,7 +576,7 @@
   padding: 0.58rem 0.68rem;
   display: grid;
   gap: 0.42rem;
-  margin-top: 0.3rem;
+  margin-top: 0.15rem;
 }
 
 .chartHeader {
@@ -600,9 +606,9 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.42rem;
-  min-height: 220px;
+  min-height: 250px;
   align-items: end;
-  padding: 0.8rem 0.05rem 0.05rem;
+  padding: 0.45rem 0.05rem 0.05rem;
 }
 
 .chartReference {
@@ -1120,7 +1126,7 @@
   }
 
   .chartCanvas {
-    min-height: 160px;
+    min-height: 185px;
   }
 
   .upgradeModal {
@@ -1143,8 +1149,23 @@
 }
 
 @media (min-width: 860px) {
+  .playerRow {
+    display: grid;
+    grid-template-columns: minmax(220px, 270px) minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.38rem;
+  }
+
+  .playerMain {
+    width: 100%;
+  }
+
   .playerQuickStats {
     display: grid;
+  }
+
+  .playerLineBlock {
+    display: none;
   }
 }
 
