@@ -328,26 +328,26 @@
   width: 100%;
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
-  background: linear-gradient(140deg, color-mix(in srgb, var(--lc-surface) 92%, #11151e 8%), color-mix(in srgb, var(--lc-surface) 83%, #0f1319 17%));
-  padding: 0.68rem 0.8rem;
+  background: linear-gradient(160deg, color-mix(in srgb, #0a0a0a 95%, #000 5%), color-mix(in srgb, #060606 95%, #000 5%));
+  padding: 0.52rem 0.62rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.8rem;
+  gap: 0.6rem;
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
 .playerRow:hover {
   border-color: color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border-strong) 62%);
-  background: linear-gradient(140deg, color-mix(in srgb, var(--lc-surface) 84%, #18212f 16%), color-mix(in srgb, var(--lc-surface) 76%, #141c28 24%));
+  background: linear-gradient(160deg, color-mix(in srgb, #0c0c0c 94%, #000 6%), color-mix(in srgb, #080808 94%, #000 6%));
   transform: translateY(-1px);
 }
 
 .playerMain {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.52rem;
 }
 
 .avatar {
@@ -364,12 +364,12 @@
 }
 
 .playerName {
-  font-size: 0.86rem;
+  font-size: 0.78rem;
   font-weight: 800;
 }
 
 .playerMeta {
-  font-size: 0.61rem;
+  font-size: 0.56rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -392,29 +392,30 @@
 .playerLineBlock strong {
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
-  font-size: 1rem;
+  font-size: 1.08rem;
 }
 
 .playerQuickStats {
   display: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.4rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.28rem;
   flex: 1;
 }
 
 .playerQuickStats span {
   display: grid;
   gap: 0.1rem;
-  min-height: 2rem;
-  border-radius: 10px;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 80%, transparent);
-  background: color-mix(in srgb, var(--lc-surface) 80%, #161c29 20%);
-  padding: 0.32rem 0.55rem;
+  min-height: 1.58rem;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 90%, transparent);
+  background: color-mix(in srgb, #0b0b0b 95%, #000 5%);
+  padding: 0.2rem 0.28rem;
+  text-align: center;
 }
 
 .playerQuickStats span small {
   color: color-mix(in srgb, var(--lc-muted) 90%, #a3abb7 10%);
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-weight: 800;
@@ -422,7 +423,7 @@
 
 .playerQuickStats span strong {
   color: color-mix(in srgb, var(--lc-text) 90%, #f4f8ff 10%);
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   font-family: var(--lc-font-mono);
 }
 
@@ -526,23 +527,23 @@
   border-radius: 14px;
   overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   background: var(--lc-border);
-  margin-bottom: 0.55rem;
+  margin-bottom: 0.35rem;
 }
 
 .quickStatsGrid > div {
   background: color-mix(in srgb, #090909 95%, #000 5%);
   border-radius: 0;
-  padding: 0.52rem 0.45rem;
+  padding: 0.42rem 0.35rem;
   text-align: center;
   display: grid;
   gap: 0.12rem;
 }
 
 .quickStatsGrid span {
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--lc-muted);
@@ -550,12 +551,12 @@
 }
 
 .quickStatsGrid strong {
-  font-size: 0.92rem;
+  font-size: 0.82rem;
   font-family: var(--lc-font-mono);
 }
 
 .quickStatsGrid small {
-  font-size: 0.52rem;
+  font-size: 0.48rem;
   color: var(--lc-muted);
 }
 
@@ -563,10 +564,10 @@
   border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
   border-radius: 16px;
   background: linear-gradient(180deg, color-mix(in srgb, #0a0a0a 96%, #000 4%), color-mix(in srgb, #070707 96%, #000 4%));
-  padding: 0.68rem 0.78rem;
+  padding: 0.58rem 0.68rem;
   display: grid;
-  gap: 0.55rem;
-  margin-top: 0.45rem;
+  gap: 0.42rem;
+  margin-top: 0.3rem;
 }
 
 .chartHeader {
@@ -596,9 +597,9 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.42rem;
-  min-height: 220px;
+  min-height: 200px;
   align-items: end;
-  padding: 1.2rem 0.1rem 0.1rem;
+  padding: 1rem 0.05rem 0.05rem;
 }
 
 .chartReference {
@@ -1127,7 +1128,7 @@
   }
 
 .quickStatsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .splitTabs {
@@ -1135,7 +1136,7 @@
   }
 
   .chartCanvas {
-    min-height: 170px;
+    min-height: 160px;
   }
 
   .upgradeModal {
@@ -1153,7 +1154,7 @@
 
 @media (max-width: 620px) {
   .quickStatsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

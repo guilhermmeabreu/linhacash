@@ -49,6 +49,13 @@ import styles from './dashboard-view.module.css';
 
 const STATS = ['PTS', 'AST', 'REB', '3PM', 'PA', 'PR', 'PRA', 'AR', 'DD', 'TD', 'STEAL', 'BLOCKS', 'SB', 'FG2A', 'FG3A'] as const;
 const FREE_STATS = ['PTS', '3PM'] as const;
+const PLAYER_ROW_STATS = [
+  { label: 'PTS', stat: 'PTS' },
+  { label: 'REB', stat: 'REB' },
+  { label: 'AST', stat: 'AST' },
+  { label: 'STL', stat: 'STEAL' },
+  { label: 'BLK', stat: 'BLOCKS' },
+] as const;
 
 type Stat = (typeof STATS)[number];
 const SPLITS = ['24/25', 'L5', 'L10', 'L20', 'L30', 'Season', 'H2H'] as const;
@@ -554,9 +561,12 @@ export function DashboardView() {
     if (view !== 'players' || marketLocked) return;
     const hotPlayers = players.slice(0, 12);
     if (!hotPlayers.length) return;
+    const statsToWarm = Array.from(new Set<Stat>([selectedStat, ...PLAYER_ROW_STATS.map((item) => item.stat)]));
     const timer = window.setTimeout(() => {
       hotPlayers.forEach((player) => {
-        void loadMetricsForPlayer(player.id, selectedStat);
+        statsToWarm.forEach((stat) => {
+          void loadMetricsForPlayer(player.id, stat);
+        });
       });
     }, 0);
     return () => window.clearTimeout(timer);
@@ -789,18 +799,31 @@ export function DashboardView() {
       const pct = Math.round((hits / scopedGames.length) * 100);
       return { label: split, value: `${pct}%`, note: `${hits}/${scopedGames.length}` };
     });
-    const selectedSplitMetric = splitMetrics.find((metric) => metric.label === selectedSplit) ?? null;
-    const windows = [5, 10, 20, 30].map((size) => {
-      const window = allGames.slice(0, size);
-      if (!window.length) return { label: `L${size}`, value: '—', note: 'Sem dados' };
-      const hits = window.filter((sample) => sample.value >= line).length;
-      const pct = Math.round((hits / window.length) * 100);
-      return { label: `L${size}`, value: `${pct}%`, note: `${hits}/${window.length}` };
+    const summaryMetricMap: Record<string, PlayerDetailSplitMetric> = {};
+    splitMetrics.forEach((metric) => {
+      summaryMetricMap[metric.label] = metric;
     });
-    const edge = average === null ? null : Number((average - line).toFixed(1));
-    const edgeLabel = edge === null ? 'N/D' : edge >= 0 ? 'Over lean' : 'Under lean';
-    const selectedSplitGames = games.length;
-    const selectedSplitHits = games.filter((sample) => sample.value >= line).length;
+    const season2526Games = allGames.filter((sample) => {
+      if (!sample.date) return false;
+      const date = new Date(sample.date);
+      const start = new Date('2025-07-01');
+      const end = new Date('2026-06-30');
+      return date >= start && date <= end;
+    });
+    const summaryMetrics: PlayerDetailSplitMetric[] = [
+      (() => {
+        if (!season2526Games.length) return { label: '25/26', value: '—', note: 'Sem dados' };
+        const hits = season2526Games.filter((sample) => sample.value >= line).length;
+        const pct = Math.round((hits / season2526Games.length) * 100);
+        return { label: '25/26', value: `${pct}%`, note: `${hits}/${season2526Games.length}` };
+      })(),
+      summaryMetricMap.H2H ?? { label: 'H2H', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L5 ?? { label: 'L5', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L10 ?? { label: 'L10', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L20 ?? { label: 'L20', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L30 ?? { label: 'L30', value: '—', note: 'Sem dados' },
+      summaryMetricMap['24/25'] ?? { label: '24/25', value: '—', note: 'Sem dados' },
+    ];
     return {
       allGames,
       games,
@@ -808,14 +831,9 @@ export function DashboardView() {
       average,
       bars,
       linePct,
-      windows,
-      edge,
-      edgeLabel,
+      summaryMetrics,
       metrics: payload?.metrics ?? null,
       splitMetrics,
-      selectedSplitMetric,
-      selectedSplitGames,
-      selectedSplitHits,
     };
   }, [lineAdjustment, selectedMetricsResource, selectedPlayer, selectedSplit]);
 
@@ -1043,17 +1061,15 @@ export function DashboardView() {
                                 </div>
                               </div>
                               <div className={styles.playerQuickStats}>
+                                {PLAYER_ROW_STATS.map((entry) => (
+                                  <span key={`${player.id}-${entry.label}`}>
+                                    <small>{entry.label}</small>
+                                    <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
+                                  </span>
+                                ))}
                                 <span>
-                                  <small>L10 AVG</small>
-                                  <strong>{metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
-                                </span>
-                                <span>
-                                  <small>HIT RATE</small>
-                                  <strong>
-                                    {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10
-                                      ? `${Math.round(Number(metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10))}%`
-                                      : '—'}
-                                  </strong>
+                                  <small>LINE</small>
+                                  <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                 </span>
                               </div>
                               <div className={styles.playerLineBlock}>
@@ -1124,38 +1140,13 @@ export function DashboardView() {
               {playerDetailModel && selectedMetricsStatus === 'ready' ? (
                 <>
                   <div className={styles.quickStatsGrid}>
-                    {playerDetailModel.windows.map((window) => (
-                      <div key={window.label}>
-                        <span>{window.label}</span>
-                        <strong className={getSplitPctClassName(window.value)}>{window.value}</strong>
-                        <small>{window.note}</small>
+                    {playerDetailModel.summaryMetrics.map((metric) => (
+                      <div key={metric.label}>
+                        <span>{metric.label}</span>
+                        <strong className={getSplitPctClassName(metric.value)}>{metric.value}</strong>
+                        <small>{metric.note}</small>
                       </div>
                     ))}
-                    <div>
-                      <span>Média</span>
-                      <strong>{playerDetailModel.average ?? '—'}</strong>
-                      <small>{selectedStat}</small>
-                    </div>
-                    <div>
-                      <span>Linha</span>
-                      <strong>{playerDetailModel.line.toFixed(1)}</strong>
-                      <small>Ajustada</small>
-                    </div>
-                    <div>
-                      <span>Edge</span>
-                      <strong>{playerDetailModel.edge === null ? '—' : `${playerDetailModel.edge > 0 ? '+' : ''}${playerDetailModel.edge}`}</strong>
-                      <small>{playerDetailModel.edgeLabel}</small>
-                    </div>
-                    <div>
-                      <span>{selectedSplit}</span>
-                      <strong className={getSplitPctClassName(playerDetailModel.selectedSplitMetric?.value ?? '')}>{playerDetailModel.selectedSplitMetric?.value ?? '—'}</strong>
-                      <small>{playerDetailModel.selectedSplitMetric?.note ?? 'Sem dados'}</small>
-                    </div>
-                    <div>
-                      <span>Amostra</span>
-                      <strong>{playerDetailModel.selectedSplitGames}</strong>
-                      <small>{playerDetailModel.selectedSplitHits} hits</small>
-                    </div>
                   </div>
 
                   <div className={styles.chartCard}>
