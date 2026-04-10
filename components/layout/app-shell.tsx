@@ -35,7 +35,17 @@ export function AppShell({ className, sidebar, mobileSidebar, topbar, children, 
             onClick={closeMobileSidebar}
           />
           <aside className={cn('lc-mobile-drawer', mobileOpen && 'is-open')}>
-            {mobileSidebar}
+            <div
+              className="lc-mobile-drawer-inner"
+              onClickCapture={(event) => {
+              const target = event.target as HTMLElement | null;
+              if (target?.closest('a[href]')) {
+                closeMobileSidebar();
+              }
+              }}
+            >
+              {mobileSidebar}
+            </div>
           </aside>
         </>
       ) : null}
