@@ -2,18 +2,26 @@
 
 import {
   AlertCircle,
+  AlertTriangle,
   ArrowLeft,
   BarChart3,
   CalendarDays,
   ChevronRight,
   Crown,
+  FileText,
+  HelpCircle,
+  LogOut,
   X,
   LayoutDashboard,
   Lock,
-  LogOut,
+  MessageSquare,
   Minus,
+  Moon,
   Plus,
   RefreshCw,
+  Shield,
+  Sun,
+  Trash2,
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -641,6 +649,17 @@ export function DashboardView() {
   const profileSince = profile?.created_at
     ? new Date(profile.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : null;
+  const profileName = profile?.name?.trim() || 'Usuário';
+  const profileEmail = profile?.email?.trim() || 'E-mail não disponível';
+  const profileInitial = profileName.slice(0, 1).toUpperCase();
+  const profilePlanLabel = plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito';
+  const profileThemeLabel = profile?.theme === 'light' ? 'Claro' : 'Escuro';
+
+  const handleLogout = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.location.assign('/login');
+    }
+  }, []);
 
   return (
     <AppShell
@@ -651,10 +670,10 @@ export function DashboardView() {
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
             <div className={styles.accountSummary}>
-              <div className={styles.accountAvatar}>{(profile?.name || 'G').slice(0, 1).toUpperCase()}</div>
+              <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
-                <strong>{profile?.name || 'Guilherme'}</strong>
-                <span>{plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}</span>
+                <strong>{profileName}</strong>
+                <span>{profilePlanLabel}</span>
               </div>
             </div>
           )}
@@ -667,10 +686,10 @@ export function DashboardView() {
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
             <div className={styles.accountSummary}>
-              <div className={styles.accountAvatar}>{(profile?.name || 'G').slice(0, 1).toUpperCase()}</div>
+              <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
-                <strong>{profile?.name || 'Guilherme'}</strong>
-                <span>{plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}</span>
+                <strong>{profileName}</strong>
+                <span>{profilePlanLabel}</span>
               </div>
             </div>
           )}
@@ -972,58 +991,121 @@ export function DashboardView() {
           {view === 'profile' ? (
             <section className={styles.profileView}>
               <Surface className={styles.profileHero}>
-                <div className={styles.profileHeaderAvatar}>{(profile?.name || 'G').slice(0, 1).toUpperCase()}</div>
+                <div className={styles.profileHeroGlow} aria-hidden />
+                <div className={styles.profileHeaderAvatar}>{profileInitial}</div>
                 <div className={styles.profileHeaderMeta}>
-                  <h2>{profile?.name || 'Guilherme'}</h2>
-                  <p>{profile?.email || 'email@linhacash.com.br'}</p>
+                  <p className={styles.profileHeaderLabel}>Conta LinhaCash</p>
+                  <h2>{profileName}</h2>
+                  <p>{profileEmail}</p>
+                  {profileSince ? <small>Membro desde {profileSince}</small> : null}
                 </div>
-                <Badge variant={plan === 'pro' ? 'success' : 'default'}>{plan === 'pro' ? 'Plano Pro' : 'Plano Gratuito'}</Badge>
+                <Badge variant={plan === 'pro' ? 'success' : 'default'}>{profilePlanLabel}</Badge>
               </Surface>
 
-              <div className={styles.profileStack}>
+              <div className={styles.profileGrid}>
                 <Surface className={styles.profileSection}>
                   <div className={styles.profileSectionHeader}>
                     <h3>Planos</h3>
-                    {plan !== 'pro' ? <Button size="sm" onClick={openUpgradeSurface}>Fazer upgrade</Button> : null}
                   </div>
-                  <div className={styles.profileRows}>
-                    <div className={`${styles.profileRow} ${plan === 'free' ? styles.profileRowActive : ''}`}>
-                      <span>Free</span>
-                      <small>{plan === 'free' ? 'Plano ativo' : 'Disponível'}</small>
+                  <div className={`${styles.profileRows} technical-grid`}>
+                    <div className={`${styles.profileRow} technical-item ${plan === 'free' ? styles.profileRowActive : ''}`}>
+                      <div className={styles.profileRowContent}>
+                        <span>Gratuito</span>
+                        <small>Todos os jogos visíveis · Acesso parcial às estatísticas</small>
+                      </div>
+                      {plan === 'free' ? <Badge variant="success">Ativo</Badge> : <ChevronRight size={14} />}
                     </div>
-                    <div className={`${styles.profileRow} ${plan === 'pro' ? styles.profileRowActive : ''}`}>
-                      <span>Pro</span>
-                      <small>{plan === 'pro' ? 'Plano ativo' : 'Inclui mercados avançados'}</small>
-                    </div>
+                    <button type="button" className={`${styles.profileRow} technical-item ${plan === 'pro' ? styles.profileRowActive : ''}`} onClick={openUpgradeSurface}>
+                      <div className={styles.profileRowContent}>
+                        <span>Pro</span>
+                        <small>{plan === 'pro' ? 'Plano ativo · cobrança gerenciada no checkout' : 'R$24,90/mês · R$197/ano com desconto'}</small>
+                      </div>
+                      {plan === 'pro' ? <Badge variant="success">Ativo</Badge> : <ChevronRight size={14} />}
+                    </button>
                   </div>
                 </Surface>
 
                 <Surface className={styles.profileSection}>
                   <h3>Conta</h3>
-                  <div className={styles.profileRows}>
-                    <button type="button" className={styles.profileRow}><span>Editar perfil</span><small>{profileSince ? `Membro desde ${profileSince}` : 'Dados da conta'}</small></button>
-                    <button type="button" className={styles.profileRow}><span>Segurança</span><small>Senha e recuperação</small></button>
-                    <div className={styles.profileRow}>
-                      <span>Tema</span>
+                  <div className={`${styles.profileRows} technical-grid`}>
+                    <a className={`${styles.profileRow} technical-item`} href="mailto:suporte@linhacash.com.br?subject=Atualiza%C3%A7%C3%A3o%20de%20perfil">
+                      <div className={styles.profileRowContent}>
+                        <span><UserRound size={14} /> Editar perfil</span>
+                        <small>{profileSince ? `Membro desde ${profileSince}` : 'Atualizar dados da conta'}</small>
+                      </div>
+                      <ChevronRight size={14} />
+                    </a>
+                    <a className={`${styles.profileRow} technical-item`} href="/forgot-password">
+                      <div className={styles.profileRowContent}>
+                        <span><Shield size={14} /> Segurança</span>
+                        <small>Senha, recuperação e acesso</small>
+                      </div>
+                      <ChevronRight size={14} />
+                    </a>
+                    <div className={`${styles.profileRow} technical-item`}>
+                      <div className={styles.profileRowContent}>
+                        <span>{profile?.theme === 'light' ? <Sun size={14} /> : <Moon size={14} />} Tema</span>
+                        <small>{profileThemeLabel}</small>
+                      </div>
                       <div className={styles.profileRowControl}><ThemeToggle compact /></div>
                     </div>
                   </div>
                 </Surface>
+              </div>
 
-                <Surface className={styles.profileSection}>
-                  <h3>Suporte</h3>
-                  <div className={styles.profileRows}>
-                    <a className={styles.profileRow} href="mailto:suporte@linhacash.com.br?subject=FAQ%20LinhaCash"><span>Perguntas frequentes</span><small>Respostas rápidas</small></a>
-                    <a className={styles.profileRow} href="mailto:suporte@linhacash.com.br"><span>Falar com suporte</span><small>suporte@linhacash.com.br</small></a>
-                    <a className={styles.profileRow} href="mailto:suporte@linhacash.com.br?subject=Relatar%20problema"><span>Reportar um problema</span><small>Enviar detalhes do erro</small></a>
-                    <Link className={styles.profileRow} href="/termos"><span>Termos de uso</span><small>Condições da plataforma</small></Link>
-                    <Link className={styles.profileRow} href="/privacidade"><span>Política de privacidade</span><small>Tratamento de dados</small></Link>
-                    <a className={styles.profileRow} href="mailto:suporte@linhacash.com.br?subject=Excluir%20conta%20e%20dados"><span>Excluir minha conta e dados</span><small>Solicitação de remoção</small></a>
-                    <button type="button" className={styles.profileRow} onClick={() => window.location.assign('/login')}>
-                      <span><LogOut size={14} /> Sair da conta</span><small>Encerrar sessão atual</small>
-                    </button>
-                  </div>
-                </Surface>
+              <Surface className={styles.profileSection}>
+                <h3>Suporte</h3>
+                <div className={`${styles.profileRows} technical-grid`}>
+                  <a className={`${styles.profileRow} technical-item`} href="mailto:suporte@linhacash.com.br?subject=FAQ%20LinhaCash">
+                    <div className={styles.profileRowContent}>
+                      <span><HelpCircle size={14} /> Perguntas frequentes</span>
+                      <small>Respostas rápidas sobre uso da plataforma</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </a>
+                  <a className={`${styles.profileRow} technical-item`} href="mailto:suporte@linhacash.com.br">
+                    <div className={styles.profileRowContent}>
+                      <span><MessageSquare size={14} /> Falar com suporte</span>
+                      <small>suporte@linhacash.com.br</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </a>
+                  <a className={`${styles.profileRow} technical-item`} href="mailto:suporte@linhacash.com.br?subject=Relatar%20problema">
+                    <div className={styles.profileRowContent}>
+                      <span><AlertTriangle size={14} /> Reportar um problema</span>
+                      <small>Enviar detalhes técnicos para investigação</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </a>
+                  <Link className={`${styles.profileRow} technical-item`} href="/termos">
+                    <div className={styles.profileRowContent}>
+                      <span><FileText size={14} /> Termos de uso</span>
+                      <small>Condições e responsabilidades da plataforma</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </Link>
+                  <Link className={`${styles.profileRow} technical-item`} href="/privacidade">
+                    <div className={styles.profileRowContent}>
+                      <span><Lock size={14} /> Política de privacidade</span>
+                      <small>Como tratamos e protegemos os seus dados</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </Link>
+                  <a className={`${styles.profileRow} ${styles.profileRowDanger} technical-item`} href="mailto:suporte@linhacash.com.br?subject=Excluir%20conta%20e%20dados">
+                    <div className={styles.profileRowContent}>
+                      <span><Trash2 size={14} /> Excluir minha conta e dados</span>
+                      <small>Solicitação destrutiva e irreversível</small>
+                    </div>
+                    <ChevronRight size={14} />
+                  </a>
+                </div>
+              </Surface>
+
+              <div className={styles.profileLogoutWrap}>
+                <Button type="button" size="lg" variant="secondary" className={styles.profileLogoutButton} onClick={handleLogout}>
+                  <LogOut size={14} />
+                  Sair da conta
+                </Button>
               </div>
             </section>
           ) : null}
