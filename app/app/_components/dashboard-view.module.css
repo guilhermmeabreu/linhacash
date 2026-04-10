@@ -608,9 +608,18 @@
   gap: 1rem;
 }
 
-.profileBackRow {
+.profileTopHeader {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.profileTopHeader h1 {
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 900;
 }
 
 .profileBackButton {
@@ -945,6 +954,10 @@
   font-weight: 800;
 }
 
+.deleteKicker {
+  color: #ff9e9e;
+}
+
 .supportSubtitle {
   color: var(--lc-muted);
   font-size: 0.8rem;
@@ -958,6 +971,14 @@
   color: var(--lc-text);
   padding: 0.6rem 0.65rem;
   resize: vertical;
+}
+
+.supportSelect {
+  min-height: 2.5rem;
+  border: 1px solid var(--lc-border);
+  background: var(--lc-surface-elevated);
+  color: var(--lc-text);
+  padding: 0 0.65rem;
 }
 
 .faqList {
