@@ -1162,16 +1162,16 @@ export function DashboardView() {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart
                             data={playerDetailModel.bars}
-                            margin={{ top: 10, right: 8, left: -8, bottom: 0 }}
-                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '10%' : playerDetailModel.bars.length <= 10 ? '14%' : playerDetailModel.bars.length <= 20 ? '18%' : '22%'}
+                            margin={{ top: 8, right: 10, left: 6, bottom: 4 }}
+                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '18%' : playerDetailModel.bars.length <= 10 ? '12%' : playerDetailModel.bars.length <= 20 ? '10%' : '8%'}
                           >
                             <CartesianGrid stroke="var(--lc-border)" strokeDasharray="2 4" vertical={false} />
-                            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 10 }} />
+                            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 11 }} />
                             <YAxis
                               tickLine={false}
                               axisLine={false}
-                              tick={{ fill: 'var(--lc-muted)', fontSize: 10 }}
-                              width={28}
+                              tick={{ fill: 'var(--lc-muted)', fontSize: 11 }}
+                              width={32}
                               domain={[0, (max: number) => Math.max(max + 1, playerDetailModel.line + 1)]}
                             />
                             <Tooltip
@@ -1187,20 +1187,20 @@ export function DashboardView() {
                               y={playerDetailModel.line}
                               stroke="var(--lc-accent)"
                               strokeDasharray="4 4"
-                              label={{ value: `LINE ${playerDetailModel.line}`, fill: 'var(--lc-muted)', fontSize: 10, position: 'insideTopLeft' }}
+                              label={{ value: `LINE ${playerDetailModel.line}`, fill: 'var(--lc-muted)', fontSize: 11, position: 'insideTopLeft' }}
                             />
                             <Bar
                               dataKey="value"
                               radius={[8, 8, 0, 0]}
                               isAnimationActive={false}
-                              barSize={
+                              maxBarSize={
                                 playerDetailModel.bars.length <= 5
-                                  ? 42
+                                  ? 56
                                   : playerDetailModel.bars.length <= 10
-                                    ? 30
+                                    ? 38
                                     : playerDetailModel.bars.length <= 20
-                                      ? 20
-                                      : 14
+                                      ? 24
+                                      : 18
                               }
                             >
                               {playerDetailModel.bars.map((bar, index) => (

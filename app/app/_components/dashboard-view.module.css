@@ -70,6 +70,7 @@
 
 .viewPanel {
   animation: view-enter 220ms ease;
+  overflow-x: hidden;
 }
 
 @keyframes view-enter {
@@ -282,9 +283,9 @@
 }
 
 .statsTabs :global(.lc-tab-trigger) {
-  min-height: 1.72rem;
-  padding: 0 0.5rem;
-  font-size: 0.6rem;
+  min-height: 1.88rem;
+  padding: 0 0.62rem;
+  font-size: 0.67rem;
   border-radius: 999px;
   letter-spacing: 0.08em;
 }
@@ -329,7 +330,7 @@
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
   background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
-  padding: 0.78rem 0.82rem;
+  padding: 0.88rem 0.88rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -365,12 +366,12 @@
 }
 
 .playerName {
-  font-size: 0.98rem;
+  font-size: 1.06rem;
   font-weight: 800;
 }
 
 .playerMeta {
-  font-size: 0.66rem;
+  font-size: 0.72rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -393,7 +394,7 @@
 .playerLineBlock strong {
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
-  font-size: 1.16rem;
+  font-size: 1.24rem;
 }
 
 .playerQuickStats {
@@ -419,7 +420,7 @@
 
 .playerQuickStats span small {
   color: color-mix(in srgb, var(--lc-muted) 90%, #a3abb7 10%);
-  font-size: 0.51rem;
+  font-size: 0.56rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-weight: 800;
@@ -427,7 +428,7 @@
 
 .playerQuickStats span strong {
   color: var(--lc-text);
-  font-size: 0.82rem;
+  font-size: 0.92rem;
   font-family: var(--lc-font-mono);
   line-height: 1;
 }
@@ -456,9 +457,9 @@
 }
 
 .splitTabs :global(.lc-tab-trigger) {
-  min-height: 1.58rem;
-  padding-inline: 0.58rem;
-  font-size: 0.56rem;
+  min-height: 1.7rem;
+  padding-inline: 0.64rem;
+  font-size: 0.6rem;
   border-radius: 999px;
 }
 
@@ -477,14 +478,14 @@
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.11em;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 800;
 }
 
 .playerHeroName {
   margin-top: 0.4rem;
   font-weight: 900;
-  font-size: clamp(1.7rem, 5vw, 3.4rem);
+  font-size: clamp(1.95rem, 5.2vw, 3.7rem);
   line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: -0.04em;
@@ -552,7 +553,7 @@
 }
 
 .quickStatsGrid span {
-  font-size: 0.5rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--lc-muted);
@@ -560,12 +561,12 @@
 }
 
 .quickStatsGrid strong {
-  font-size: 0.82rem;
+  font-size: 0.96rem;
   font-family: var(--lc-font-mono);
 }
 
 .quickStatsGrid small {
-  font-size: 0.48rem;
+  font-size: 0.54rem;
   color: var(--lc-muted);
 }
 
@@ -587,7 +588,7 @@
 }
 
 .chartTitle {
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   font-weight: 800;
@@ -606,7 +607,7 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.42rem;
-  min-height: 250px;
+  min-height: 320px;
   align-items: end;
   padding: 0.45rem 0.05rem 0.05rem;
 }
@@ -1122,11 +1123,13 @@
   }
 
   .splitTabs {
-    justify-content: flex-start;
+    justify-content: center;
+    overflow-x: hidden;
+    flex-wrap: wrap;
   }
 
   .chartCanvas {
-    min-height: 185px;
+    min-height: 220px;
   }
 
   .upgradeModal {
@@ -1151,9 +1154,9 @@
 @media (min-width: 860px) {
   .playerRow {
     display: grid;
-    grid-template-columns: minmax(220px, 270px) minmax(0, 1fr) auto;
+    grid-template-columns: minmax(290px, 340px) minmax(0, 1fr) auto;
     align-items: center;
-    column-gap: 0.38rem;
+    column-gap: 0.46rem;
   }
 
   .playerMain {
