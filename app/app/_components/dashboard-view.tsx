@@ -45,6 +45,17 @@ import {
   TabsRoot,
   TabsTrigger,
 } from '@/components/ui';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import styles from './dashboard-view.module.css';
 
 const STATS = ['PTS', 'AST', 'REB', '3PM', 'PA', 'PR', 'PRA', 'AR', 'DD', 'TD', 'STEAL', 'BLOCKS', 'SB', 'FG2A', 'FG3A'] as const;
@@ -122,7 +133,6 @@ type PlayerDetailChartBar = {
   value: number;
   minutes: number;
   tone: ChartBarTone;
-  heightPct: number;
   label: string;
 };
 
@@ -734,12 +744,6 @@ export function DashboardView() {
     }
   }, [upgradeCode, upgradePlan]);
 
-  const getChartBarClassName = useCallback((tone: ChartBarTone) => {
-    if (tone === 'hit') return `${styles.chartBar} ${styles.chartBarHit}`;
-    if (tone === 'tie') return `${styles.chartBar} ${styles.chartBarTie}`;
-    return `${styles.chartBar} ${styles.chartBarMiss}`;
-  }, []);
-
   const getSplitPctClassName = useCallback((value: string) => {
     const pct = Number.parseInt(value.replace('%', ''), 10);
     if (!Number.isFinite(pct)) return '';
@@ -777,15 +781,12 @@ export function DashboardView() {
     const apiLine = Number.isFinite(lineBase) && lineBase > 0 ? Math.round(lineBase * 2) / 2 : 0.5;
     const line = Math.max(0, apiLine + lineAdjustment);
     const average = values.length ? Number((values.reduce((acc, value) => acc + value, 0) / values.length).toFixed(1)) : null;
-    const chartBase = Math.max(line, ...values, 1);
     const bars: PlayerDetailChartBar[] = games.slice(0, 12).reverse().map((sample) => {
-      const pct = Math.max(8, Math.round((sample.value / chartBase) * 100));
       const tone: ChartBarTone = sample.value > line ? 'hit' : sample.value === line ? 'tie' : 'miss';
       const date = sample.date ? new Date(sample.date) : null;
       const label = date ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}` : '—';
-      return { ...sample, tone, heightPct: pct, label };
+      return { ...sample, tone, label };
     });
-    const linePct = Math.min(96, Math.max(4, (line / chartBase) * 100));
     const splitMetrics: PlayerDetailSplitMetric[] = SPLITS.map((split) => {
       const scopedGames = split === 'Season'
         ? allGames
@@ -830,7 +831,6 @@ export function DashboardView() {
       line,
       average,
       bars,
-      linePct,
       summaryMetrics,
       metrics: payload?.metrics ?? null,
       splitMetrics,
@@ -1158,17 +1158,48 @@ export function DashboardView() {
                       </div>
                     </div>
                     <div className={styles.chartCanvas}>
-                      <div className={styles.chartReference} style={{ bottom: `${playerDetailModel.linePct}%` }}>
-                        <span>LINE {playerDetailModel.line}</span>
-                      </div>
-                      {playerDetailModel.bars.length ? playerDetailModel.bars.map((bar, index) => (
-                        <div key={`${bar.label}-${index}`} className={styles.chartColumn}>
-                          <div className={getChartBarClassName(bar.tone)} style={{ height: `${bar.heightPct}%` }}>
-                            <span>{bar.value}</span>
-                          </div>
-                          <small>{bar.label}</small>
-                        </div>
-                      )) : (
+                      {playerDetailModel.bars.length ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={playerDetailModel.bars}
+                            margin={{ top: 16, right: 6, left: -14, bottom: 0 }}
+                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '28%' : playerDetailModel.bars.length <= 10 ? '16%' : '10%'}
+                          >
+                            <CartesianGrid stroke="var(--lc-border)" strokeDasharray="2 4" vertical={false} />
+                            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 10 }} />
+                            <YAxis
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fill: 'var(--lc-muted)', fontSize: 10 }}
+                              width={28}
+                              domain={[0, (max: number) => Math.max(max + 1, playerDetailModel.line + 1)]}
+                            />
+                            <Tooltip
+                              cursor={{ fill: 'color-mix(in srgb, var(--lc-accent) 8%, transparent)' }}
+                              contentStyle={{
+                                border: '1px solid var(--lc-border)',
+                                background: 'var(--lc-surface)',
+                                color: 'var(--lc-text)',
+                                borderRadius: 10,
+                              }}
+                            />
+                            <ReferenceLine
+                              y={playerDetailModel.line}
+                              stroke="var(--lc-accent)"
+                              strokeDasharray="4 4"
+                              label={{ value: `LINE ${playerDetailModel.line}`, fill: 'var(--lc-muted)', fontSize: 10, position: 'insideTopLeft' }}
+                            />
+                            <Bar dataKey="value" radius={[8, 8, 0, 0]} isAnimationActive={false}>
+                              {playerDetailModel.bars.map((bar, index) => (
+                                <Cell
+                                  key={`${bar.label}-${index}`}
+                                  fill={bar.tone === 'hit' ? '#26d07c' : bar.tone === 'tie' ? '#8d8d8d' : '#ff6e6e'}
+                                />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
                         <p className={styles.stateText}>Dados recentes indisponíveis para o gráfico.</p>
                       )}
                     </div>

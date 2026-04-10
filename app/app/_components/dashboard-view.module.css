@@ -328,26 +328,26 @@
   width: 100%;
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
-  background: linear-gradient(160deg, color-mix(in srgb, #0a0a0a 95%, #000 5%), color-mix(in srgb, #060606 95%, #000 5%));
-  padding: 0.52rem 0.62rem;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 84%, var(--lc-bg) 16%));
+  padding: 0.68rem 0.74rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.6rem;
+  gap: 0.56rem;
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
 .playerRow:hover {
   border-color: color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border-strong) 62%);
-  background: linear-gradient(160deg, color-mix(in srgb, #0c0c0c 94%, #000 6%), color-mix(in srgb, #080808 94%, #000 6%));
+  background: linear-gradient(160deg, color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%), color-mix(in srgb, var(--lc-surface) 78%, var(--lc-bg) 22%));
   transform: translateY(-1px);
 }
 
 .playerMain {
   display: inline-flex;
   align-items: center;
-  gap: 0.52rem;
+  gap: 0.6rem;
 }
 
 .avatar {
@@ -364,12 +364,12 @@
 }
 
 .playerName {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 800;
 }
 
 .playerMeta {
-  font-size: 0.56rem;
+  font-size: 0.61rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -392,39 +392,42 @@
 .playerLineBlock strong {
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
-  font-size: 1.08rem;
+  font-size: 1.16rem;
 }
 
 .playerQuickStats {
   display: none;
   grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.28rem;
+  gap: 0.34rem;
   flex: 1;
 }
 
 .playerQuickStats span {
   display: grid;
-  gap: 0.1rem;
-  min-height: 1.58rem;
+  gap: 0.08rem;
+  min-height: 1.7rem;
   border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 90%, transparent);
-  background: color-mix(in srgb, #0b0b0b 95%, #000 5%);
-  padding: 0.2rem 0.28rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 84%, transparent);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 80%, var(--lc-bg) 20%);
+  padding: 0.24rem 0.32rem;
   text-align: center;
+  align-content: center;
+  justify-items: center;
 }
 
 .playerQuickStats span small {
   color: color-mix(in srgb, var(--lc-muted) 90%, #a3abb7 10%);
-  font-size: 0.48rem;
+  font-size: 0.51rem;
   text-transform: uppercase;
   letter-spacing: 0.09em;
   font-weight: 800;
 }
 
 .playerQuickStats span strong {
-  color: color-mix(in srgb, var(--lc-text) 90%, #f4f8ff 10%);
-  font-size: 0.62rem;
+  color: var(--lc-text);
+  font-size: 0.74rem;
   font-family: var(--lc-font-mono);
+  line-height: 1;
 }
 
 .detailTabsRow {
@@ -443,7 +446,7 @@
   padding: 0.32rem;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
-  background: color-mix(in srgb, #080808 90%, #000 10%);
+  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
 }
 
 .splitTabs :global(.lc-tab-trigger) {
@@ -460,7 +463,7 @@
   margin-bottom: 0.55rem;
   border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
   border-radius: 16px;
-  background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 8%, transparent), transparent 48%), color-mix(in srgb, #090909 96%, #000 4%);
+  background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 8%, transparent), transparent 48%), color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
   padding: 0.75rem 0.85rem;
 }
 
@@ -484,7 +487,7 @@
 .lineAdjustBox {
   border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
   border-radius: 14px;
-  background: color-mix(in srgb, #0a0a0a 92%, #000 8%);
+  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
   padding: 0.55rem 0.6rem;
   min-width: 12.5rem;
 }
@@ -512,7 +515,7 @@
   place-items: center;
   border: 1px solid color-mix(in srgb, var(--lc-border) 88%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, #121212 92%, #000 8%);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%);
 }
 
 .lineAdjustBox strong {
@@ -534,7 +537,7 @@
 }
 
 .quickStatsGrid > div {
-  background: color-mix(in srgb, #090909 95%, #000 5%);
+  background: color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%);
   border-radius: 0;
   padding: 0.42rem 0.35rem;
   text-align: center;
@@ -563,7 +566,7 @@
 .chartCard {
   border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
   border-radius: 16px;
-  background: linear-gradient(180deg, color-mix(in srgb, #0a0a0a 96%, #000 4%), color-mix(in srgb, #070707 96%, #000 4%));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%), color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%));
   padding: 0.58rem 0.68rem;
   display: grid;
   gap: 0.42rem;
@@ -597,9 +600,9 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: 0.42rem;
-  min-height: 200px;
+  min-height: 220px;
   align-items: end;
-  padding: 1rem 0.05rem 0.05rem;
+  padding: 0.8rem 0.05rem 0.05rem;
 }
 
 .chartReference {
@@ -633,15 +636,6 @@
   letter-spacing: 0.04em;
 }
 
-.chartBar {
-  min-height: 8px;
-  display: grid;
-  align-content: flex-start;
-  justify-items: center;
-  padding-top: 0.2rem;
-  border-radius: 8px 8px 3px 3px;
-}
-
 .splitPctHigh {
   color: #26d07c;
 }
@@ -653,16 +647,6 @@
 .splitPctLow {
   color: #ff6e6e;
 }
-
-.chartBar span {
-  font-size: 0.6rem;
-  color: #dbe7e3;
-  font-family: var(--lc-font-mono);
-}
-
-.chartBarHit { background: linear-gradient(180deg, #26d07c 0%, #149d5e 100%); }
-.chartBarTie { background: linear-gradient(180deg, #909090 0%, #6e6e6e 100%); }
-.chartBarMiss { background: linear-gradient(180deg, #ff6e6e 0%, #de4040 100%); }
 
 .profileView {
   display: grid;
