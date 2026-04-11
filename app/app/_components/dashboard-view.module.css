@@ -544,6 +544,11 @@
   gap: 0.6rem;
 }
 
+.lineAdjustControls {
+  justify-content: center !important;
+  gap: 0.3rem !important;
+}
+
 .lineAdjustBox button {
   width: 1.7rem;
   height: 1.7rem;
@@ -552,6 +557,7 @@
   border: 1px solid color-mix(in srgb, var(--lc-border) 88%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%);
+  padding: 0.2rem;
 }
 
 .lineAdjustBox strong {
@@ -635,7 +641,7 @@
 .chartCanvas {
   position: relative;
   display: block;
-  min-height: 260px;
+  min-height: 230px;
   width: 100%;
   padding: 0.1rem 0 0;
   overflow: hidden;
@@ -1140,6 +1146,10 @@
 }
 
 @media (max-width: 860px) {
+  .playersTopbar h2 {
+    font-size: 0.92rem;
+  }
+
   .playersTopbar,
   .playerHero,
   .errorBox {
@@ -1169,25 +1179,41 @@
   }
 
   .quickStatsGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin-bottom: 0.14rem;
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.32rem;
+    margin-bottom: 0.12rem;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+
+  .quickStatsGrid::-webkit-scrollbar {
+    display: none;
   }
 
   .quickStatsGrid > div {
-    padding: 0.3rem 0.24rem;
-    gap: 0.08rem;
+    min-width: 4.8rem;
+    padding: 0.28rem 0.3rem;
+    gap: 0.07rem;
+    border: 1px solid color-mix(in srgb, var(--lc-border) 90%, transparent);
+    border-radius: 10px;
   }
 
   .quickStatsGrid span {
-    font-size: 0.5rem;
+    font-size: 0.48rem;
   }
 
   .quickStatsGrid strong {
-    font-size: 0.8rem;
+    font-size: 0.76rem;
   }
 
   .quickStatsGrid small {
-    font-size: 0.46rem;
+    font-size: 0.44rem;
   }
 
   .splitTabs {
@@ -1199,7 +1225,7 @@
   }
 
   .chartCanvas {
-    min-height: 182px;
+    min-height: 170px;
   }
 
   .chartCard {
@@ -1228,8 +1254,8 @@
     font-size: 0.62rem;
   }
 
-  .quickStatsGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .quickStatsGrid > div {
+    min-width: 4.5rem;
   }
 }
 

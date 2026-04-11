@@ -805,20 +805,8 @@ export function DashboardView() {
     splitMetrics.forEach((metric) => {
       summaryMetricMap[metric.label] = metric;
     });
-    const season2526Games = allGames.filter((sample) => {
-      if (!sample.date) return false;
-      const date = new Date(sample.date);
-      const start = new Date('2025-07-01');
-      const end = new Date('2026-06-30');
-      return date >= start && date <= end;
-    });
     const summaryMetrics: PlayerDetailSplitMetric[] = [
-      (() => {
-        if (!season2526Games.length) return { label: '25/26', value: '—', note: 'Sem dados' };
-        const hits = season2526Games.filter((sample) => sample.value >= line).length;
-        const pct = Math.round((hits / season2526Games.length) * 100);
-        return { label: '25/26', value: `${pct}%`, note: `${hits}/${season2526Games.length}` };
-      })(),
+      summaryMetricMap.Season ?? { label: 'Season', value: '—', note: 'Sem dados' },
       summaryMetricMap.H2H ?? { label: 'H2H', value: '—', note: 'Sem dados' },
       summaryMetricMap.L5 ?? { label: 'L5', value: '—', note: 'Sem dados' },
       summaryMetricMap.L10 ?? { label: 'L10', value: '—', note: 'Sem dados' },
@@ -1112,7 +1100,7 @@ export function DashboardView() {
                 </div>
                 <div className={styles.lineAdjustBox}>
                   <p>Ajustar linha</p>
-                  <div>
+                  <div className={styles.lineAdjustControls}>
                     <button type="button" onClick={() => setLineAdjustment((value) => Number((value - 0.5).toFixed(1)))}><Minus size={16} /></button>
                     <strong>{playerDetailModel?.line.toFixed(1) ?? '0.0'}</strong>
                     <button type="button" onClick={() => setLineAdjustment((value) => Number((value + 0.5).toFixed(1)))}><Plus size={16} /></button>
