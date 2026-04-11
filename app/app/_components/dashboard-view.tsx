@@ -1098,7 +1098,7 @@ export function DashboardView() {
                   <p className={styles.playerHeroMeta}>{selectedPlayer.team} • {selectedPlayer.position}</p>
                   <h2 className={styles.playerHeroName}>{selectedPlayer.name}</h2>
                 </div>
-                <div className={styles.lineAdjustBox}>
+                <div className={`${styles.lineAdjustBox} ${styles.lineAdjustDesktop}`}>
                   <p>Ajustar linha</p>
                   <div className={styles.lineAdjustControls}>
                     <button type="button" onClick={() => setLineAdjustment((value) => Number((value - 0.5).toFixed(1)))}><Minus size={16} /></button>
@@ -1218,6 +1218,15 @@ export function DashboardView() {
                       ))}
                     </TabsList>
                   </TabsRoot>
+
+                  <div className={`${styles.lineAdjustBox} ${styles.lineAdjustMobile}`}>
+                    <p>Ajustar linha</p>
+                    <div className={styles.lineAdjustControls}>
+                      <button type="button" onClick={() => setLineAdjustment((value) => Number((value - 0.5).toFixed(1)))}><Minus size={16} /></button>
+                      <strong>{playerDetailModel?.line.toFixed(1) ?? '0.0'}</strong>
+                      <button type="button" onClick={() => setLineAdjustment((value) => Number((value + 0.5).toFixed(1)))}><Plus size={16} /></button>
+                    </div>
+                  </div>
                 </>
               ) : null}
             </section>
