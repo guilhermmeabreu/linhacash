@@ -981,8 +981,8 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller}`}>
-                    <TabsList className={styles.statsTabs}>
+                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport}`}>
+                    <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow}`}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
                         return (

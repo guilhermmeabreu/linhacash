@@ -293,6 +293,14 @@
   min-width: 0;
 }
 
+.playersTabsViewport {
+  min-width: 0;
+}
+
+.playersTabsRow {
+  width: max-content;
+}
+
 .statsTabsScroller::-webkit-scrollbar {
   display: none;
 }
@@ -1175,7 +1183,8 @@
 }
 
 @media (max-width: 860px) {
-  .playersTopbarCompact :global(.lc-topbar-title) {
+  .playersTopbarCompact :global(.lc-topbar-subtitle) {
+    margin-top: 0;
     font-size: 0.58rem;
     line-height: 0.9;
     display: -webkit-box;
@@ -1194,7 +1203,7 @@
     overflow: visible;
   }
 
-  .playersStatsTabsScroller {
+  .playersTabsViewport {
     overflow-x: auto !important;
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
@@ -1204,13 +1213,14 @@
     scrollbar-width: none;
   }
 
-  .playersStatsTabsScroller::-webkit-scrollbar {
+  .playersTabsViewport::-webkit-scrollbar {
     display: none;
   }
 
-  .playersStatsTabsScroller .statsTabs {
+  .playersTabsViewport .playersTabsRow {
     width: max-content;
     min-width: max-content;
+    display: flex;
     flex-wrap: nowrap;
     white-space: nowrap;
     padding-right: 1.35rem;
