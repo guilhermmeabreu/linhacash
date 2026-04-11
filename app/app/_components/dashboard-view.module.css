@@ -1,6 +1,7 @@
 .dashboardCanvas {
   display: grid;
   gap: 1rem;
+  overflow-x: clip;
 }
 
 .topbarBadges {
@@ -66,10 +67,13 @@
 .profileView {
   width: min(100%, 78rem);
   margin: 0 auto;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .viewPanel {
   animation: view-enter 220ms ease;
+  min-width: 0;
 }
 
 @keyframes view-enter {
@@ -272,13 +276,53 @@
 .statsTabsWrap {
   display: grid;
   gap: 0.8rem;
+  min-width: 0;
+}
+
+.statsTabsScroller {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  touch-action: pan-x;
+  min-width: 0;
+}
+
+.playersStatsTabsScroller {
+  min-width: 0;
+}
+
+.playersTabsViewport {
+  min-width: 0;
+}
+
+.playersTabsRow {
+  width: max-content;
+}
+
+.statsTabsScroller::-webkit-scrollbar {
+  display: none;
 }
 
 .statsTabs {
-  overflow-x: auto;
-  width: 100%;
-  padding-bottom: 0.35rem;
+  width: max-content;
+  padding-bottom: 0.2rem;
+  padding-right: 1.25rem;
   white-space: nowrap;
+  display: flex;
+  flex-wrap: nowrap;
+  scroll-snap-type: x mandatory;
+}
+
+.statsTabs :global(.lc-tab-trigger) {
+  min-height: 1.88rem;
+  padding: 0 0.62rem;
+  font-size: 0.67rem;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 .lockedTab {
@@ -313,65 +357,89 @@
 
 .playerList {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.5rem;
 }
 
 .playerRow {
   width: 100%;
-  border-radius: 0;
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.9rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
+  background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
+  padding: 0.88rem 0.88rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.48rem;
   text-align: left;
+  transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.playerRow:focus-visible {
+  outline: none;
 }
 
 .playerRow:hover {
-  border-color: var(--lc-border-strong);
-  background: color-mix(in srgb, var(--lc-surface) 85%, var(--lc-surface-elevated) 15%);
+  border-color: color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border-strong) 62%);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%), color-mix(in srgb, var(--lc-surface) 78%, var(--lc-bg) 22%));
+  transform: translateY(-1px);
 }
 
 .playerMain {
   display: inline-flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.playerMain > div {
+  min-width: 0;
 }
 
 .avatar {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: 2rem;
+  height: 2rem;
   display: grid;
   place-items: center;
-  background: color-mix(in srgb, var(--lc-accent) 14%, #0b0b0b 86%);
-  border: 1px solid color-mix(in srgb, var(--lc-accent) 34%, var(--lc-border) 66%);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lc-accent) 18%, #0b0d12 82%);
+  border: 1px solid color-mix(in srgb, var(--lc-accent) 40%, var(--lc-border) 60%);
   color: var(--lc-accent);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 900;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--lc-surface) 88%, transparent);
 }
 
 .playerName {
-  font-size: 0.92rem;
+  font-size: 1.06rem;
   font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerMeta {
-  font-size: 0.67rem;
+  font-size: 0.72rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .playerLineBlock {
   text-align: right;
+  min-width: 3.1rem;
 }
 
 .playerLineBlock small {
   display: block;
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--lc-muted);
@@ -380,71 +448,113 @@
 .playerLineBlock strong {
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
-  font-size: 1.1rem;
+  font-size: 1.24rem;
 }
 
 .playerQuickStats {
   display: none;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.45rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.3rem;
   flex: 1;
+  min-width: 0;
 }
 
 .playerQuickStats span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 2rem;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 70%, transparent);
-  background: color-mix(in srgb, var(--lc-surface) 85%, var(--lc-surface-elevated) 15%);
-  color: color-mix(in srgb, var(--lc-text) 80%, var(--lc-muted) 20%);
-  font-size: 0.62rem;
+  display: grid;
+  gap: 0.08rem;
+  min-height: 1.7rem;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 84%, transparent);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 80%, var(--lc-bg) 20%);
+  padding: 0.24rem 0.32rem;
+  text-align: center;
+  align-content: center;
+  justify-items: center;
+}
+
+.playerQuickStats span small {
+  color: color-mix(in srgb, var(--lc-muted) 90%, #a3abb7 10%);
+  font-size: 0.56rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 700;
+  letter-spacing: 0.09em;
+  font-weight: 800;
+}
+
+.playerQuickStats span strong {
+  color: var(--lc-text);
+  font-size: 0.92rem;
+  font-family: var(--lc-font-mono);
+  line-height: 1;
+}
+
+.playerQuickStatLine strong {
+  color: var(--lc-accent);
 }
 
 .detailTabsRow {
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.35rem;
 }
 
 .splitTabs {
-  overflow-x: auto;
-  width: 100%;
-  padding-bottom: 0.35rem;
-  white-space: nowrap;
-  margin-bottom: 1rem;
+  margin-top: 0.55rem;
+  width: min(100%, 44rem);
+  margin-inline: auto;
+  overflow-x: hidden;
+  white-space: normal;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+  padding: 0.4rem;
+  box-sizing: border-box;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
+  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
+  max-width: 100%;
+}
+
+.splitTabs :global(.lc-tab-trigger) {
+  min-height: 1.7rem;
+  padding-inline: 0.64rem;
+  font-size: 0.6rem;
+  border-radius: 999px;
 }
 
 .playerHero {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border-radius: 16px;
+  background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 8%, transparent), transparent 48%), color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
+  padding: 0.75rem 0.85rem;
 }
 
 .playerHeroMeta {
   color: var(--lc-muted);
   text-transform: uppercase;
   letter-spacing: 0.11em;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 800;
 }
 
 .playerHeroName {
   margin-top: 0.4rem;
   font-weight: 900;
-  font-size: clamp(1.7rem, 5vw, 3.4rem);
+  font-size: clamp(1.95rem, 5.2vw, 3.7rem);
   line-height: 0.95;
   text-transform: uppercase;
   letter-spacing: -0.04em;
 }
 
 .lineAdjustBox {
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.7rem;
-  min-width: 14rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
+  padding: 0.55rem 0.6rem;
+  min-width: 12.5rem;
 }
 
 .lineAdjustBox p {
@@ -453,7 +563,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.11em;
   font-weight: 800;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.28rem;
 }
 
 .lineAdjustBox div {
@@ -463,37 +573,55 @@
   gap: 0.6rem;
 }
 
+.lineAdjustControls {
+  justify-content: center !important;
+  gap: 0.3rem !important;
+}
+
+.lineAdjustDesktop {
+  display: grid;
+}
+
+.lineAdjustMobile {
+  display: none;
+}
+
 .lineAdjustBox button {
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 1.7rem;
+  height: 1.7rem;
   display: grid;
   place-items: center;
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface-elevated);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 88%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%);
+  padding: 0.2rem;
 }
 
 .lineAdjustBox strong {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
 }
 
 
 .quickStatsGrid {
-  border: 1px solid var(--lc-border);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border-radius: 14px;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
   background: var(--lc-border);
+  margin-bottom: 0.24rem;
 }
 
 .quickStatsGrid > div {
-  background: var(--lc-surface);
+  background: color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%);
   border-radius: 0;
-  padding: 0.8rem;
+  padding: 0.42rem 0.35rem;
   text-align: center;
   display: grid;
-  gap: 0.2rem;
+  gap: 0.12rem;
 }
 
 .quickStatsGrid span {
@@ -505,22 +633,24 @@
 }
 
 .quickStatsGrid strong {
-  font-size: 1.15rem;
+  font-size: 0.96rem;
   font-family: var(--lc-font-mono);
 }
 
 .quickStatsGrid small {
-  font-size: 0.62rem;
+  font-size: 0.54rem;
   color: var(--lc-muted);
 }
 
 .chartCard {
-  border: 1px solid var(--lc-border);
-  background: color-mix(in srgb, var(--lc-surface) 86%, #0f1115 14%);
-  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border-radius: 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%), color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%));
+  padding: 0.7rem 0.78rem;
   display: grid;
-  gap: 0.7rem;
-  margin-top: 0.9rem;
+  gap: 0.45rem;
+  margin-top: 0.08rem;
+  box-sizing: border-box;
 }
 
 .chartHeader {
@@ -531,7 +661,7 @@
 }
 
 .chartTitle {
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   color: var(--lc-muted);
   text-transform: uppercase;
   font-weight: 800;
@@ -547,12 +677,11 @@
 
 .chartCanvas {
   position: relative;
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 0.35rem;
-  min-height: 230px;
-  align-items: end;
-  padding-top: 1.4rem;
+  display: block;
+  min-height: 210px;
+  width: 100%;
+  padding: 0.1rem 0 0;
+  overflow: hidden;
 }
 
 .chartReference {
@@ -586,23 +715,17 @@
   letter-spacing: 0.04em;
 }
 
-.chartBar {
-  min-height: 8px;
-  display: grid;
-  align-content: flex-start;
-  justify-items: center;
-  padding-top: 0.2rem;
+.splitPctHigh {
+  color: #26d07c;
 }
 
-.chartBar span {
-  font-size: 0.6rem;
-  color: #dbe7e3;
-  font-family: var(--lc-font-mono);
+.splitPctMid {
+  color: #9aa0a9;
 }
 
-.chartBarHit { background: linear-gradient(180deg, #26d07c 0%, #149d5e 100%); }
-.chartBarTie { background: linear-gradient(180deg, #909090 0%, #6e6e6e 100%); }
-.chartBarMiss { background: linear-gradient(180deg, #ff6e6e 0%, #de4040 100%); }
+.splitPctLow {
+  color: #ff6e6e;
+}
 
 .profileView {
   display: grid;
@@ -1060,6 +1183,53 @@
 }
 
 @media (max-width: 860px) {
+  .playersTopbarCompact :global(.lc-topbar-subtitle) {
+    margin-top: 0;
+    font-size: 0.58rem;
+    line-height: 0.9;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(40vw, 7.8rem);
+  }
+
+  .playersView {
+    overflow-x: visible;
+  }
+
+  .playersView .statsTabsWrap {
+    overflow: visible;
+  }
+
+  .playersTabsViewport {
+    overflow-x: auto !important;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    max-width: 100%;
+    padding-bottom: 0.1rem;
+    scrollbar-width: none;
+  }
+
+  .playersTabsViewport::-webkit-scrollbar {
+    display: none;
+  }
+
+  .playersTabsViewport .playersTabsRow {
+    width: max-content;
+    min-width: max-content;
+    display: flex;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding-right: 1.35rem;
+  }
+
+  .playersTopbar h2 {
+    font-size: 0.92rem;
+  }
+
   .playersTopbar,
   .playerHero,
   .errorBox {
@@ -1067,12 +1237,91 @@
     align-items: flex-start;
   }
 
-.quickStatsGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .detailTabsRow {
+    margin-bottom: 0.18rem;
+  }
+
+  .playerHero {
+    margin-bottom: 0.24rem;
+    padding: 0.42rem 0.48rem;
+    gap: 0.36rem;
+  }
+
+  .playerHeroName {
+    margin-top: 0.25rem;
+    font-size: clamp(1.45rem, 7.2vw, 2.15rem);
+  }
+
+  .lineAdjustBox {
+    min-width: 0;
+    width: 100%;
+    padding: 0.38rem 0.45rem;
+  }
+
+  .lineAdjustDesktop {
+    display: none;
+  }
+
+  .lineAdjustMobile {
+    display: grid;
+    margin-top: 0.18rem;
+    margin-bottom: 0;
+  }
+
+  .quickStatsGrid {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 0.26rem;
+    margin-bottom: 0.1rem;
+    border: 0;
+    background: transparent;
+    border-radius: 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+
+  .quickStatsGrid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .quickStatsGrid > div {
+    min-width: 4.35rem;
+    padding: 0.22rem 0.24rem;
+    gap: 0.07rem;
+    border: 1px solid color-mix(in srgb, var(--lc-border) 90%, transparent);
+    border-radius: 10px;
+  }
+
+  .quickStatsGrid span {
+    font-size: 0.48rem;
+  }
+
+  .quickStatsGrid strong {
+    font-size: 0.72rem;
+  }
+
+  .quickStatsGrid small {
+    font-size: 0.41rem;
+  }
+
+  .splitTabs {
+    justify-content: center;
+    overflow-x: hidden;
+    flex-wrap: wrap;
+    margin-top: 0.24rem;
+    padding: 0.24rem;
   }
 
   .chartCanvas {
-    min-height: 180px;
+    min-height: 210px;
+  }
+
+  .chartCard {
+    margin-top: 0.02rem;
+    padding: 0.54rem 0.58rem;
+    gap: 0.34rem;
   }
 
   .upgradeModal {
@@ -1088,9 +1337,36 @@
   }
 }
 
+@media (max-width: 620px) {
+  .statsTabs :global(.lc-tab-trigger) {
+    min-height: 1.72rem;
+    padding-inline: 0.56rem;
+    font-size: 0.62rem;
+  }
+
+  .quickStatsGrid > div {
+    min-width: 4.15rem;
+  }
+}
+
 @media (min-width: 860px) {
+  .playerRow {
+    display: grid;
+    grid-template-columns: clamp(220px, 22vw, 300px) minmax(0, 1fr) 72px;
+    align-items: center;
+    column-gap: 0.34rem;
+  }
+
+  .playerMain {
+    width: 100%;
+  }
+
   .playerQuickStats {
     display: grid;
+  }
+
+  .playerLineBlock {
+    display: none;
   }
 }
 

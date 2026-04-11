@@ -45,13 +45,32 @@ import {
   TabsRoot,
   TabsTrigger,
 } from '@/components/ui';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  LabelList,
+  ReferenceLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import styles from './dashboard-view.module.css';
 
 const STATS = ['PTS', 'AST', 'REB', '3PM', 'PA', 'PR', 'PRA', 'AR', 'DD', 'TD', 'STEAL', 'BLOCKS', 'SB', 'FG2A', 'FG3A'] as const;
 const FREE_STATS = ['PTS', '3PM'] as const;
+const PLAYER_ROW_STATS = [
+  { label: 'PTS', stat: 'PTS' },
+  { label: 'REB', stat: 'REB' },
+  { label: 'AST', stat: 'AST' },
+  { label: 'STL', stat: 'STEAL' },
+  { label: 'BLK', stat: 'BLOCKS' },
+] as const;
 
 type Stat = (typeof STATS)[number];
-const SPLITS = ['L5', 'L10', 'L20', 'L30', 'Season', '24/25', 'H2H'] as const;
+const SPLITS = ['24/25', 'L5', 'L10', 'L20', 'L30', 'Season', 'H2H'] as const;
 type Split = (typeof SPLITS)[number];
 
 type Plan = 'free' | 'pro';
@@ -115,7 +134,6 @@ type PlayerDetailChartBar = {
   value: number;
   minutes: number;
   tone: ChartBarTone;
-  heightPct: number;
   label: string;
 };
 
@@ -554,9 +572,12 @@ export function DashboardView() {
     if (view !== 'players' || marketLocked) return;
     const hotPlayers = players.slice(0, 12);
     if (!hotPlayers.length) return;
+    const statsToWarm = Array.from(new Set<Stat>([selectedStat, ...PLAYER_ROW_STATS.map((item) => item.stat)]));
     const timer = window.setTimeout(() => {
       hotPlayers.forEach((player) => {
-        void loadMetricsForPlayer(player.id, selectedStat);
+        statsToWarm.forEach((stat) => {
+          void loadMetricsForPlayer(player.id, stat);
+        });
       });
     }, 0);
     return () => window.clearTimeout(timer);
@@ -724,10 +745,12 @@ export function DashboardView() {
     }
   }, [upgradeCode, upgradePlan]);
 
-  const getChartBarClassName = useCallback((tone: ChartBarTone) => {
-    if (tone === 'hit') return `${styles.chartBar} ${styles.chartBarHit}`;
-    if (tone === 'tie') return `${styles.chartBar} ${styles.chartBarTie}`;
-    return `${styles.chartBar} ${styles.chartBarMiss}`;
+  const getSplitPctClassName = useCallback((value: string) => {
+    const pct = Number.parseInt(value.replace('%', ''), 10);
+    if (!Number.isFinite(pct)) return '';
+    if (pct >= 80) return styles.splitPctHigh;
+    if (pct >= 50) return styles.splitPctMid;
+    return styles.splitPctLow;
   }, []);
 
   const playerDetailModel = useMemo(() => {
@@ -759,15 +782,12 @@ export function DashboardView() {
     const apiLine = Number.isFinite(lineBase) && lineBase > 0 ? Math.round(lineBase * 2) / 2 : 0.5;
     const line = Math.max(0, apiLine + lineAdjustment);
     const average = values.length ? Number((values.reduce((acc, value) => acc + value, 0) / values.length).toFixed(1)) : null;
-    const chartBase = Math.max(line, ...values, 1);
-    const bars: PlayerDetailChartBar[] = games.slice(0, 12).reverse().map((sample) => {
-      const pct = Math.max(8, Math.round((sample.value / chartBase) * 100));
+    const bars: PlayerDetailChartBar[] = games.slice().reverse().map((sample) => {
       const tone: ChartBarTone = sample.value > line ? 'hit' : sample.value === line ? 'tie' : 'miss';
       const date = sample.date ? new Date(sample.date) : null;
       const label = date ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}` : '—';
-      return { ...sample, tone, heightPct: pct, label };
+      return { ...sample, tone, label };
     });
-    const linePct = Math.min(96, Math.max(4, (line / chartBase) * 100));
     const splitMetrics: PlayerDetailSplitMetric[] = SPLITS.map((split) => {
       const scopedGames = split === 'Season'
         ? allGames
@@ -781,29 +801,28 @@ export function DashboardView() {
       const pct = Math.round((hits / scopedGames.length) * 100);
       return { label: split, value: `${pct}%`, note: `${hits}/${scopedGames.length}` };
     });
-    const selectedSplitMetric = splitMetrics.find((metric) => metric.label === selectedSplit) ?? null;
-    const windows = [5, 10, 20, 30].map((size) => {
-      const window = allGames.slice(0, size);
-      if (!window.length) return { label: `L${size}`, value: '—', note: 'Sem dados' };
-      const hits = window.filter((sample) => sample.value >= line).length;
-      const pct = Math.round((hits / window.length) * 100);
-      return { label: `L${size}`, value: `${pct}%`, note: `${hits}/${window.length}` };
+    const summaryMetricMap: Record<string, PlayerDetailSplitMetric> = {};
+    splitMetrics.forEach((metric) => {
+      summaryMetricMap[metric.label] = metric;
     });
-    const edge = average === null ? null : Number((average - line).toFixed(1));
-    const edgeLabel = edge === null ? 'N/D' : edge >= 0 ? 'Over lean' : 'Under lean';
+    const summaryMetrics: PlayerDetailSplitMetric[] = [
+      summaryMetricMap.Season ?? { label: 'Season', value: '—', note: 'Sem dados' },
+      summaryMetricMap.H2H ?? { label: 'H2H', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L5 ?? { label: 'L5', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L10 ?? { label: 'L10', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L20 ?? { label: 'L20', value: '—', note: 'Sem dados' },
+      summaryMetricMap.L30 ?? { label: 'L30', value: '—', note: 'Sem dados' },
+      summaryMetricMap['24/25'] ?? { label: '24/25', value: '—', note: 'Sem dados' },
+    ];
     return {
       allGames,
       games,
       line,
       average,
       bars,
-      linePct,
-      windows,
-      edge,
-      edgeLabel,
+      summaryMetrics,
       metrics: payload?.metrics ?? null,
       splitMetrics,
-      selectedSplitMetric,
     };
   }, [lineAdjustment, selectedMetricsResource, selectedPlayer, selectedSplit]);
 
@@ -866,6 +885,7 @@ export function DashboardView() {
       )}
       topbar={view === 'profile' ? null : (
         <TopBar
+          className={view === 'players' ? styles.playersTopbarCompact : undefined}
           showBrand={false}
           context={view === 'games' ? null : topTitle}
           leading={canGoBack ? (
@@ -961,22 +981,24 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <TabsList className={styles.statsTabs}>
-                    {STATS.map((stat) => {
-                      const locked = isLockedStat(stat, plan);
-                      return (
-                        <TabsTrigger
-                          key={stat}
-                          value={stat}
-                          className={locked ? styles.lockedTab : undefined}
-                          title={locked ? 'Disponível no plano Pro' : undefined}
-                        >
-                          {stat}
-                          {locked ? <Lock size={11} /> : null}
-                        </TabsTrigger>
-                      );
-                    })}
-                  </TabsList>
+                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport}`}>
+                    <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow}`}>
+                      {STATS.map((stat) => {
+                        const locked = isLockedStat(stat, plan);
+                        return (
+                          <TabsTrigger
+                            key={stat}
+                            value={stat}
+                            className={locked ? styles.lockedTab : undefined}
+                            title={locked ? 'Disponível no plano Pro' : undefined}
+                          >
+                            {stat}
+                            {locked ? <Lock size={11} /> : null}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                  </div>
                   <TabsContent value={selectedStat} className={styles.playersTabContent}>
                     {marketLocked ? (
                       <Surface className={styles.lockedStateBox}>
@@ -1031,8 +1053,16 @@ export function DashboardView() {
                                 </div>
                               </div>
                               <div className={styles.playerQuickStats}>
-                                <span>L10 avg {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</span>
-                                <span>Hit {metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10 ? `${Math.round(Number(metricsByPlayer[player.id]?.[selectedStat]?.metrics?.hit_rate_l10))}%` : '—'}</span>
+                                {PLAYER_ROW_STATS.map((entry) => (
+                                  <span key={`${player.id}-${entry.label}`}>
+                                    <small>{entry.label}</small>
+                                    <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
+                                  </span>
+                                ))}
+                                <span className={styles.playerQuickStatLine}>
+                                  <small>LINE</small>
+                                  <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
+                                </span>
                               </div>
                               <div className={styles.playerLineBlock}>
                                 <small>Line</small>
@@ -1053,35 +1083,29 @@ export function DashboardView() {
             <section className={`${styles.detailView} ${styles.viewPanel}`}>
               <div className={styles.detailTabsRow}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <TabsList className={styles.statsTabs}>
-                    {STATS.map((stat) => {
-                      const locked = isLockedStat(stat, plan);
-                      return (
-                        <TabsTrigger key={stat} value={stat} className={locked ? styles.lockedTab : undefined}>
-                          {stat}
-                          {locked ? <Lock size={11} /> : null}
-                        </TabsTrigger>
-                      );
-                    })}
-                  </TabsList>
+                  <div className={styles.statsTabsScroller}>
+                    <TabsList className={styles.statsTabs}>
+                      {STATS.map((stat) => {
+                        const locked = isLockedStat(stat, plan);
+                        return (
+                          <TabsTrigger key={stat} value={stat} className={locked ? styles.lockedTab : undefined}>
+                            {stat}
+                            {locked ? <Lock size={11} /> : null}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                  </div>
                 </TabsRoot>
               </div>
-              <TabsRoot value={selectedSplit} onValueChange={(value) => setSelectedSplit((SPLITS.includes(value as Split) ? value : 'L10') as Split)}>
-                <TabsList className={styles.splitTabs}>
-                  {SPLITS.map((split) => (
-                    <TabsTrigger key={split} value={split}>{split}</TabsTrigger>
-                  ))}
-                </TabsList>
-              </TabsRoot>
-
               <div className={styles.playerHero}>
                 <div>
                   <p className={styles.playerHeroMeta}>{selectedPlayer.team} • {selectedPlayer.position}</p>
                   <h2 className={styles.playerHeroName}>{selectedPlayer.name}</h2>
                 </div>
-                <div className={styles.lineAdjustBox}>
+                <div className={`${styles.lineAdjustBox} ${styles.lineAdjustDesktop}`}>
                   <p>Ajustar linha</p>
-                  <div>
+                  <div className={styles.lineAdjustControls}>
                     <button type="button" onClick={() => setLineAdjustment((value) => Number((value - 0.5).toFixed(1)))}><Minus size={16} /></button>
                     <strong>{playerDetailModel?.line.toFixed(1) ?? '0.0'}</strong>
                     <button type="button" onClick={() => setLineAdjustment((value) => Number((value + 0.5).toFixed(1)))}><Plus size={16} /></button>
@@ -1110,23 +1134,13 @@ export function DashboardView() {
               {playerDetailModel && selectedMetricsStatus === 'ready' ? (
                 <>
                   <div className={styles.quickStatsGrid}>
-                    {playerDetailModel.windows.map((window) => (
-                      <div key={window.label}>
-                        <span>{window.label}</span>
-                        <strong>{window.value}</strong>
-                        <small>{window.note}</small>
+                    {playerDetailModel.summaryMetrics.map((metric) => (
+                      <div key={metric.label}>
+                        <span>{metric.label}</span>
+                        <strong className={getSplitPctClassName(metric.value)}>{metric.value}</strong>
+                        <small>{metric.note}</small>
                       </div>
                     ))}
-                    <div>
-                      <span>Média</span>
-                      <strong>{playerDetailModel.average ?? '—'}</strong>
-                      <small>{selectedStat}</small>
-                    </div>
-                    <div>
-                      <span>{selectedSplit}</span>
-                      <strong>{playerDetailModel.selectedSplitMetric?.value ?? '—'}</strong>
-                      <small>{playerDetailModel.selectedSplitMetric?.note ?? 'Sem dados'}</small>
-                    </div>
                   </div>
 
                   <div className={styles.chartCard}>
@@ -1138,19 +1152,83 @@ export function DashboardView() {
                       </div>
                     </div>
                     <div className={styles.chartCanvas}>
-                      <div className={styles.chartReference} style={{ bottom: `${playerDetailModel.linePct}%` }}>
-                        <span>LINE {playerDetailModel.line}</span>
-                      </div>
-                      {playerDetailModel.bars.length ? playerDetailModel.bars.map((bar, index) => (
-                        <div key={`${bar.label}-${index}`} className={styles.chartColumn}>
-                          <div className={getChartBarClassName(bar.tone)} style={{ height: `${bar.heightPct}%` }}>
-                            <span>{bar.value}</span>
-                          </div>
-                          <small>{bar.label}</small>
-                        </div>
-                      )) : (
+                      {playerDetailModel.bars.length ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart
+                            data={playerDetailModel.bars}
+                            margin={{ top: 6, right: 4, left: 0, bottom: 0 }}
+                            barCategoryGap={playerDetailModel.bars.length <= 5 ? '6%' : playerDetailModel.bars.length <= 10 ? '8%' : playerDetailModel.bars.length <= 20 ? '10%' : '12%'}
+                          >
+                            <CartesianGrid stroke="color-mix(in srgb, var(--lc-border) 55%, transparent)" strokeDasharray="2 4" vertical={false} />
+                            <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: 'var(--lc-muted)', fontSize: 11 }} />
+                            <YAxis
+                              hide
+                              tickLine={false}
+                              axisLine={false}
+                              tick={{ fill: 'var(--lc-muted)', fontSize: 11 }}
+                              width={0}
+                              domain={[0, (max: number) => Math.max(max + 1, playerDetailModel.line + 1)]}
+                            />
+                            <Tooltip
+                              cursor={false}
+                              contentStyle={{
+                                border: '1px solid var(--lc-border)',
+                                background: 'color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%)',
+                                color: 'var(--lc-text)',
+                                borderRadius: 8,
+                                boxShadow: '0 8px 20px rgba(0,0,0,.28)',
+                                fontSize: '12px',
+                              }}
+                            />
+                            <ReferenceLine
+                              y={playerDetailModel.line}
+                              stroke="var(--lc-accent)"
+                              strokeDasharray="4 4"
+                            />
+                            <Bar
+                              dataKey="value"
+                              radius={[1, 1, 0, 0]}
+                              isAnimationActive={false}
+                              maxBarSize={
+                                playerDetailModel.bars.length <= 5
+                                  ? 66
+                                  : playerDetailModel.bars.length <= 10
+                                    ? 50
+                                    : playerDetailModel.bars.length <= 20
+                                      ? 34
+                                      : 28
+                              }
+                            >
+                              <LabelList dataKey="value" position="top" fill="var(--lc-text)" fontSize={10} />
+                              {playerDetailModel.bars.map((bar, index) => (
+                                <Cell
+                                  key={`${bar.label}-${index}`}
+                                  fill={bar.tone === 'hit' ? '#26d07c' : bar.tone === 'tie' ? '#8d8d8d' : '#ff6e6e'}
+                                />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      ) : (
                         <p className={styles.stateText}>Dados recentes indisponíveis para o gráfico.</p>
                       )}
+                    </div>
+                  </div>
+
+                  <TabsRoot value={selectedSplit} onValueChange={(value) => setSelectedSplit((SPLITS.includes(value as Split) ? value : 'L10') as Split)}>
+                    <TabsList className={styles.splitTabs}>
+                      {SPLITS.map((split) => (
+                        <TabsTrigger key={split} value={split}>{split}</TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </TabsRoot>
+
+                  <div className={`${styles.lineAdjustBox} ${styles.lineAdjustMobile}`}>
+                    <p>Ajustar linha</p>
+                    <div className={styles.lineAdjustControls}>
+                      <button type="button" onClick={() => setLineAdjustment((value) => Number((value - 0.5).toFixed(1)))}><Minus size={16} /></button>
+                      <strong>{playerDetailModel?.line.toFixed(1) ?? '0.0'}</strong>
+                      <button type="button" onClick={() => setLineAdjustment((value) => Number((value + 0.5).toFixed(1)))}><Plus size={16} /></button>
                     </div>
                   </div>
                 </>
