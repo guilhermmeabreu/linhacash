@@ -1184,7 +1184,6 @@ export function DashboardView() {
                               y={playerDetailModel.line}
                               stroke="var(--lc-accent)"
                               strokeDasharray="4 4"
-                              label={{ value: `LINE ${playerDetailModel.line}`, fill: 'var(--lc-muted)', fontSize: 11, position: 'insideTopLeft' }}
                             />
                             <Bar
                               dataKey="value"
