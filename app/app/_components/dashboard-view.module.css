@@ -275,6 +275,7 @@
 .statsTabsWrap {
   display: grid;
   gap: 0.8rem;
+  min-width: 0;
 }
 
 .statsTabsScroller {
@@ -284,6 +285,11 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   touch-action: pan-x;
+  min-width: 0;
+}
+
+.playersStatsTabsScroller {
+  min-width: 0;
 }
 
 .statsTabsScroller::-webkit-scrollbar {
@@ -1164,15 +1170,15 @@
 }
 
 @media (max-width: 860px) {
-  :global(.lc-topbar-title) {
-    font-size: 0.72rem;
-    line-height: 1;
+  .playersTopbarCompact :global(.lc-topbar-title) {
+    font-size: 0.66rem;
+    line-height: 0.98;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: min(50vw, 10.5rem);
+    max-width: min(46vw, 9.2rem);
   }
 
   .playersTopbar h2 {

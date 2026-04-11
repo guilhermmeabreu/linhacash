@@ -885,6 +885,7 @@ export function DashboardView() {
       )}
       topbar={view === 'profile' ? null : (
         <TopBar
+          className={view === 'players' ? styles.playersTopbarCompact : undefined}
           showBrand={false}
           context={view === 'games' ? null : topTitle}
           leading={canGoBack ? (
@@ -980,7 +981,7 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <div className={styles.statsTabsScroller}>
+                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller}`}>
                     <TabsList className={styles.statsTabs}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
