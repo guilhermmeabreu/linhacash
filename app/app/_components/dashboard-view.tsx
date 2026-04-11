@@ -782,7 +782,7 @@ export function DashboardView() {
     const apiLine = Number.isFinite(lineBase) && lineBase > 0 ? Math.round(lineBase * 2) / 2 : 0.5;
     const line = Math.max(0, apiLine + lineAdjustment);
     const average = values.length ? Number((values.reduce((acc, value) => acc + value, 0) / values.length).toFixed(1)) : null;
-    const bars: PlayerDetailChartBar[] = games.slice(0, 12).reverse().map((sample) => {
+    const bars: PlayerDetailChartBar[] = games.slice().reverse().map((sample) => {
       const tone: ChartBarTone = sample.value > line ? 'hit' : sample.value === line ? 'tie' : 'miss';
       const date = sample.date ? new Date(sample.date) : null;
       const label = date ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}` : '—';
