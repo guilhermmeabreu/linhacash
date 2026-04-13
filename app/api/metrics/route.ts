@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { validateSession, sanitizeMetrics, errorResponse, okResponse, corsHeaders } from '@/lib/security';
+import { validateSession, errorResponse, okResponse, corsHeaders } from '@/lib/security';
 import { rateLimitDetailed, getIP } from '@/lib/rate-limit';
 import { getCachedValue } from '@/lib/cache/memory-cache';
 import { buildRequestContext, logSecurityEvent } from '@/lib/observability';
@@ -18,6 +18,12 @@ const LEGACY_STAT_ALIASES: Record<string, string> = {
   'P+R': 'PR',
   'A+R': 'AR',
 };
+
+const SUPPORTED_WINDOWS = ['L5', 'L10', 'L20', 'L30', 'SEASON'] as const;
+type MetricsWindow = (typeof SUPPORTED_WINDOWS)[number];
+
+const SUPPORTED_SPLITS = ['ALL', 'HOME', 'AWAY'] as const;
+type MetricsSplit = (typeof SUPPORTED_SPLITS)[number];
 
 // GET /api/metrics?playerId=xxx&stat=PTS — métricas de um jogador
 export async function GET(req: Request) {
@@ -37,6 +43,9 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const playerId = searchParams.get('playerId');
   const stat = normalizeStat(searchParams.get('stat'));
+  const window = normalizeWindow(searchParams.get('window') || searchParams.get('split'));
+  const split = normalizeSplit(searchParams.get('location') || searchParams.get('venue') || searchParams.get('ha'));
+  const opponent = normalizeOpponent(searchParams.get('opponent') || searchParams.get('vs'));
 
   if (!playerId || !/^\d+$/.test(playerId)) return errorResponse('playerId inválido');
 
@@ -51,69 +60,65 @@ export async function GET(req: Request) {
   }
 
   const parsedPlayerId = parseInt(playerId, 10);
-  const payload = await getCachedValue(`metrics:${session.plan}:${parsedPlayerId}:${stat}`, 2 * 60_000, async () => {
-    const storageStat = getStorageStat(stat);
-
-    let metrics = null;
-    if (storageStat) {
-      const { data: cache } = await supabase
-        .from('player_props_cache')
-        .select('*')
-        .eq('player_id', parsedPlayerId)
-        .eq('stat', storageStat)
-        .single();
-
-      if (cache) {
-        metrics = {
-          player_id: cache.player_id,
-          stat,
-          avg_l5: cache.avg_l5,
-          avg_l10: cache.avg_l10,
-          avg_l20: cache.avg_l20,
-          avg_l30: cache.avg_l20,
-          avg_home: cache.avg_home,
-          avg_away: cache.avg_away,
-          hit_rate_l10: cache.hit_rate_l10,
-          confidence_score: cache.confidence_score,
-        };
-      } else {
-        const { data: m } = await supabase
-          .from('player_metrics')
-          .select('*')
-          .eq('player_id', parsedPlayerId)
-          .eq('stat', storageStat)
-          .single();
-        if (m) {
-          metrics = {
-            ...sanitizeMetrics(m),
-            stat,
-          };
-        }
-      }
-    }
-
-    const { data: recentStats } = await supabase
+  const cacheKey = `metrics:${session.plan}:${parsedPlayerId}:${stat}:${window}:${split}:${opponent || 'all'}`;
+  const payload = await getCachedValue(cacheKey, 2 * 60_000, async () => {
+    const { data: recentStats, error } = await supabase
       .from('player_stats')
-      .select('*')
+      .select('game_date,minutes,is_home,opponent,points,rebounds,assists,three_pointers,fgm,fga,steals,blocks,fg2a,fg3a,three_pa')
       .eq('player_id', parsedPlayerId)
       .order('game_date', { ascending: false })
-      .limit(session.plan === 'free' ? 5 : 20);
+      .limit(120);
 
-    const values = (recentStats || []).map((row) => getStatValue(row, stat));
-    if (!metrics && values.length > 0) {
-      metrics = buildDerivedMetrics(parsedPlayerId, stat, recentStats || [], values);
+    if (error) {
+      throw new Error(`player_stats query failed: ${error.message}`);
     }
 
-    const games = (recentStats || []).map((row) => ({
+    const allGames = (recentStats || []).map((row) => ({
       date: row.game_date,
+      opponent: row.opponent ?? null,
+      is_home: row.is_home ?? null,
       value: getStatValue(row, stat),
       minutes: row.minutes,
     }));
 
-    return { metrics, games };
+    const filteredGames = applySplitAndOpponent(allGames, split, opponent);
+    const scopedGames = applyWindow(filteredGames, window);
+    const scopedValues = scopedGames.map((row) => row.value);
+
+    const metrics = buildRuntimeMetrics(parsedPlayerId, stat, allGames, filteredGames, scopedGames, scopedValues);
+
+    return {
+      metrics,
+      games: scopedGames.map((row) => ({
+        date: row.date,
+        value: row.value,
+        minutes: row.minutes,
+      })),
+      chartSeries: scopedGames.map((row) => ({
+        date: row.date,
+        value: row.value,
+      })),
+      recentGames: scopedGames.slice(0, 10).map((row) => ({
+        date: row.date,
+        value: row.value,
+        minutes: row.minutes,
+        opponent: row.opponent,
+        is_home: row.is_home,
+      })),
+    };
   });
 
-  return okResponse({ metrics: payload.metrics, games: payload.games, stat, availableStats: session.plan === 'pro' ? ALL_STATS : FREE_STATS });
+  return okResponse({
+    metrics: payload.metrics,
+    games: payload.games,
+    chartSeries: payload.chartSeries,
+    recentGames: payload.recentGames,
+    stat,
+    window,
+    split,
+    opponent,
+    availableStats: session.plan === 'pro' ? ALL_STATS : FREE_STATS,
+  });
 }
 
 function normalizeStat(rawStat: string | null): string {
@@ -121,18 +126,19 @@ function normalizeStat(rawStat: string | null): string {
   return LEGACY_STAT_ALIASES[stat] || stat;
 }
 
-function getStorageStat(stat: string): string | null {
-  switch (stat) {
-    case 'PTS': return 'points';
-    case 'REB': return 'rebounds';
-    case 'AST': return 'assists';
-    case '3PM': return 'three_pointers';
-    case 'FG3A': return 'fg3a';
-    case 'FG2A': return 'fg2a';
-    case 'STEAL': return 'steals';
-    case 'BLOCKS': return 'blocks';
-    default: return null;
-  }
+function normalizeWindow(rawWindow: string | null): MetricsWindow {
+  const value = (rawWindow || 'L10').toUpperCase();
+  return SUPPORTED_WINDOWS.includes(value as MetricsWindow) ? (value as MetricsWindow) : 'L10';
+}
+
+function normalizeSplit(rawSplit: string | null): MetricsSplit {
+  const value = (rawSplit || 'ALL').toUpperCase();
+  return SUPPORTED_SPLITS.includes(value as MetricsSplit) ? (value as MetricsSplit) : 'ALL';
+}
+
+function normalizeOpponent(rawOpponent: string | null): string | null {
+  const value = rawOpponent?.trim();
+  return value ? value.toLowerCase() : null;
 }
 
 type PlayerStatRow = {
@@ -150,6 +156,15 @@ type PlayerStatRow = {
   is_home?: boolean | null;
   game_date?: string | null;
   minutes?: number | null;
+  opponent?: string | null;
+};
+
+type RuntimeGame = {
+  date: string | null;
+  opponent: string | null;
+  is_home: boolean | null;
+  value: number;
+  minutes: number | null;
 };
 
 function asNumber(value: unknown): number {
@@ -210,24 +225,59 @@ function avg(values: number[]): number {
   return Number((values.reduce((acc, value) => acc + value, 0) / values.length).toFixed(1));
 }
 
-function buildDerivedMetrics(playerId: number, stat: string, rows: PlayerStatRow[], values: number[]) {
-  const l10 = values.slice(0, 10);
-  const line = avg(l10);
-  const hitRate = l10.length > 0
-    ? Number(((l10.filter((value) => value > line).length / l10.length) * 100).toFixed(1))
-    : 0;
+function applySplitAndOpponent(rows: RuntimeGame[], split: MetricsSplit, opponent: string | null): RuntimeGame[] {
+  return rows.filter((row) => {
+    if (split === 'HOME' && row.is_home !== true) return false;
+    if (split === 'AWAY' && row.is_home !== false) return false;
+    if (opponent && (row.opponent || '').toLowerCase() !== opponent) return false;
+    return true;
+  });
+}
+
+function applyWindow(rows: RuntimeGame[], window: MetricsWindow): RuntimeGame[] {
+  if (window === 'SEASON') return rows;
+  const sizeMap: Record<Exclude<MetricsWindow, 'SEASON'>, number> = {
+    L5: 5,
+    L10: 10,
+    L20: 20,
+    L30: 30,
+  };
+  return rows.slice(0, sizeMap[window]);
+}
+
+function hitRate(values: number[], line: number): number {
+  if (!values.length) return 0;
+  const hits = values.filter((value) => value > line).length;
+  return Number(((hits / values.length) * 100).toFixed(1));
+}
+
+function buildRuntimeMetrics(
+  playerId: number,
+  stat: string,
+  allGames: RuntimeGame[],
+  filteredGames: RuntimeGame[],
+  scopedGames: RuntimeGame[],
+  scopedValues: number[],
+) {
+  const filteredValues = filteredGames.map((row) => row.value);
+  const l10Values = filteredValues.slice(0, 10);
+  const line = avg(l10Values);
 
   return {
     player_id: playerId,
     stat,
-    avg_l5: avg(values.slice(0, 5)),
+    avg_l5: avg(filteredValues.slice(0, 5)),
     avg_l10: line,
-    avg_l20: avg(values),
-    avg_l30: avg(values),
-    avg_home: avg(rows.filter((row) => row.is_home).map((row) => getStatValue(row, stat))),
-    avg_away: avg(rows.filter((row) => !row.is_home).map((row) => getStatValue(row, stat))),
-    hit_rate_l10: hitRate,
+    avg_l20: avg(filteredValues.slice(0, 20)),
+    avg_l30: avg(filteredValues.slice(0, 30)),
+    avg_home: avg(allGames.filter((row) => row.is_home === true).map((row) => row.value)),
+    avg_away: avg(allGames.filter((row) => row.is_home === false).map((row) => row.value)),
+    hit_rate_l10: hitRate(l10Values, line),
     line,
+    sample_size: scopedGames.length,
+    season_sample_size: filteredGames.length,
+    selected_avg: avg(scopedValues),
+    selected_hit_rate: hitRate(scopedValues, line),
   };
 }
 
