@@ -56,11 +56,10 @@ export default function LandingPage() {
       <section className="lc-hero lc-public-container" id="hero">
         <div className="lc-hero-content">
           <h1>
-            Decida com vantagem.<br />
-            <span>Dados acionáveis em segundos.</span>
+            Veja o que os números mostram
           </h1>
           <p>
-            Tendências, desempenho recente e contexto real dos jogadores da NBA em uma leitura objetiva para agir com mais confiança.
+            Analisar dados nunca ficou tão fácil com o Linha<span>Cash</span>.
           </p>
           <div className="lc-hero-cta">
             <Link href="/login">
@@ -70,7 +69,7 @@ export default function LandingPage() {
               <Button variant="secondary" size="lg">Ver planos</Button>
             </a>
           </div>
-          <small>Sem cartão de crédito · plano gratuito disponível</small>
+          <small>2 dias de teste grátis · plano gratuito disponível</small>
           <a className="lc-scroll-hint" href="#como-funciona" aria-label="Ver mais conteúdo">
             <ArrowDown size={16} />
             <span>Role para ver mais</span>

@@ -19,6 +19,10 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  appearance: none;
 }
 
 .accountAvatar {
@@ -89,10 +93,11 @@
 
 .gamesDateLine {
   color: var(--lc-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 0.55rem;
+  margin-top: -0.35rem;
+  margin-bottom: 0.75rem;
 }
 
 .gameGrid {
@@ -104,25 +109,28 @@
 .gameCard {
   position: relative;
   text-align: center;
-  border-radius: 0;
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.9rem;
-  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 85%, var(--lc-bg) 15%));
+  padding: 1rem;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.8rem;
   width: 100%;
   cursor: pointer;
 }
 
 .gameCard:hover {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
-  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-surface-elevated) 12%);
-  transform: translateY(-1px);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%), color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
 }
 
 .gameCardLocked {
-  opacity: 0.56;
+  opacity: 0.72;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
 }
 
 .gameLockBadge {
@@ -150,12 +158,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.9rem;
+  gap: 1.1rem;
 }
 
 .teamBadge {
-  width: 3rem;
-  height: 3rem;
+  width: 3.2rem;
+  height: 3.2rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -181,7 +189,7 @@
 }
 
 .gameMatchup {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: color-mix(in srgb, var(--lc-text) 86%, var(--lc-muted) 14%);
   display: grid;
@@ -295,6 +303,7 @@
 
 .playersTabsViewport {
   min-width: 0;
+  padding-bottom: 0.15rem;
 }
 
 .playersTabsRow {
@@ -365,11 +374,11 @@
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
   background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
-  padding: 0.88rem 0.88rem;
+  padding: 0.82rem 0.8rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.48rem;
+  gap: 0.42rem;
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
   min-width: 0;
@@ -414,7 +423,7 @@
 }
 
 .playerName {
-  font-size: 1.06rem;
+  font-size: 1rem;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -526,7 +535,7 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
   border-radius: 16px;
   background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 8%, transparent), transparent 48%), color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
   padding: 0.75rem 0.85rem;
@@ -605,19 +614,20 @@
 
 
 .quickStatsGrid {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 75%, transparent);
   border-radius: 14px;
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--lc-border);
+  gap: 0.5rem;
+  background: transparent;
   margin-bottom: 0.24rem;
 }
 
 .quickStatsGrid > div {
-  background: color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%);
-  border-radius: 0;
+  background: color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 70%, transparent);
   padding: 0.42rem 0.35rem;
   text-align: center;
   display: grid;
@@ -643,10 +653,10 @@
 }
 
 .chartCard {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 78%, transparent);
   border-radius: 16px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%), color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%));
-  padding: 0.7rem 0.78rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 97%, var(--lc-bg) 3%), color-mix(in srgb, var(--lc-surface) 91%, var(--lc-bg) 9%));
+  padding: 0.76rem 0.82rem;
   display: grid;
   gap: 0.45rem;
   margin-top: 0.08rem;
@@ -678,7 +688,7 @@
 .chartCanvas {
   position: relative;
   display: block;
-  min-height: 210px;
+  min-height: 244px;
   width: 100%;
   padding: 0.1rem 0 0;
   overflow: hidden;
@@ -716,15 +726,15 @@
 }
 
 .splitPctHigh {
-  color: #26d07c;
+  color: #24e880;
 }
 
 .splitPctMid {
-  color: #9aa0a9;
+  color: #9fa6b2;
 }
 
 .splitPctLow {
-  color: #ff6e6e;
+  color: #ff5d5d;
 }
 
 .profileView {
@@ -950,10 +960,14 @@
 }
 
 .upgradeModal {
-  width: min(100%, 34rem);
+  width: min(100%, 42rem);
   display: grid;
-  gap: 0.8rem;
+  gap: 0.95rem;
   position: relative;
+  border-radius: 18px;
+  border-color: color-mix(in srgb, var(--lc-border) 70%, var(--lc-accent) 30%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%), color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%));
+  padding: 1.05rem;
 }
 
 .upgradeClose {
@@ -978,7 +992,8 @@
 
 .upgradeSubtitle {
   color: var(--lc-muted);
-  font-size: 0.84rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .upgradeSubtitle strong {
@@ -987,27 +1002,28 @@
 
 .upgradePlans {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .upgradePlanBtn {
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
+  padding: 0.86rem 0.9rem;
   text-align: left;
   display: grid;
   gap: 0.25rem;
 }
 
 .upgradePlanBtn span {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--lc-muted);
 }
 
 .upgradePlanBtn strong {
-  font-size: 1rem;
+  font-size: 1.06rem;
 }
 
 .upgradePlanBtn small {
@@ -1018,9 +1034,9 @@
 .upgradePopular {
   justify-self: start;
   font-style: normal;
-  color: var(--lc-accent);
+  color: #0b2616;
   border: 1px solid color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
-  background: color-mix(in srgb, var(--lc-accent) 14%, transparent);
+  background: color-mix(in srgb, var(--lc-accent) 92%, #fff 8%);
   padding: 0.1rem 0.35rem;
   font-size: 0.6rem;
   text-transform: uppercase;
@@ -1030,7 +1046,7 @@
 
 .upgradePlanBtn.isSelected {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
-  background: color-mix(in srgb, var(--lc-accent) 14%, var(--lc-surface) 86%);
+  background: color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent);
 }
 
@@ -1050,7 +1066,7 @@
 .upgradeField input {
   min-height: 2.5rem;
   border: 1px solid var(--lc-border);
-  background: var(--lc-surface-elevated);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%);
   color: var(--lc-text);
   padding: 0 0.65rem;
 }
@@ -1156,6 +1172,47 @@
 
 .infoBanner { background: color-mix(in srgb, var(--lc-surface) 83%, #0d151f 17%); }
 
+.upgradeBenefits {
+  border: 1px solid color-mix(in srgb, var(--lc-border) 72%, transparent);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  background: color-mix(in srgb, var(--lc-surface) 98%, var(--lc-bg) 2%);
+}
+
+.upgradeBenefits p {
+  color: var(--lc-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.upgradeBenefits ul {
+  list-style: none;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.upgradeBenefits li {
+  font-size: 0.87rem;
+  color: color-mix(in srgb, var(--lc-text) 85%, var(--lc-muted) 15%);
+}
+
+html.light .chartCard {
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  border-color: #dbe4ef;
+}
+
+html.light .quickStatsGrid > div {
+  background: #ffffff;
+}
+
+html.light .upgradeModal {
+  background: linear-gradient(180deg, #ffffff, #f4f8fc);
+  border-color: #cdd9e6;
+}
+
 .errorBox {
   margin-top: 0.8rem;
   display: flex;
@@ -1224,6 +1281,10 @@
     flex-wrap: nowrap;
     white-space: nowrap;
     padding-right: 1.35rem;
+  }
+
+  .statsTabs {
+    padding-right: 1.6rem;
   }
 
   .playersTopbar h2 {
@@ -1315,7 +1376,7 @@
   }
 
   .chartCanvas {
-    min-height: 210px;
+    min-height: 234px;
   }
 
   .chartCard {
@@ -1326,6 +1387,8 @@
 
   .upgradeModal {
     width: 100%;
+    padding: 0.85rem;
+    gap: 0.7rem;
   }
 
   .supportModal {
@@ -1346,6 +1409,33 @@
 
   .quickStatsGrid > div {
     min-width: 4.15rem;
+  }
+
+  .playerRow {
+    padding: 0.72rem 0.66rem;
+    border-radius: 12px;
+  }
+
+  .playerMain {
+    gap: 0.5rem;
+  }
+
+  .playerName {
+    font-size: 0.94rem;
+    max-width: 12.2rem;
+  }
+
+  .playerMeta {
+    font-size: 0.66rem;
+    max-width: 12.2rem;
+  }
+
+  .chartCanvas :global(.recharts-cartesian-axis-tick-value) {
+    font-size: 9px;
+  }
+
+  .upgradeBenefits li {
+    font-size: 0.82rem;
   }
 }
 

@@ -51,6 +51,7 @@ import {
   CartesianGrid,
   Cell,
   LabelList,
+  Label,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -950,13 +951,13 @@ export function DashboardView() {
           activeKey={activeSidebarKey}
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
-            <div className={styles.accountSummary}>
+            <button type="button" className={styles.accountSummary} onClick={() => setView('profile')}>
               <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
                 <strong>{profileName}</strong>
                 <span>{profilePlanLabel}</span>
               </div>
-            </div>
+            </button>
           )}
         />
       )}
@@ -966,13 +967,13 @@ export function DashboardView() {
           activeKey={activeSidebarKey}
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
-            <div className={styles.accountSummary}>
+            <button type="button" className={styles.accountSummary} onClick={() => setView('profile')}>
               <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
                 <strong>{profileName}</strong>
                 <span>{profilePlanLabel}</span>
               </div>
-            </div>
+            </button>
           )}
         />
       )}
@@ -1277,7 +1278,9 @@ export function DashboardView() {
                               y={playerDetailModel.line}
                               stroke="var(--lc-accent)"
                               strokeDasharray="4 4"
-                            />
+                            >
+                              <Label value={`LINE ${playerDetailModel.line.toFixed(1)}`} position="insideTopLeft" fill="var(--lc-accent)" fontSize={11} />
+                            </ReferenceLine>
                             <Bar
                               dataKey="value"
                               radius={[1, 1, 0, 0]}
@@ -1292,11 +1295,11 @@ export function DashboardView() {
                                       : 28
                               }
                             >
-                              <LabelList dataKey="value" position="top" fill="var(--lc-text)" fontSize={10} />
+                              <LabelList dataKey="value" position="insideTop" offset={10} fill="var(--lc-text)" fontSize={10} />
                               {playerDetailModel.bars.map((bar, index) => (
                                 <Cell
                                   key={`${bar.label}-${index}`}
-                                  fill={bar.tone === 'hit' ? '#26d07c' : bar.tone === 'tie' ? '#8d8d8d' : '#ff6e6e'}
+                                  fill={bar.tone === 'hit' ? '#24e880' : bar.tone === 'tie' ? '#969eaa' : '#ff5d5d'}
                                 />
                               ))}
                             </Bar>
@@ -1509,6 +1512,14 @@ export function DashboardView() {
                     <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
                     <h3>Escolha seu plano</h3>
                     <p className={styles.upgradeSubtitle}>Acesso completo a todos os recursos, com melhor custo no ciclo anual.</p>
+                    <div className={styles.upgradeBenefits}>
+                      <p>Pro inclui</p>
+                      <ul>
+                        <li>Todas as estatísticas liberadas</li>
+                        <li>Todos os jogadores e jogos destravados</li>
+                        <li>Leitura completa para decisões mais rápidas</li>
+                      </ul>
+                    </div>
                     <div className={styles.upgradePlans}>
                       <button
                         type="button"
@@ -1548,6 +1559,12 @@ export function DashboardView() {
                         maxLength={20}
                       />
                     </label>
+                    <p className={styles.upgradeSubtitle}>
+                      Total hoje:{' '}
+                      <strong>
+                        {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
+                      </strong>
+                    </p>
                     <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
                       {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
                     </Button>

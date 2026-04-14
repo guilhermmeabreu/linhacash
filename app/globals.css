@@ -59,6 +59,7 @@
 
   /* Typography */
   --lc-font-sans: Inter, 'SF Pro Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --lc-font-app-desktop: Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   --lc-font-mono: 'JetBrains Mono', 'SF Mono', 'Roboto Mono', ui-monospace, Menlo, Monaco, Consolas, monospace;
   --lc-text-display: clamp(1.875rem, 3vw, 2.5rem);
   --lc-text-h1: clamp(1.5rem, 2.4vw, 2rem);
@@ -499,8 +500,9 @@ textarea {
   transform: translateY(clamp(-1rem, -1.8vw, -0.35rem));
 }
 .lc-kicker { color: var(--lc-accent); text-transform: uppercase; letter-spacing: .14em; font-size: .66rem; font-weight: 800; }
-.lc-hero h1 { font-size: clamp(2rem, 5.5vw, 4.6rem); line-height: 0.96; margin: 0 auto; max-width: 14ch; text-wrap: balance; letter-spacing: -0.04em; color: color-mix(in srgb, var(--lc-text) 96%, #fff 4%); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.48); }
-.lc-hero p { color: color-mix(in srgb, var(--lc-text) 64%, var(--lc-muted) 36%); max-width: 54ch; margin: 0 auto; text-wrap: pretty; line-height: 1.6; font-size: clamp(0.95rem, 1.7vw, 1.05rem); }
+.lc-hero h1 { font-size: clamp(3rem, 9.6vw, 8rem); line-height: 0.88; margin: 0 auto; max-width: 10ch; text-wrap: balance; letter-spacing: -0.065em; color: color-mix(in srgb, var(--lc-text) 96%, #fff 4%); text-shadow: 0 2px 20px rgba(0, 0, 0, 0.48); font-weight: 950; }
+.lc-hero p { color: color-mix(in srgb, var(--lc-text) 64%, var(--lc-muted) 36%); max-width: 33ch; margin: 0 auto; text-wrap: pretty; line-height: 1.45; font-size: clamp(0.95rem, 1.7vw, 1.15rem); }
+.lc-hero p span { color: var(--lc-accent); font-weight: 700; }
 .lc-hero small { color: var(--lc-muted); font-size: 0.75rem; }
 .lc-hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: .65rem; margin-top: .55rem; }
 .lc-hero-secondary-cta { text-decoration: none; }
@@ -641,13 +643,6 @@ textarea {
   font-weight: 800;
 }
 .lc-public-actions a:hover { color: var(--lc-text); }
-.lc-hero h1 span {
-  color: var(--lc-accent);
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-underline-offset: 6px;
-}
-
 html.light .lc-landing {
   background: radial-gradient(circle at top, color-mix(in srgb, var(--lc-accent) 7%, transparent), transparent 52%), var(--lc-bg);
 }
@@ -702,7 +697,7 @@ html.light .lc-hero p {
 .lc-plan-highlight { border-color: color-mix(in srgb, var(--lc-accent) 54%, var(--lc-border) 46%); }
 .lc-plan-highlight::after { content: ''; position: absolute; inset: 0; pointer-events: none; border: 1px solid color-mix(in srgb, var(--lc-accent) 35%, transparent); }
 
-.lc-auth-page { background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.16), transparent 55%), var(--lc-bg); }
+.lc-auth-page { background: radial-gradient(circle at 50% 20%, rgba(34, 197, 94, 0.14), transparent 55%), #020202; }
 .lc-auth-card { width: min(100%, 31rem); }
 .lc-auth-theme-toggle { justify-self: end; }
 .lc-auth-brand-icon {
@@ -793,7 +788,7 @@ html.light .lc-hero p {
   .lc-plan-grid { grid-template-columns: 1fr; }
   .lc-hero { min-height: calc(100svh - 4.25rem); padding-top: 4.5rem; }
   .lc-scroll-hint span { display: none; }
-  .lc-hero h1 { max-width: 10.5ch; }
+  .lc-hero h1 { max-width: 10ch; font-size: clamp(2.75rem, 12vw, 6rem); }
   .lc-step-section { padding: 3.4rem 0 3.8rem; }
   .lc-plan-section { padding: 3.8rem 0 4rem; }
   .lc-public-footer .lc-public-container { grid-template-columns: 1fr; gap: 1rem; }
@@ -808,9 +803,9 @@ html.light .lc-hero p {
   }
 
   .lc-hero { padding-top: 3.7rem; }
-  .lc-hero-content { gap: 0.65rem; transform: translateY(-0.12rem); }
-  .lc-hero h1 { max-width: 10ch; font-size: clamp(2.35rem, 11.2vw, 3.15rem); }
-  .lc-hero p { max-width: 30ch; font-size: 0.87rem; line-height: 1.45; color: color-mix(in srgb, var(--lc-text) 56%, var(--lc-muted) 44%); }
+  .lc-hero-content { gap: 0.7rem; transform: translateY(0); width: min(100%, 23rem); }
+  .lc-hero h1 { max-width: 9.4ch; font-size: clamp(2.75rem, 12.8vw, 3.4rem); line-height: 0.9; }
+  .lc-hero p { max-width: 27ch; font-size: 0.92rem; line-height: 1.42; color: color-mix(in srgb, var(--lc-text) 56%, var(--lc-muted) 44%); }
   .lc-hero-cta { width: min(100%, 21rem); display: grid; gap: 0.55rem; }
   .lc-hero-cta > * { width: 100%; }
   .lc-hero-cta .lc-btn { width: 100%; min-height: 2.55rem; font-size: 0.82rem; }
@@ -820,6 +815,49 @@ html.light .lc-hero p {
   .lc-plan-section { padding: 3.3rem 0 3.5rem; }
   .lc-public-footer { padding-top: 2rem; }
   .lc-public-footer-links { font-size: 0.7rem; gap: 0.45rem; }
+}
+
+@media (min-width: 1024px) {
+  :where(.lc-auth-page, .lc-shell, .lc-legal-page) {
+    font-family: var(--lc-font-app-desktop);
+  }
+
+  .lc-auth-page {
+    padding: 1.5rem;
+    align-content: center;
+  }
+
+  .lc-auth-card {
+    width: min(100%, 35rem);
+    max-height: min(100dvh - 3rem, 52rem);
+    gap: 0.7rem;
+    padding: 1.1rem 1.25rem;
+    background: color-mix(in srgb, var(--lc-surface) 95%, #020202 5%);
+    border-color: color-mix(in srgb, var(--lc-border) 72%, #0f0f0f 28%);
+  }
+
+  .lc-auth-brand {
+    gap: 0.2rem;
+    margin-bottom: 0;
+  }
+
+  .lc-auth-brand-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .lc-auth-brand .lc-brand-text {
+    font-size: 2rem;
+  }
+
+  .lc-auth-subtitle {
+    margin-bottom: 0;
+  }
+
+  .lc-auth-footer {
+    margin-top: 0.2rem;
+    flex-wrap: wrap;
+  }
 }
 
 
