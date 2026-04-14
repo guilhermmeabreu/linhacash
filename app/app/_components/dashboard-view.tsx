@@ -25,7 +25,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   AppShell,
@@ -242,6 +242,8 @@ export function DashboardView() {
     return 'games';
   });
   const [lineAdjustment, setLineAdjustment] = useState(0);
+  const playerTabsRailRef = useRef<HTMLDivElement | null>(null);
+  const playerTabsScrollLeftRef = useRef(0);
 
   const [games, setGames] = useState<Game[]>([]);
   const [playersByGame, setPlayersByGame] = useState<Record<number, Player[]>>({});
@@ -942,6 +944,13 @@ export function DashboardView() {
     }
   }, []);
 
+  useLayoutEffect(() => {
+    if (view !== 'players') return;
+    const rail = playerTabsRailRef.current;
+    if (!rail) return;
+    rail.scrollLeft = playerTabsScrollLeftRef.current;
+  }, [selectedStat, view]);
+
   return (
     <AppShell
       sidebar={(
@@ -1076,7 +1085,13 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport} ${styles.playerTabsRail}`}>
+                  <div
+                    ref={playerTabsRailRef}
+                    onScroll={(event) => {
+                      playerTabsScrollLeftRef.current = event.currentTarget.scrollLeft;
+                    }}
+                    className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport} ${styles.playerTabsRail}`}
+                  >
                     <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow} ${styles.playerTabsList}`}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
@@ -1129,6 +1144,7 @@ export function DashboardView() {
                       <div className={`${styles.playerList} technical-grid`}>
                         {players.map((player) => {
                           const line = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.line;
+                          const selectedAvg = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10;
                           return (
                             <button
                               key={player.id}
@@ -1160,6 +1176,8 @@ export function DashboardView() {
                                 </span>
                               </div>
                               <div className={styles.playerLineBlock}>
+                                <small>{selectedStat}</small>
+                                <span>{selectedAvg?.toFixed(1) ?? '—'}</span>
                                 <small>Line</small>
                                 <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                               </div>
