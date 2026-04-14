@@ -1,7 +1,7 @@
 .dashboardCanvas {
   display: grid;
   gap: 1rem;
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 .topbarBadges {
@@ -19,6 +19,10 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  appearance: none;
 }
 
 .accountAvatar {
@@ -71,6 +75,10 @@
   overflow-x: hidden;
 }
 
+.playersView {
+  overflow-x: hidden;
+}
+
 .viewPanel {
   animation: view-enter 220ms ease;
   min-width: 0;
@@ -89,10 +97,14 @@
 
 .gamesDateLine {
   color: var(--lc-muted);
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 0.55rem;
+  margin-top: -0.2rem;
+  margin-bottom: 0.75rem;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
 }
 
 .gameGrid {
@@ -104,25 +116,28 @@
 .gameCard {
   position: relative;
   text-align: center;
-  border-radius: 0;
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.9rem;
-  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 86%, transparent);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 85%, var(--lc-bg) 15%));
+  padding: 1rem;
+  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.8rem;
   width: 100%;
   cursor: pointer;
 }
 
 .gameCard:hover {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
-  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-surface-elevated) 12%);
-  transform: translateY(-1px);
+  background: linear-gradient(170deg, color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%), color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.22);
 }
 
 .gameCardLocked {
-  opacity: 0.56;
+  opacity: 0.72;
+  border-style: dashed;
+  background: color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
 }
 
 .gameLockBadge {
@@ -150,12 +165,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.9rem;
+  gap: 1.4rem;
+}
+
+.teamColumn {
+  display: grid;
+  justify-items: center;
+  gap: 0.42rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.teamColumn span {
+  font-size: 0.69rem;
+  line-height: 1.2;
+  text-wrap: balance;
+  text-align: center;
+  color: color-mix(in srgb, var(--lc-text) 86%, var(--lc-muted) 14%);
+  max-width: 9ch;
 }
 
 .teamBadge {
-  width: 3rem;
-  height: 3rem;
+  width: 3.2rem;
+  height: 3.2rem;
   border-radius: 999px;
   display: grid;
   place-items: center;
@@ -180,31 +212,7 @@
   text-transform: uppercase;
 }
 
-.gameMatchup {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: color-mix(in srgb, var(--lc-text) 86%, var(--lc-muted) 14%);
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.gameMatchup span {
-  min-width: 0;
-  text-wrap: balance;
-  overflow-wrap: anywhere;
-  line-height: 1.2;
-}
-
-.gameMatchup span:first-child {
-  text-align: right;
-}
-
-.gameMatchup span:last-child {
-  text-align: left;
-}
-
-.gameCardLocked .gameMatchup span {
+.gameCardLocked .teamColumn span {
   color: var(--lc-muted);
 }
 
@@ -295,10 +303,34 @@
 
 .playersTabsViewport {
   min-width: 0;
+  padding-bottom: 0.15rem;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.playersTabsViewport :global(.lc-tabs-list) {
+  width: max-content;
 }
 
 .playersTabsRow {
   width: max-content;
+}
+
+.playerTabsRail {
+  margin-inline: -0.1rem;
+  padding-inline: 0.1rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: auto;
+}
+
+.playerTabsList {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  min-width: max-content;
+  gap: 0.28rem;
 }
 
 .statsTabsScroller::-webkit-scrollbar {
@@ -312,7 +344,7 @@
   white-space: nowrap;
   display: flex;
   flex-wrap: nowrap;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: none;
 }
 
 .statsTabs :global(.lc-tab-trigger) {
@@ -322,7 +354,7 @@
   border-radius: 999px;
   letter-spacing: 0.08em;
   flex: 0 0 auto;
-  scroll-snap-align: start;
+  scroll-snap-align: none;
 }
 
 .lockedTab {
@@ -365,14 +397,15 @@
   border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
   background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
-  padding: 0.88rem 0.88rem;
+  padding: 0.82rem 0.8rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.48rem;
+  gap: 0.42rem;
   text-align: left;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
 }
 
@@ -414,7 +447,7 @@
 }
 
 .playerName {
-  font-size: 1.06rem;
+  font-size: 1rem;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -449,6 +482,14 @@
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
   font-size: 1.24rem;
+}
+
+.playerLineBlock span {
+  display: block;
+  font-family: var(--lc-font-mono);
+  font-size: 0.88rem;
+  color: color-mix(in srgb, var(--lc-text) 88%, var(--lc-muted) 12%);
+  line-height: 1;
 }
 
 .playerQuickStats {
@@ -526,9 +567,10 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.55rem;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 0;
   border-radius: 16px;
-  background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 8%, transparent), transparent 48%), color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%);
+  background: radial-gradient(circle at 15% 0%, color-mix(in srgb, var(--lc-accent) 10%, transparent), transparent 48%), color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--lc-bg) 35%, transparent);
   padding: 0.75rem 0.85rem;
 }
 
@@ -550,9 +592,9 @@
 }
 
 .lineAdjustBox {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--lc-border) 45%, transparent);
   border-radius: 14px;
-  background: color-mix(in srgb, var(--lc-surface) 88%, var(--lc-bg) 12%);
+  background: color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%);
   padding: 0.55rem 0.6rem;
   min-width: 12.5rem;
 }
@@ -605,19 +647,21 @@
 
 
 .quickStatsGrid {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 0;
   border-radius: 14px;
   overflow: hidden;
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
-  background: var(--lc-border);
+  gap: 0.5rem;
+  background: transparent;
   margin-bottom: 0.24rem;
 }
 
 .quickStatsGrid > div {
-  background: color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%);
-  border-radius: 0;
+  background: color-mix(in srgb, var(--lc-surface) 92%, transparent);
+  border-radius: 10px;
+  border: 0;
+  box-shadow: none;
   padding: 0.42rem 0.35rem;
   text-align: center;
   display: grid;
@@ -643,10 +687,11 @@
 }
 
 .chartCard {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 94%, transparent);
+  border: 0;
   border-radius: 16px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 93%, var(--lc-bg) 7%), color-mix(in srgb, var(--lc-surface) 86%, var(--lc-bg) 14%));
-  padding: 0.7rem 0.78rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 99%, var(--lc-bg) 1%), color-mix(in srgb, var(--lc-surface) 97%, var(--lc-bg) 3%));
+  box-shadow: 0 12px 22px color-mix(in srgb, var(--lc-bg) 20%, transparent);
+  padding: 0.76rem 0.82rem;
   display: grid;
   gap: 0.45rem;
   margin-top: 0.08rem;
@@ -678,7 +723,7 @@
 .chartCanvas {
   position: relative;
   display: block;
-  min-height: 210px;
+  min-height: 244px;
   width: 100%;
   padding: 0.1rem 0 0;
   overflow: hidden;
@@ -716,15 +761,15 @@
 }
 
 .splitPctHigh {
-  color: #26d07c;
+  color: #24e880;
 }
 
 .splitPctMid {
-  color: #9aa0a9;
+  color: #9fa6b2;
 }
 
 .splitPctLow {
-  color: #ff6e6e;
+  color: #d7263d;
 }
 
 .profileView {
@@ -950,10 +995,14 @@
 }
 
 .upgradeModal {
-  width: min(100%, 34rem);
+  width: min(100%, 42rem);
   display: grid;
-  gap: 0.8rem;
+  gap: 0.95rem;
   position: relative;
+  border-radius: 18px;
+  border-color: color-mix(in srgb, var(--lc-border) 70%, var(--lc-accent) 30%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%), color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%));
+  padding: 1.05rem;
 }
 
 .upgradeClose {
@@ -978,7 +1027,8 @@
 
 .upgradeSubtitle {
   color: var(--lc-muted);
-  font-size: 0.84rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .upgradeSubtitle strong {
@@ -987,27 +1037,33 @@
 
 .upgradePlans {
   display: grid;
-  gap: 0.55rem;
+  gap: 0.65rem;
 }
 
 .upgradePlanBtn {
-  border: 1px solid var(--lc-border);
-  background: var(--lc-surface);
-  padding: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
+  padding: 0.86rem 0.9rem;
   text-align: left;
   display: grid;
   gap: 0.25rem;
 }
 
 .upgradePlanBtn span {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--lc-muted);
 }
 
 .upgradePlanBtn strong {
-  font-size: 1rem;
+  font-size: 1.06rem;
+}
+
+.upgradePlanAnnual {
+  border-color: color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%), color-mix(in srgb, var(--lc-accent) 9%, var(--lc-surface) 91%));
 }
 
 .upgradePlanBtn small {
@@ -1018,9 +1074,9 @@
 .upgradePopular {
   justify-self: start;
   font-style: normal;
-  color: var(--lc-accent);
+  color: #0b2616;
   border: 1px solid color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
-  background: color-mix(in srgb, var(--lc-accent) 14%, transparent);
+  background: color-mix(in srgb, var(--lc-accent) 92%, #fff 8%);
   padding: 0.1rem 0.35rem;
   font-size: 0.6rem;
   text-transform: uppercase;
@@ -1030,12 +1086,25 @@
 
 .upgradePlanBtn.isSelected {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
-  background: color-mix(in srgb, var(--lc-accent) 14%, var(--lc-surface) 86%);
+  background: color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent);
 }
 
 .upgradePlanBtn.isSelected small {
   color: #bdeccd;
+}
+
+.upgradeTotal {
+  font-size: 0.94rem;
+  color: var(--lc-text);
+  padding: 0.75rem 0.8rem;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%);
+  border: 1px solid color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border) 62%);
+}
+
+.upgradeTotal strong {
+  color: var(--lc-accent);
 }
 
 .upgradeField {
@@ -1050,7 +1119,7 @@
 .upgradeField input {
   min-height: 2.5rem;
   border: 1px solid var(--lc-border);
-  background: var(--lc-surface-elevated);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%);
   color: var(--lc-text);
   padding: 0 0.65rem;
 }
@@ -1156,6 +1225,52 @@
 
 .infoBanner { background: color-mix(in srgb, var(--lc-surface) 83%, #0d151f 17%); }
 
+.upgradeBenefits {
+  border: 1px solid color-mix(in srgb, var(--lc-border) 72%, transparent);
+  border-radius: 14px;
+  padding: 0.8rem 0.9rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%), color-mix(in srgb, var(--lc-surface) 98%, var(--lc-bg) 2%));
+}
+
+.upgradeBenefits p {
+  color: var(--lc-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.upgradeBenefits ul {
+  list-style: none;
+  display: grid;
+  gap: 0.24rem;
+}
+
+.upgradeBenefits li {
+  font-size: 0.87rem;
+  color: color-mix(in srgb, var(--lc-text) 85%, var(--lc-muted) 15%);
+}
+
+html.light .chartCard {
+  background: linear-gradient(180deg, #ffffff, #fcfdff);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+html.light .quickStatsGrid > div {
+  background: #ffffff;
+}
+
+html.light .upgradeModal {
+  background: linear-gradient(180deg, #ffffff, #f4f8fc);
+  border-color: #cdd9e6;
+}
+
+html.light .upgradeTotal {
+  background: #effbf3;
+  border-color: #a9eac1;
+}
+
 .errorBox {
   margin-top: 0.8rem;
   display: flex;
@@ -1196,18 +1311,14 @@
   }
 
   .playersView {
-    overflow-x: visible;
+    overflow-x: hidden;
   }
 
   .playersView .statsTabsWrap {
-    overflow: visible;
+    overflow: hidden;
   }
 
   .playersTabsViewport {
-    overflow-x: auto !important;
-    overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-x;
     max-width: 100%;
     padding-bottom: 0.1rem;
     scrollbar-width: none;
@@ -1224,6 +1335,16 @@
     flex-wrap: nowrap;
     white-space: nowrap;
     padding-right: 1.35rem;
+  }
+
+  .statsTabs {
+    padding-right: 1.6rem;
+    width: max-content;
+  }
+
+  .playerTabsRail {
+    margin-inline: -0.25rem;
+    padding-inline: 0.25rem;
   }
 
   .playersTopbar h2 {
@@ -1256,6 +1377,8 @@
     min-width: 0;
     width: 100%;
     padding: 0.38rem 0.45rem;
+    border: 0;
+    background: color-mix(in srgb, var(--lc-surface) 97%, transparent);
   }
 
   .lineAdjustDesktop {
@@ -1290,8 +1413,9 @@
     min-width: 4.35rem;
     padding: 0.22rem 0.24rem;
     gap: 0.07rem;
-    border: 1px solid color-mix(in srgb, var(--lc-border) 90%, transparent);
+    border: 0;
     border-radius: 10px;
+    background: color-mix(in srgb, var(--lc-surface) 90%, transparent);
   }
 
   .quickStatsGrid span {
@@ -1315,7 +1439,7 @@
   }
 
   .chartCanvas {
-    min-height: 210px;
+    min-height: 234px;
   }
 
   .chartCard {
@@ -1326,6 +1450,8 @@
 
   .upgradeModal {
     width: 100%;
+    padding: 0.85rem;
+    gap: 0.7rem;
   }
 
   .supportModal {
@@ -1337,6 +1463,9 @@
   }
 }
 
+html.dark .lineAdjustBox strong {
+}
+
 @media (max-width: 620px) {
   .statsTabs :global(.lc-tab-trigger) {
     min-height: 1.72rem;
@@ -1346,6 +1475,77 @@
 
   .quickStatsGrid > div {
     min-width: 4.15rem;
+  }
+
+  .playerRow {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    padding: 0.72rem 0.66rem;
+    border-radius: 12px;
+    border-color: color-mix(in srgb, var(--lc-border) 40%, transparent);
+    background: color-mix(in srgb, var(--lc-surface) 97%, var(--lc-bg) 3%);
+    overflow: visible;
+  }
+
+  .playerMain {
+    gap: 0.5rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-shrink: 1;
+    max-width: calc(100% - 4rem);
+  }
+
+  .playerName {
+    font-size: 0.94rem;
+    max-width: 12.2rem;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .playerMeta {
+    font-size: 0.66rem;
+    max-width: 12.2rem;
+    white-space: normal;
+  }
+
+  .playerLineBlock {
+    flex: 0 0 3.6rem;
+    min-width: 3.6rem;
+    display: grid;
+    justify-items: end;
+    padding: 0.12rem 0.18rem;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--lc-accent) 10%, transparent);
+  }
+
+  .chartCanvas :global(.recharts-cartesian-axis-tick-value) {
+    font-size: 9px;
+  }
+
+  .upgradeBenefits li {
+    font-size: 0.82rem;
+  }
+}
+
+@media (min-width: 900px) {
+  .upgradePlans {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+  }
+
+  .upgradePlanBtn {
+    min-height: 10.4rem;
+    align-content: flex-start;
+  }
+
+  .upgradePlanAnnual {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 24px color-mix(in srgb, var(--lc-accent) 24%, transparent);
   }
 }
 

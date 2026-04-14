@@ -25,7 +25,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   AppShell,
@@ -242,6 +242,8 @@ export function DashboardView() {
     return 'games';
   });
   const [lineAdjustment, setLineAdjustment] = useState(0);
+  const playerTabsRailRef = useRef<HTMLDivElement | null>(null);
+  const playerTabsScrollLeftRef = useRef(0);
 
   const [games, setGames] = useState<Game[]>([]);
   const [playersByGame, setPlayersByGame] = useState<Record<number, Player[]>>({});
@@ -942,6 +944,13 @@ export function DashboardView() {
     }
   }, []);
 
+  useLayoutEffect(() => {
+    if (view !== 'players') return;
+    const rail = playerTabsRailRef.current;
+    if (!rail) return;
+    rail.scrollLeft = playerTabsScrollLeftRef.current;
+  }, [selectedStat, view]);
+
   return (
     <AppShell
       sidebar={(
@@ -950,13 +959,13 @@ export function DashboardView() {
           activeKey={activeSidebarKey}
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
-            <div className={styles.accountSummary}>
+            <button type="button" className={styles.accountSummary} data-close-mobile-sidebar="true" onClick={() => setView('profile')}>
               <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
                 <strong>{profileName}</strong>
                 <span>{profilePlanLabel}</span>
               </div>
-            </div>
+            </button>
           )}
         />
       )}
@@ -966,13 +975,13 @@ export function DashboardView() {
           activeKey={activeSidebarKey}
           onItemClick={(item) => setView(item.key === 'perfil' ? 'profile' : 'games')}
           footer={(
-            <div className={styles.accountSummary}>
+            <button type="button" className={styles.accountSummary} data-close-mobile-sidebar="true" onClick={() => setView('profile')}>
               <div className={styles.accountAvatar}>{profileInitial}</div>
               <div className={styles.accountMeta}>
                 <strong>{profileName}</strong>
                 <span>{profilePlanLabel}</span>
               </div>
-            </div>
+            </button>
           )}
         />
       )}
@@ -1042,17 +1051,19 @@ export function DashboardView() {
                       ) : null}
                       <div className={styles.gameCardTime}>{formatTipoff(game.game_time)}</div>
                       <div className={styles.gameCardTeams}>
-                        <div className={styles.teamBadge}>
-                          {game.away_logo ? <img src={game.away_logo} alt={game.away_team} loading="lazy" /> : shortTeamName(game.away_team)}
+                        <div className={styles.teamColumn}>
+                          <div className={styles.teamBadge}>
+                            {game.away_logo ? <img src={game.away_logo} alt={game.away_team} loading="lazy" /> : shortTeamName(game.away_team)}
+                          </div>
+                          <span>{game.away_team}</span>
                         </div>
                         <div className={styles.gameVs}>X</div>
-                        <div className={styles.teamBadge}>
-                          {game.home_logo ? <img src={game.home_logo} alt={game.home_team} loading="lazy" /> : shortTeamName(game.home_team)}
+                        <div className={styles.teamColumn}>
+                          <div className={styles.teamBadge}>
+                            {game.home_logo ? <img src={game.home_logo} alt={game.home_team} loading="lazy" /> : shortTeamName(game.home_team)}
+                          </div>
+                          <span>{game.home_team}</span>
                         </div>
-                      </div>
-                      <div className={styles.gameMatchup}>
-                        <span>{game.away_team}</span>
-                        <span>{game.home_team}</span>
                       </div>
                       <div className={styles.gameCardDivider} />
                       <div className={`${styles.gameCtaButton} ${locked ? styles.gameCtaLocked : ''}`}>
@@ -1074,8 +1085,14 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <div className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport}`}>
-                    <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow}`}>
+                  <div
+                    ref={playerTabsRailRef}
+                    onScroll={(event) => {
+                      playerTabsScrollLeftRef.current = event.currentTarget.scrollLeft;
+                    }}
+                    className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport} ${styles.playerTabsRail}`}
+                  >
+                    <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow} ${styles.playerTabsList}`}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
                         return (
@@ -1127,10 +1144,11 @@ export function DashboardView() {
                       <div className={`${styles.playerList} technical-grid`}>
                         {players.map((player) => {
                           const line = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.line;
+                          const selectedAvg = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10;
                           return (
                             <button
                               key={player.id}
-                              className={`${styles.playerRow} technical-item`}
+                              className={styles.playerRow}
                               type="button"
                               onClick={() => {
                                 setSelectedPlayerId(player.id);
@@ -1158,6 +1176,8 @@ export function DashboardView() {
                                 </span>
                               </div>
                               <div className={styles.playerLineBlock}>
+                                <small>{selectedStat}</small>
+                                <span>{selectedAvg?.toFixed(1) ?? '—'}</span>
                                 <small>Line</small>
                                 <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                               </div>
@@ -1240,7 +1260,6 @@ export function DashboardView() {
                     <div className={styles.chartHeader}>
                       <p className={styles.chartTitle}>{selectedStat} · {selectedSplit}</p>
                       <div className={styles.chartHeaderBadges}>
-                        <Badge variant="muted">Linha {playerDetailModel.line}</Badge>
                         <Badge variant="muted">Média {playerDetailModel.average ?? '—'}</Badge>
                       </div>
                     </div>
@@ -1292,11 +1311,11 @@ export function DashboardView() {
                                       : 28
                               }
                             >
-                              <LabelList dataKey="value" position="top" fill="var(--lc-text)" fontSize={10} />
+                              <LabelList dataKey="value" position="insideBottom" offset={14} fill="#000000" fontSize={10} />
                               {playerDetailModel.bars.map((bar, index) => (
                                 <Cell
                                   key={`${bar.label}-${index}`}
-                                  fill={bar.tone === 'hit' ? '#26d07c' : bar.tone === 'tie' ? '#8d8d8d' : '#ff6e6e'}
+                                  fill={bar.tone === 'hit' ? '#24e880' : bar.tone === 'tie' ? '#9fa6b2' : '#d7263d'}
                                 />
                               ))}
                             </Bar>
@@ -1509,6 +1528,14 @@ export function DashboardView() {
                     <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
                     <h3>Escolha seu plano</h3>
                     <p className={styles.upgradeSubtitle}>Acesso completo a todos os recursos, com melhor custo no ciclo anual.</p>
+                    <div className={styles.upgradeBenefits}>
+                      <p>Pro inclui</p>
+                      <ul>
+                        <li>Todas as estatísticas liberadas</li>
+                        <li>Todos os jogadores e jogos destravados</li>
+                        <li>Leitura completa para decisões mais rápidas</li>
+                      </ul>
+                    </div>
                     <div className={styles.upgradePlans}>
                       <button
                         type="button"
@@ -1521,7 +1548,7 @@ export function DashboardView() {
                       </button>
                       <button
                         type="button"
-                        className={`${styles.upgradePlanBtn} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
+                        className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
                         onClick={() => setUpgradePlan('annual')}
                       >
                         <span>Anual · Mais vantajoso</span>
@@ -1548,6 +1575,12 @@ export function DashboardView() {
                         maxLength={20}
                       />
                     </label>
+                    <p className={styles.upgradeTotal}>
+                      Total hoje:{' '}
+                      <strong>
+                        {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
+                      </strong>
+                    </p>
                     <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
                       {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
                     </Button>
