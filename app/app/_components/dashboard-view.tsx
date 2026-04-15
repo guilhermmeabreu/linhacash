@@ -1076,9 +1076,7 @@ export function DashboardView() {
 
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
-                  <div
-                    className={styles.statsTabsScroller}
-                  >
+                  <div className={styles.statsTabsScroller}>
                     <TabsList className={styles.statsTabs}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
@@ -1148,10 +1146,6 @@ export function DashboardView() {
                                 <div className={styles.playerIdentity}>
                                   <p className={styles.playerName}>{player.name}</p>
                                   <p className={styles.playerMeta}>{player.position} • {player.team}</p>
-                                  <p className={styles.playerMobileLine}>
-                                    <span>{selectedAvg?.toFixed(1) ?? '—'}</span>
-                                    <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
-                                  </p>
                                 </div>
                               </div>
                               <div className={styles.playerQuickStats}>
@@ -1167,8 +1161,6 @@ export function DashboardView() {
                                 </span>
                               </div>
                               <div className={styles.playerLineBlock}>
-                                <small>{selectedStat}</small>
-                                <span>{selectedAvg?.toFixed(1) ?? '—'}</span>
                                 <small>Line</small>
                                 <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                               </div>
