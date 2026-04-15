@@ -25,7 +25,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   AppShell,
@@ -242,8 +242,6 @@ export function DashboardView() {
     return 'games';
   });
   const [lineAdjustment, setLineAdjustment] = useState(0);
-  const playerTabsRailRef = useRef<HTMLDivElement | null>(null);
-  const playerTabsScrollLeftRef = useRef(0);
 
   const [games, setGames] = useState<Game[]>([]);
   const [playersByGame, setPlayersByGame] = useState<Record<number, Player[]>>({});
@@ -944,13 +942,6 @@ export function DashboardView() {
     }
   }, []);
 
-  useLayoutEffect(() => {
-    if (view !== 'players') return;
-    const rail = playerTabsRailRef.current;
-    if (!rail) return;
-    rail.scrollLeft = playerTabsScrollLeftRef.current;
-  }, [selectedStat, view]);
-
   return (
     <AppShell
       sidebar={(
@@ -1086,13 +1077,9 @@ export function DashboardView() {
               <div className={styles.statsTabsWrap}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
                   <div
-                    ref={playerTabsRailRef}
-                    onScroll={(event) => {
-                      playerTabsScrollLeftRef.current = event.currentTarget.scrollLeft;
-                    }}
-                    className={`${styles.statsTabsScroller} ${styles.playersStatsTabsScroller} ${styles.playersTabsViewport} ${styles.playerTabsRail}`}
+                    className={styles.statsTabsScroller}
                   >
-                    <TabsList className={`${styles.statsTabs} ${styles.playersTabsRow} ${styles.playerTabsList}`}>
+                    <TabsList className={styles.statsTabs}>
                       {STATS.map((stat) => {
                         const locked = isLockedStat(stat, plan);
                         return (
@@ -1162,8 +1149,8 @@ export function DashboardView() {
                                   <p className={styles.playerName}>{player.name}</p>
                                   <p className={styles.playerMeta}>{player.position} • {player.team}</p>
                                   <p className={styles.playerMobileLine}>
-                                    <span>{selectedStat}: {selectedAvg?.toFixed(1) ?? '—'}</span>
-                                    <strong>Line: {line ? Number(line).toFixed(1) : '—'}</strong>
+                                    <span>{selectedAvg?.toFixed(1) ?? '—'}</span>
+                                    <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                   </p>
                                 </div>
                               </div>

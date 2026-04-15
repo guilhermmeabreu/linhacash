@@ -294,43 +294,8 @@
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   touch-action: pan-x;
+  overscroll-behavior-x: contain;
   min-width: 0;
-}
-
-.playersStatsTabsScroller {
-  min-width: 0;
-}
-
-.playersTabsViewport {
-  min-width: 0;
-  padding-bottom: 0.15rem;
-  overflow: hidden;
-  max-width: 100%;
-}
-
-.playersTabsViewport :global(.lc-tabs-list) {
-  width: max-content;
-}
-
-.playersTabsRow {
-  width: max-content;
-}
-
-.playerTabsRail {
-  margin-inline: -0.1rem;
-  padding-inline: 0.1rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  overscroll-behavior-x: auto;
-}
-
-.playerTabsList {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  min-width: max-content;
-  gap: 0.28rem;
 }
 
 .statsTabsScroller::-webkit-scrollbar {
@@ -1338,35 +1303,6 @@ html.light .upgradeTotal {
 
   .playersView .statsTabsWrap {
     overflow: hidden;
-  }
-
-  .playersTabsViewport {
-    max-width: 100%;
-    padding-bottom: 0.1rem;
-    scrollbar-width: none;
-  }
-
-  .playersTabsViewport::-webkit-scrollbar {
-    display: none;
-  }
-
-  .playersTabsViewport .playersTabsRow {
-    width: max-content;
-    min-width: max-content;
-    display: flex;
-    flex-wrap: nowrap;
-    white-space: nowrap;
-    padding-right: 1.35rem;
-  }
-
-  .statsTabs {
-    padding-right: 1.6rem;
-    width: max-content;
-  }
-
-  .playerTabsRail {
-    margin-inline: -0.25rem;
-    padding-inline: 0.25rem;
   }
 
   .playersTopbar h2 {
