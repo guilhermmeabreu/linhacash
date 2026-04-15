@@ -1515,84 +1515,83 @@ export function DashboardView() {
                   <>
                     <div className={styles.upgradeSheet}>
                       <header className={styles.upgradeSheetHeader}>
-                        <p className={styles.upgradeKicker}>Seja Pro</p>
-                        <h3>Desbloqueie a leitura completa para cada decisão da rodada</h3>
-                        <p className={styles.upgradeSubtitle}>Escolha o plano ideal e avance com contexto, linha ajustável e visão total dos jogadores.</p>
+                        <p className={styles.upgradeKicker}>LinhaCash Pro</p>
+                        <h3>SEJA PRO</h3>
+                        <p className={styles.upgradeSubtitle}>Assinatura técnica para leitura completa da rodada NBA.</p>
                       </header>
 
                       <div className={styles.upgradeSheetBody}>
-                        <section className={styles.upgradePlansRow}>
+                        <section className={styles.upgradePriceHighlight}>
+                          <small>{upgradePlan === 'monthly' ? 'Plano Mensal' : upgradePlan === 'annual' ? 'Plano Anual' : 'Pack Playoff'}</small>
+                          <strong>{upgradePlan === 'monthly' ? 'R$24,90/mês' : upgradePlan === 'annual' ? 'R$197/ano' : 'Acesso especial'}</strong>
+                          <p>{upgradePlan === 'monthly' ? '2 dias de teste grátis no mensal.' : upgradePlan === 'annual' ? 'Equivale a R$16,41/mês · melhor custo-benefício.' : 'Compra única para o período decisivo dos playoffs.'}</p>
+                        </section>
+
+                        <section className={styles.upgradePlanSelector}>
                           <button
                             type="button"
-                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanMonthly} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
+                            className={`${styles.upgradePlanChip} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
                             onClick={() => setUpgradePlan('monthly')}
                           >
                             <span>Mensal</span>
-                            <strong>R$24,90/mês</strong>
-                            <small>2 dias de teste grátis no início da assinatura.</small>
                           </button>
                           <button
                             type="button"
-                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
+                            className={`${styles.upgradePlanChip} ${styles.upgradePlanChipAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
                             onClick={() => setUpgradePlan('annual')}
                           >
                             <span>Anual</span>
                             <em className={styles.upgradePopular}>Mais popular</em>
-                            <strong>R$197/ano</strong>
-                            <small>Equivale a R$16,41/mês com melhor custo-benefício.</small>
                           </button>
                           <button
                             type="button"
-                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanPlayoff} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
+                            className={`${styles.upgradePlanChip} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
                             onClick={() => setUpgradePlan('playoff')}
                           >
                             <span>Pack Playoff</span>
-                            <strong>Acesso especial</strong>
-                            <small>Compra única para o período decisivo dos playoffs.</small>
                           </button>
                         </section>
 
-                        <section className={styles.upgradeSecondaryRow}>
-                          <div className={styles.upgradeBenefits}>
-                            <p>Benefícios do Pro</p>
-                            <ul>
-                              <li>Todas as estatísticas liberadas</li>
-                              <li>Todos os jogadores e jogos destravados</li>
-                              <li>Estatísticas avançadas (H2H, L20)</li>
+                        <section className={styles.upgradeBenefits}>
+                          <p>Recursos liberados</p>
+                          <ul>
+                            <li>Todos os jogos da rodada</li>
+                            <li>Todos os jogadores liberados</li>
+                            <li>Estatísticas avançadas (H2H, L20)</li>
                             <li>Ajuste de linha</li>
-                              <li>Suporte prioritário</li>
-                            </ul>
-                          </div>
-                          <div className={styles.upgradeAssistCol}>
-                            <div className={styles.upgradeReferral}>
-                              <p>Código de indicação <small>(opcional)</small></p>
-                              <label className={styles.upgradeField}>
-                                <input
-                                  value={upgradeCode}
-                                  onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
-                                  placeholder="Digite seu código"
-                                  maxLength={20}
-                                />
-                              </label>
-                            </div>
-                            <div className={styles.upgradeSecurity}>
-                              <small>Ambiente seguro</small>
-                              <p>Pagamento processado com checkout oficial e proteção de dados da sua assinatura.</p>
-                            </div>
-                          </div>
+                            <li>Suporte prioritário</li>
+                          </ul>
+                        </section>
+
+                        <section className={styles.upgradeReferral}>
+                          <p>Código de indicação <small>(opcional)</small></p>
+                          <label className={styles.upgradeField}>
+                            <input
+                              value={upgradeCode}
+                              onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                              placeholder="Digite seu código"
+                              maxLength={20}
+                            />
+                          </label>
+                        </section>
+
+                        <section className={styles.upgradeSecurity}>
+                          <small>Pagamento seguro</small>
+                          <p>Checkout oficial com proteção de dados e ativação automática do acesso Pro.</p>
                         </section>
                       </div>
 
                       <footer className={styles.upgradeFooter}>
-                        <p className={styles.upgradeTotal}>
-                          Total hoje:{' '}
-                          <strong>
-                            {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
-                          </strong>
-                        </p>
                         <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
-                          {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
+                          {upgradeLoading ? 'Abrindo checkout...' : 'Assinar agora'}
                         </Button>
+                        <p className={styles.upgradeSupportLine}>
+                          {upgradePlan === 'annual'
+                            ? 'Total hoje: R$197,00'
+                            : upgradePlan === 'monthly'
+                              ? 'Total hoje: R$24,90'
+                              : 'Total hoje: Pack Playoff'}
+                        </p>
                       </footer>
                     </div>
                   </>
