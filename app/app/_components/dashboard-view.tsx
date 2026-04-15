@@ -1168,14 +1168,6 @@ export function DashboardView() {
                                     </div>
                                   </div>
                                 </div>
-                                <div className={styles.playerQuickStats}>
-                                  {PLAYER_ROW_STATS.map((entry) => (
-                                    <span key={`${player.id}-${entry.label}`}>
-                                      <small>{entry.label}</small>
-                                      <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
-                                    </span>
-                                  ))}
-                                </div>
                               </div>
                             </button>
                           );
@@ -1524,12 +1516,12 @@ export function DashboardView() {
                       <div className={styles.upgradePlans}>
                         <button
                           type="button"
-                          className={`${styles.upgradePlanBtn} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
+                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanMonthly} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
                           onClick={() => setUpgradePlan('monthly')}
                         >
                           <span>Mensal</span>
                           <strong>R$24,90/mês</strong>
-                          <small>Comece agora com flexibilidade total.</small>
+                          <small>Flexível para começar agora.</small>
                         </button>
                         <button
                           type="button"
@@ -1543,7 +1535,7 @@ export function DashboardView() {
                         </button>
                         <button
                           type="button"
-                          className={`${styles.upgradePlanBtn} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
+                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanPlayoff} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
                           onClick={() => setUpgradePlan('playoff')}
                         >
                           <span>Pack Playoff</span>
@@ -1559,17 +1551,21 @@ export function DashboardView() {
                             <li>Todas as estatísticas liberadas</li>
                             <li>Todos os jogadores e jogos destravados</li>
                             <li>Leitura completa para decisões mais rápidas</li>
+                            <li>Ajuste de linha para cenários rápidos</li>
+                            <li>Contexto avançado H2H e fase recente</li>
                           </ul>
                         </div>
-                        <label className={styles.upgradeField}>
-                          Código de indicação
-                          <input
-                            value={upgradeCode}
-                            onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
-                            placeholder="Opcional"
-                            maxLength={20}
-                          />
-                        </label>
+                        <div className={styles.upgradeReferral}>
+                          <p>Código de indicação</p>
+                          <label className={styles.upgradeField}>
+                            <input
+                              value={upgradeCode}
+                              onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                              placeholder="Opcional"
+                              maxLength={20}
+                            />
+                          </label>
+                        </div>
                       </aside>
                     </div>
                     <div className={styles.upgradeFooter}>
