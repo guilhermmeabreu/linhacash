@@ -985,7 +985,7 @@
 }
 
 .upgradeModal {
-  width: min(100%, 40rem);
+  width: min(100%, 72rem);
   max-height: min(92vh, 52rem);
   display: grid;
   gap: 0;
@@ -1039,29 +1039,34 @@
 .upgradeSheetHeader {
   display: grid;
   gap: 0.42rem;
-  padding: 1.1rem 1rem 0.95rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--lc-border) 84%, transparent);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 100%, transparent));
+  padding: 1.2rem 1.3rem 0.75rem;
+  border-bottom: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 100%, transparent) 80%);
 }
 
 .upgradeSheetHeader h3 {
-  max-width: 28rem;
-  font-size: clamp(1.34rem, 2.4vw, 1.85rem);
+  max-width: 44rem;
+  font-size: clamp(1.55rem, 2.7vw, 2.2rem);
   letter-spacing: -0.03em;
   line-height: 1.04;
 }
 
 .upgradeSheetBody {
   display: grid;
-  gap: 0.9rem;
-  padding: 0.95rem 1rem;
+  gap: 1rem;
+  padding: 0.2rem 1.3rem 1rem;
   overflow-y: auto;
   min-height: 0;
+  scrollbar-width: none;
 }
 
-.upgradePlanRail {
+.upgradeSheetBody::-webkit-scrollbar {
+  display: none;
+}
+
+.upgradePlansRow {
   display: grid;
-  gap: 0.62rem;
+  gap: 0.72rem;
 }
 
 .upgradePlanBtn {
@@ -1101,18 +1106,23 @@
   border-color: color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
   background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 19%, var(--lc-surface) 81%), color-mix(in srgb, var(--lc-accent) 11%, var(--lc-surface) 89%));
   box-shadow: 0 10px 24px color-mix(in srgb, var(--lc-accent) 18%, transparent);
-  min-height: 9.4rem;
+  min-height: 10.6rem;
 }
 
 .upgradePlanMonthly,
 .upgradePlanPlayoff {
-  min-height: 8rem;
+  min-height: 9rem;
 }
 
 .upgradePlanBtn small {
   color: color-mix(in srgb, var(--lc-text) 70%, var(--lc-muted) 30%);
   font-size: 0.7rem;
   line-height: 1.45;
+}
+
+.upgradeSecondaryRow {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .upgradePopular {
@@ -1365,9 +1375,9 @@
   gap: 0;
 }
 
-.upgradeSidePanel {
+.upgradeAssistCol {
   display: grid;
-  gap: 0.6rem;
+  gap: 0.62rem;
   align-content: start;
 }
 
@@ -1379,11 +1389,27 @@
   background: color-mix(in srgb, var(--lc-surface) 97%, var(--lc-bg) 3%);
 }
 
-.upgradeSupportNote {
-  font-size: 0.68rem;
-  line-height: 1.44;
-  color: color-mix(in srgb, var(--lc-muted) 88%, var(--lc-text) 12%);
+.upgradeSecurity {
+  border: 1px solid color-mix(in srgb, var(--lc-border) 74%, transparent);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%);
+  padding: 0.72rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.upgradeSecurity small {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lc-muted);
+}
+
+.upgradeSecurity p {
   margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--lc-text) 84%, var(--lc-muted) 16%);
 }
 
 html.light .chartCard {
@@ -1417,6 +1443,11 @@ html.light .upgradePlanBtn {
 html.light .upgradePlanAnnual {
   background: linear-gradient(180deg, #e9fcef, #f5fbf8);
   border-color: #8fd3a8;
+}
+
+html.light .upgradeSecurity {
+  background: #f7fafc;
+  border-color: #d8e0e8;
 }
 
 .errorBox {
@@ -1569,11 +1600,16 @@ html.light .upgradePlanAnnual {
 
   .upgradeModal {
     width: 100%;
+    max-width: none;
     max-height: min(92vh, 52rem);
   }
 
   .upgradeSheetHeader {
     padding-right: 1.9rem;
+  }
+
+  .upgradePlansRow {
+    grid-template-columns: 1fr;
   }
 
   .upgradeFooter {
@@ -1655,27 +1691,31 @@ html.dark .lineAdjustBox strong {
     border-radius: 20px;
     animation: upgradeSheetInDesktop 220ms ease-out;
     box-shadow: 0 24px 56px color-mix(in srgb, black 46%, transparent);
+    max-height: min(92vh, 50rem);
   }
 
   .upgradeSheetBody {
-    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-    align-items: start;
-    gap: 1.1rem;
+    gap: 1.05rem;
   }
 
-  .upgradePlanRail {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .upgradePlansRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: stretch;
     gap: 0.82rem;
   }
 
   .upgradePlanAnnual {
-    grid-column: span 2;
-    min-height: 12.4rem;
+    min-height: 12.2rem;
   }
 
   .upgradePlanAnnual strong {
     font-size: 1.34rem;
+  }
+
+  .upgradeSecondaryRow {
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 0.82rem;
   }
 
   .upgradeFooter {
@@ -1687,7 +1727,7 @@ html.dark .lineAdjustBox strong {
   }
 
   .upgradeFooter :global(.lc-btn) {
-    min-width: 16.5rem;
+    min-width: 18rem;
   }
 }
 
