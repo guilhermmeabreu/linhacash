@@ -25,7 +25,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type FocusEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   AppShell,
@@ -849,6 +849,13 @@ export function DashboardView() {
     }
   }, [upgradePlan]);
 
+  const handleReferralInputFocus = useCallback((event: FocusEvent<HTMLInputElement>) => {
+    const input = event.currentTarget;
+    window.setTimeout(() => {
+      input.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' });
+    }, 120);
+  }, []);
+
   const getSplitPctClassName = useCallback((value: string) => {
     const pct = Number.parseInt(value.replace('%', ''), 10);
     if (!Number.isFinite(pct)) return '';
@@ -1558,6 +1565,7 @@ export function DashboardView() {
                             <input
                               value={upgradeCode}
                               onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                              onFocus={handleReferralInputFocus}
                               placeholder="Digite seu código"
                               maxLength={20}
                             />
@@ -1675,6 +1683,7 @@ export function DashboardView() {
                           <input
                             value={upgradeCode}
                             onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                            onFocus={handleReferralInputFocus}
                             placeholder="Digite seu código"
                             maxLength={20}
                           />

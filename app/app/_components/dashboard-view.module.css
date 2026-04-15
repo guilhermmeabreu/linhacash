@@ -1049,6 +1049,7 @@
   width: 100%;
   max-width: 32rem;
   max-height: min(92vh, 48rem);
+  max-height: min(92dvh, 48rem);
   display: grid;
   gap: 0;
   position: relative;
@@ -1060,6 +1061,7 @@
   box-shadow: 0 -10px 26px color-mix(in srgb, black 24%, transparent);
   overflow: hidden;
   animation: upgradeSheetInMobile 220ms ease-out;
+  font-family: var(--lc-font-sans);
 }
 
 .upgradeClose {
@@ -1162,7 +1164,7 @@
   margin: 0;
   font-size: 0.72rem;
   color: color-mix(in srgb, var(--lc-text) 70%, var(--lc-muted) 30%);
-  font-family: var(--lc-font-mono);
+  font-family: var(--lc-font-sans);
 }
 
 .upgradePlanSelector {
@@ -1196,11 +1198,11 @@
 }
 
 .upgradePlanChip span {
-  font-size: 0.58rem;
-  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   font-weight: 800;
-  font-family: var(--lc-font-mono);
+  font-family: var(--lc-font-sans);
 }
 
 .upgradePlanChipAnnual {
@@ -1333,7 +1335,7 @@
   color: var(--lc-text);
   padding: 0 0.72rem;
   border-radius: 8px;
-  font-family: var(--lc-font-mono);
+  font-family: var(--lc-font-sans);
   font-size: 0.78rem;
 }
 
@@ -1509,7 +1511,7 @@
   justify-content: space-between;
   gap: 0.5rem;
   border-bottom: 0;
-  font-family: var(--lc-font-mono);
+  font-family: var(--lc-font-sans);
   background: var(--lc-bg);
   padding: 0.82rem 0.9rem;
 }
@@ -1581,7 +1583,7 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: color-mix(in srgb, var(--lc-muted) 92%, #b7c2cf 8%);
-  font-family: var(--lc-font-mono);
+  font-family: var(--lc-font-sans);
 }
 
 .upgradeSecurity {
@@ -1797,6 +1799,7 @@ html.light .upgradeSecurity {
     width: 100%;
     max-width: none;
     max-height: min(92vh, 52rem);
+    max-height: min(92dvh, 52rem);
   }
 
   .upgradeSheetHeader {
@@ -1806,6 +1809,24 @@ html.light .upgradeSecurity {
   .upgradePlanSelector {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  .upgradePlanChip span {
+    font-size: clamp(0.84rem, 3.6vw, 0.95rem);
+    letter-spacing: 0.03em;
+  }
+
+  .upgradeSheetBody {
+    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(7.5rem + env(safe-area-inset-bottom));
+  }
+
+  .upgradeReferral {
+    scroll-margin-bottom: calc(8rem + env(safe-area-inset-bottom));
+  }
+
+  .upgradeField input {
+    font-size: 16px;
   }
 
   .upgradeFooter {
