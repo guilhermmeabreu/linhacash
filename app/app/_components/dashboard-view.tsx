@@ -1156,16 +1156,16 @@ export function DashboardView() {
 
                               <div className={styles.playerRowDesktop}>
                                 <div className={styles.playerMain}>
-                                  <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
                                   <div className={styles.playerIdentityWrap}>
+                                    <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
                                     <div className={styles.playerIdentity}>
                                       <p className={styles.playerName}>{player.name}</p>
                                       <p className={styles.playerMeta}>{player.position} • {player.team}</p>
                                     </div>
-                                    <div className={styles.playerLineBlock}>
-                                      <small>Line</small>
-                                      <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
-                                    </div>
+                                  </div>
+                                  <div className={styles.playerLineBlock}>
+                                    <small>Line</small>
+                                    <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                   </div>
                                 </div>
                               </div>
@@ -1507,77 +1507,81 @@ export function DashboardView() {
                   </>
                 ) : (
                   <>
-                    <div className={styles.upgradeHeader}>
-                      <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
-                      <h3>Escolha seu plano ideal</h3>
-                      <p className={styles.upgradeSubtitle}>Acesso completo para leitura de props com vantagem no ciclo anual.</p>
-                    </div>
-                    <div className={styles.upgradeBody}>
-                      <div className={styles.upgradePlans}>
-                        <button
-                          type="button"
-                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanMonthly} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
-                          onClick={() => setUpgradePlan('monthly')}
-                        >
-                          <span>Mensal</span>
-                          <strong>R$24,90/mês</strong>
-                          <small>Flexível para começar agora.</small>
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
-                          onClick={() => setUpgradePlan('annual')}
-                        >
-                          <span>Anual</span>
-                          <em className={styles.upgradePopular}>Mais popular</em>
-                          <strong>R$197/ano</strong>
-                          <small>Equivalente a R$16,41/mês com melhor custo-benefício.</small>
-                        </button>
-                        <button
-                          type="button"
-                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanPlayoff} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
-                          onClick={() => setUpgradePlan('playoff')}
-                        >
-                          <span>Pack Playoff</span>
-                          <strong>Acesso especial</strong>
-                          <small>Compra única para foco total no período decisivo.</small>
-                        </button>
+                    <div className={styles.upgradeRebuild}>
+                      <header className={styles.upgradeHero}>
+                        <p className={styles.upgradeKicker}>LinhaCash Pro</p>
+                        <h3>Desbloqueie sua leitura completa da rodada</h3>
+                        <p className={styles.upgradeSubtitle}>Escolha o plano ideal para analisar props com contexto avançado e decisões mais rápidas.</p>
+                      </header>
+
+                      <div className={styles.upgradeBody}>
+                        <section className={styles.upgradePlansPanel}>
+                          <button
+                            type="button"
+                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
+                            onClick={() => setUpgradePlan('annual')}
+                          >
+                            <span>Anual</span>
+                            <em className={styles.upgradePopular}>Mais popular</em>
+                            <strong>R$197/ano</strong>
+                            <small>Economia no ciclo anual · equivalente a R$16,41/mês.</small>
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanMonthly} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
+                            onClick={() => setUpgradePlan('monthly')}
+                          >
+                            <span>Mensal</span>
+                            <strong>R$24,90/mês</strong>
+                            <small>2 dias de teste grátis para começar com segurança.</small>
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.upgradePlanBtn} ${styles.upgradePlanPlayoff} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
+                            onClick={() => setUpgradePlan('playoff')}
+                          >
+                            <span>Pack Playoff</span>
+                            <strong>Acesso especial</strong>
+                            <small>Compra única para o período decisivo dos playoffs.</small>
+                          </button>
+                        </section>
+
+                        <aside className={styles.upgradeSidePanel}>
+                          <div className={styles.upgradeBenefits}>
+                            <p>O que você libera no Pro</p>
+                            <ul>
+                              <li>Todas as estatísticas liberadas</li>
+                              <li>Todos os jogadores e jogos destravados</li>
+                              <li>Leitura completa para decisões mais rápidas</li>
+                              <li>Ajuste de linha</li>
+                              <li>Contexto avançado H2H</li>
+                            </ul>
+                          </div>
+                          <div className={styles.upgradeReferral}>
+                            <p>Código de indicação <small>(opcional)</small></p>
+                            <label className={styles.upgradeField}>
+                              <input
+                                value={upgradeCode}
+                                onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                                placeholder="Digite seu código"
+                                maxLength={20}
+                              />
+                            </label>
+                          </div>
+                        </aside>
                       </div>
 
-                      <aside className={styles.upgradeSidePanel}>
-                        <div className={styles.upgradeBenefits}>
-                          <p>Com o Pro você libera</p>
-                          <ul>
-                            <li>Todas as estatísticas liberadas</li>
-                            <li>Todos os jogadores e jogos destravados</li>
-                            <li>Leitura completa para decisões mais rápidas</li>
-                            <li>Ajuste de linha para cenários rápidos</li>
-                            <li>Contexto avançado H2H e fase recente</li>
-                          </ul>
-                        </div>
-                        <div className={styles.upgradeReferral}>
-                          <p>Código de indicação</p>
-                          <label className={styles.upgradeField}>
-                            <input
-                              value={upgradeCode}
-                              onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
-                              placeholder="Opcional"
-                              maxLength={20}
-                            />
-                          </label>
-                        </div>
-                      </aside>
-                    </div>
-                    <div className={styles.upgradeFooter}>
-                      <p className={styles.upgradeTotal}>
-                        Total hoje:{' '}
-                        <strong>
-                          {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
-                        </strong>
-                      </p>
-                      <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
-                        {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
-                      </Button>
+                      <footer className={styles.upgradeFooter}>
+                        <p className={styles.upgradeTotal}>
+                          Total hoje:{' '}
+                          <strong>
+                            {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
+                          </strong>
+                        </p>
+                        <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
+                          {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
+                        </Button>
+                      </footer>
                     </div>
                   </>
                 )}
