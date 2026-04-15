@@ -985,6 +985,66 @@
   padding: 0;
 }
 
+.upgradeDesktopInline {
+  display: none;
+}
+
+.upgradeCloseInline {
+  position: absolute;
+  top: 0.95rem;
+  right: 0.95rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--lc-border);
+  background: var(--lc-surface-elevated);
+  display: grid;
+  place-items: center;
+}
+
+.upgradeDesktopHeader {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.upgradeDesktopHeader h3 {
+  font-size: clamp(2.3rem, 4.5vw, 3rem);
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+  font-weight: 900;
+}
+
+.upgradeDesktopPro {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.upgradePlansDesktopGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.upgradeDesktopLower {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
+.upgradeDesktopSide {
+  display: grid;
+  gap: 0.8rem;
+  align-content: start;
+}
+
+.upgradeFooterDesktop {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.upgradeFooterDesktop :global(.lc-btn) {
+  width: 100%;
+}
+
 .upgradeModal {
   width: 100%;
   max-width: 32rem;
@@ -1818,20 +1878,22 @@ html.dark .lineAdjustBox strong {
 }
 
 @media (min-width: 900px) {
-  .upgradeOverlay {
-    align-items: center;
-    padding: 1rem;
-  }
-
-  .upgradeModal {
+  .upgradeDesktopInline {
+    display: grid;
+    gap: 1rem;
+    position: relative;
+    margin-top: 1rem;
+    padding: 1.3rem;
     border: 1px solid var(--lc-border);
-    border-radius: 12px;
-    border-top: 1px solid var(--lc-border);
-    animation: upgradeSheetInDesktop 220ms ease-out;
+    background: color-mix(in srgb, var(--lc-surface) 97%, var(--lc-bg) 3%);
   }
 
-  .upgradePriceHighlight strong {
-    font-size: 2.35rem;
+  .upgradeOverlay {
+    display: none;
+  }
+
+  .upgradePlanBtn {
+    min-height: 10.2rem;
   }
 }
 

@@ -1483,77 +1483,163 @@ export function DashboardView() {
           ) : null}
 
           {upgradeOpen ? (
-            <div
-              className={styles.upgradeOverlay}
-              role="dialog"
-              aria-modal="true"
-              aria-label="Assinar plano Pro"
-              onClick={() => setUpgradeOpen(false)}
-            >
-              <Surface className={styles.upgradeModal} onClick={(event) => event.stopPropagation()}>
-                <button type="button" className={styles.upgradeClose} onClick={() => setUpgradeOpen(false)} aria-label="Fechar">
+            <>
+              <Surface className={styles.upgradeDesktopInline}>
+                <button type="button" className={styles.upgradeCloseInline} onClick={() => setUpgradeOpen(false)} aria-label="Fechar">
                   <X size={16} />
                 </button>
+                <header className={styles.upgradeDesktopHeader}>
+                  <p className={styles.upgradeKicker}>Checkout Pro</p>
+                  <h3>SEJA PRO</h3>
+                  <p className={styles.upgradeSubtitle}>Assinatura técnica para leitura completa da rodada NBA.</p>
+                </header>
                 {plan === 'pro' ? (
-                  <div className={styles.upgradeSheet}>
-                    <header className={styles.upgradeSheetHeader}>
-                      <p className={styles.upgradeKicker}>LinhaCash Pro</p>
-                      <h3>PRO ativo</h3>
-                      <p className={styles.upgradeSubtitle}>
-                        {billing?.playoffPackActive
-                          ? 'Plano atual: Pack Playoff ativo.'
-                          : billing?.isPaidPro
-                            ? 'Plano atual: PRO pago ativo.'
-                            : 'Plano atual: PRO ativo.'}
-                      </p>
-                    </header>
-                    <footer className={styles.upgradeFooter}>
-                      {billing?.isPaidPro ? (
-                        <Button size="lg" onClick={handleManageSubscription} disabled={manageLoading}>
-                          {manageLoading ? 'Abrindo portal...' : 'Gerenciar assinatura'}
-                        </Button>
-                      ) : null}
-                    </footer>
+                  <div className={styles.upgradeDesktopPro}>
+                    <p className={styles.upgradeSubtitle}>
+                      {billing?.playoffPackActive
+                        ? 'Plano atual: Pack Playoff ativo.'
+                        : billing?.isPaidPro
+                          ? 'Plano atual: PRO pago ativo.'
+                          : 'Plano atual: PRO ativo.'}
+                    </p>
+                    {billing?.isPaidPro ? (
+                      <Button size="lg" onClick={handleManageSubscription} disabled={manageLoading}>
+                        {manageLoading ? 'Abrindo portal...' : 'Gerenciar assinatura'}
+                      </Button>
+                    ) : null}
                   </div>
                 ) : (
-                  <div className={styles.upgradeSheet}>
-                    <header className={styles.upgradeSheetHeader}>
-                      <p className={styles.upgradeKicker}>LinhaCash Pro</p>
-                      <h3>SEJA PRO</h3>
-                      <p className={styles.upgradeSubtitle}>Assinatura técnica para leitura completa da rodada NBA.</p>
-                    </header>
+                  <>
+                    <section className={styles.upgradePlansDesktopGrid}>
+                      <button type="button" className={`${styles.upgradePlanBtn} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`} onClick={() => setUpgradePlan('monthly')}>
+                        <span>Mensal</span>
+                        <strong>R$24,90/mês</strong>
+                        <small>2 dias de teste grátis no mensal.</small>
+                      </button>
+                      <button type="button" className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`} onClick={() => setUpgradePlan('annual')}>
+                        <span>Anual</span>
+                        <strong>R$197/ano</strong>
+                        <small>Equivale a R$16,41/mês · melhor custo-benefício.</small>
+                        <em className={styles.upgradePopular}>Mais popular</em>
+                      </button>
+                      <button type="button" className={`${styles.upgradePlanBtn} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`} onClick={() => setUpgradePlan('playoff')}>
+                        <span>Pack Playoff</span>
+                        <strong>Acesso especial</strong>
+                        <small>Compra única para o período decisivo dos playoffs.</small>
+                      </button>
+                    </section>
 
-                    <div className={styles.upgradeSheetBody}>
-                      <section className={styles.upgradePlanSelector}>
-                        <label className={`${styles.upgradePlanChip} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}>
-                          <input
-                            type="radio"
-                            name="upgrade-plan"
-                            checked={upgradePlan === 'monthly'}
-                            onChange={() => setUpgradePlan('monthly')}
-                          />
-                          <span>Mensal</span>
-                        </label>
-                        <label className={`${styles.upgradePlanChip} ${styles.upgradePlanChipAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}>
-                          <input
-                            type="radio"
-                            name="upgrade-plan"
-                            checked={upgradePlan === 'annual'}
-                            onChange={() => setUpgradePlan('annual')}
-                          />
-                          <span>Anual</span>
-                          <em className={styles.upgradePopular}>Mais popular</em>
-                        </label>
-                        <label className={`${styles.upgradePlanChip} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}>
-                          <input
-                            type="radio"
-                            name="upgrade-plan"
-                            checked={upgradePlan === 'playoff'}
-                            onChange={() => setUpgradePlan('playoff')}
-                          />
-                          <span>Pack Playoff</span>
-                        </label>
-                      </section>
+                    <section className={styles.upgradeDesktopLower}>
+                      <div className={styles.upgradeBenefits}>
+                        <p>Recursos liberados</p>
+                        <ul className={styles.upgradeBenefitsGrid}>
+                          <li><span>Todos os jogos da rodada</span><ChevronRight size={14} /></li>
+                          <li><span>Todos os jogadores liberados</span><ChevronRight size={14} /></li>
+                          <li><span>Estatísticas avançadas (H2H, L20)</span><ChevronRight size={14} /></li>
+                          <li><span>Ajuste de linha</span><ChevronRight size={14} /></li>
+                          <li><span>Suporte prioritário</span><ChevronRight size={14} /></li>
+                        </ul>
+                      </div>
+                      <div className={styles.upgradeDesktopSide}>
+                        <section className={styles.upgradeReferral}>
+                          <p>Código de indicação <small>(opcional)</small></p>
+                          <label className={styles.upgradeField}>
+                            <input
+                              value={upgradeCode}
+                              onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                              placeholder="Digite seu código"
+                              maxLength={20}
+                            />
+                          </label>
+                        </section>
+                        <section className={styles.upgradeSecurity}>
+                          <small>Segurança</small>
+                          <p>Checkout seguro com confirmação automática de acesso após pagamento.</p>
+                        </section>
+                        <footer className={styles.upgradeFooterDesktop}>
+                          <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
+                            {upgradeLoading ? 'Abrindo checkout...' : 'ASSINAR AGORA'}
+                          </Button>
+                          <p className={styles.upgradeSupportLine}>ECONOMIZE 34% NO PLANO ANUAL</p>
+                        </footer>
+                      </div>
+                    </section>
+                  </>
+                )}
+                {upgradeError ? <p className={styles.upgradeError}>{upgradeError}</p> : null}
+              </Surface>
+
+              <div
+                className={styles.upgradeOverlay}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Assinar plano Pro"
+                onClick={() => setUpgradeOpen(false)}
+              >
+                <Surface className={styles.upgradeModal} onClick={(event) => event.stopPropagation()}>
+                  <button type="button" className={styles.upgradeClose} onClick={() => setUpgradeOpen(false)} aria-label="Fechar">
+                    <X size={16} />
+                  </button>
+                  {plan === 'pro' ? (
+                    <div className={styles.upgradeSheet}>
+                      <header className={styles.upgradeSheetHeader}>
+                        <p className={styles.upgradeKicker}>LinhaCash Pro</p>
+                        <h3>PRO ativo</h3>
+                        <p className={styles.upgradeSubtitle}>
+                          {billing?.playoffPackActive
+                            ? 'Plano atual: Pack Playoff ativo.'
+                            : billing?.isPaidPro
+                              ? 'Plano atual: PRO pago ativo.'
+                              : 'Plano atual: PRO ativo.'}
+                        </p>
+                      </header>
+                      <footer className={styles.upgradeFooter}>
+                        {billing?.isPaidPro ? (
+                          <Button size="lg" onClick={handleManageSubscription} disabled={manageLoading}>
+                            {manageLoading ? 'Abrindo portal...' : 'Gerenciar assinatura'}
+                          </Button>
+                        ) : null}
+                      </footer>
+                    </div>
+                  ) : (
+                    <div className={styles.upgradeSheet}>
+                      <header className={styles.upgradeSheetHeader}>
+                        <p className={styles.upgradeKicker}>LinhaCash Pro</p>
+                        <h3>SEJA PRO</h3>
+                        <p className={styles.upgradeSubtitle}>Assinatura técnica para leitura completa da rodada NBA.</p>
+                      </header>
+
+                      <div className={styles.upgradeSheetBody}>
+                        <section className={styles.upgradePlanSelector}>
+                          <label className={`${styles.upgradePlanChip} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}>
+                            <input
+                              type="radio"
+                              name="upgrade-plan-mobile"
+                              checked={upgradePlan === 'monthly'}
+                              onChange={() => setUpgradePlan('monthly')}
+                            />
+                            <span>Mensal</span>
+                          </label>
+                          <label className={`${styles.upgradePlanChip} ${styles.upgradePlanChipAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}>
+                            <input
+                              type="radio"
+                              name="upgrade-plan-mobile"
+                              checked={upgradePlan === 'annual'}
+                              onChange={() => setUpgradePlan('annual')}
+                            />
+                            <span>Anual</span>
+                            <em className={styles.upgradePopular}>Mais popular</em>
+                          </label>
+                          <label className={`${styles.upgradePlanChip} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}>
+                            <input
+                              type="radio"
+                              name="upgrade-plan-mobile"
+                              checked={upgradePlan === 'playoff'}
+                              onChange={() => setUpgradePlan('playoff')}
+                            />
+                            <span>Pack Playoff</span>
+                          </label>
+                        </section>
 
                       <section className={styles.upgradePriceHighlight}>
                         <small>{upgradePlan === 'monthly' ? 'PLANO MENSAL PRO' : upgradePlan === 'annual' ? 'PLANO ANUAL PRO' : 'PACK PLAYOFF'}</small>
@@ -1583,21 +1669,20 @@ export function DashboardView() {
                           />
                         </label>
                       </section>
-                    </div>
+                      </div>
 
-                    <footer className={styles.upgradeFooter}>
-                      <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
-                        {upgradeLoading ? 'Abrindo checkout...' : 'ASSINAR AGORA'}
-                      </Button>
-                      <p className={styles.upgradeSupportLine}>
-                        {upgradePlan === 'annual' ? 'ECONOMIZE 34% NO PLANO ANUAL' : 'ECONOMIZE 34% NO PLANO ANUAL'}
-                      </p>
-                    </footer>
-                  </div>
-                )}
-                {upgradeError ? <p className={styles.upgradeError}>{upgradeError}</p> : null}
-              </Surface>
-            </div>
+                      <footer className={styles.upgradeFooter}>
+                        <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
+                          {upgradeLoading ? 'Abrindo checkout...' : 'ASSINAR AGORA'}
+                        </Button>
+                        <p className={styles.upgradeSupportLine}>ECONOMIZE 34% NO PLANO ANUAL</p>
+                      </footer>
+                    </div>
+                  )}
+                  {upgradeError ? <p className={styles.upgradeError}>{upgradeError}</p> : null}
+                </Surface>
+              </div>
+            </>
           ) : null}
 
           {supportSurface ? (
