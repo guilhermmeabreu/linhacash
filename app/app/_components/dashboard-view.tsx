@@ -1157,9 +1157,15 @@ export function DashboardView() {
                               <div className={styles.playerRowDesktop}>
                                 <div className={styles.playerMain}>
                                   <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
-                                  <div className={styles.playerIdentity}>
-                                    <p className={styles.playerName}>{player.name}</p>
-                                    <p className={styles.playerMeta}>{player.position} • {player.team}</p>
+                                  <div className={styles.playerIdentityWrap}>
+                                    <div className={styles.playerIdentity}>
+                                      <p className={styles.playerName}>{player.name}</p>
+                                      <p className={styles.playerMeta}>{player.position} • {player.team}</p>
+                                    </div>
+                                    <div className={styles.playerLineBlock}>
+                                      <small>Line</small>
+                                      <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
+                                    </div>
                                   </div>
                                 </div>
                                 <div className={styles.playerQuickStats}>
@@ -1169,14 +1175,6 @@ export function DashboardView() {
                                       <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
                                     </span>
                                   ))}
-                                  <span className={styles.playerQuickStatLine}>
-                                    <small>LINE</small>
-                                    <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
-                                  </span>
-                                </div>
-                                <div className={styles.playerLineBlock}>
-                                  <small>Line</small>
-                                  <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                 </div>
                               </div>
                             </button>
@@ -1517,65 +1515,74 @@ export function DashboardView() {
                   </>
                 ) : (
                   <>
-                    <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
-                    <h3>Escolha seu plano</h3>
-                    <p className={styles.upgradeSubtitle}>Acesso completo a todos os recursos, com melhor custo no ciclo anual.</p>
-                    <div className={styles.upgradeBenefits}>
-                      <p>Pro inclui</p>
-                      <ul>
-                        <li>Todas as estatísticas liberadas</li>
-                        <li>Todos os jogadores e jogos destravados</li>
-                        <li>Leitura completa para decisões mais rápidas</li>
-                      </ul>
+                    <div className={styles.upgradeHeader}>
+                      <p className={styles.upgradeKicker}>Desbloquear LinhaCash Pro</p>
+                      <h3>Escolha seu plano ideal</h3>
+                      <p className={styles.upgradeSubtitle}>Acesso completo para leitura de props com vantagem no ciclo anual.</p>
                     </div>
-                    <div className={styles.upgradePlans}>
-                      <button
-                        type="button"
-                        className={`${styles.upgradePlanBtn} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
-                        onClick={() => setUpgradePlan('monthly')}
-                      >
-                        <span>Mensal</span>
-                        <strong>R$24,90/mês</strong>
-                        <small>Flexível para começar</small>
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
-                        onClick={() => setUpgradePlan('annual')}
-                      >
-                        <span>Anual · Mais vantajoso</span>
-                        <em className={styles.upgradePopular}>Mais popular</em>
-                        <strong>R$197/ano</strong>
-                        <small>Equivalente a R$16,41/mês · desconto no ciclo anual</small>
-                      </button>
-                      <button
-                        type="button"
-                        className={`${styles.upgradePlanBtn} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
-                        onClick={() => setUpgradePlan('playoff')}
-                      >
-                        <span>Pack Playoff</span>
-                        <strong>Acesso especial</strong>
-                        <small>Compra única para o período de playoffs</small>
-                      </button>
+                    <div className={styles.upgradeBody}>
+                      <div className={styles.upgradePlans}>
+                        <button
+                          type="button"
+                          className={`${styles.upgradePlanBtn} ${upgradePlan === 'monthly' ? styles.isSelected : ''}`}
+                          onClick={() => setUpgradePlan('monthly')}
+                        >
+                          <span>Mensal</span>
+                          <strong>R$24,90/mês</strong>
+                          <small>Comece agora com flexibilidade total.</small>
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.upgradePlanBtn} ${styles.upgradePlanAnnual} ${upgradePlan === 'annual' ? styles.isSelected : ''}`}
+                          onClick={() => setUpgradePlan('annual')}
+                        >
+                          <span>Anual</span>
+                          <em className={styles.upgradePopular}>Mais popular</em>
+                          <strong>R$197/ano</strong>
+                          <small>Equivalente a R$16,41/mês com melhor custo-benefício.</small>
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.upgradePlanBtn} ${upgradePlan === 'playoff' ? styles.isSelected : ''}`}
+                          onClick={() => setUpgradePlan('playoff')}
+                        >
+                          <span>Pack Playoff</span>
+                          <strong>Acesso especial</strong>
+                          <small>Compra única para foco total no período decisivo.</small>
+                        </button>
+                      </div>
+
+                      <aside className={styles.upgradeSidePanel}>
+                        <div className={styles.upgradeBenefits}>
+                          <p>Com o Pro você libera</p>
+                          <ul>
+                            <li>Todas as estatísticas liberadas</li>
+                            <li>Todos os jogadores e jogos destravados</li>
+                            <li>Leitura completa para decisões mais rápidas</li>
+                          </ul>
+                        </div>
+                        <label className={styles.upgradeField}>
+                          Código de indicação
+                          <input
+                            value={upgradeCode}
+                            onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
+                            placeholder="Opcional"
+                            maxLength={20}
+                          />
+                        </label>
+                      </aside>
                     </div>
-                    <label className={styles.upgradeField}>
-                      Código de indicação
-                      <input
-                        value={upgradeCode}
-                        onChange={(event) => setUpgradeCode(event.target.value.toUpperCase())}
-                        placeholder="Opcional"
-                        maxLength={20}
-                      />
-                    </label>
-                    <p className={styles.upgradeTotal}>
-                      Total hoje:{' '}
-                      <strong>
-                        {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
-                      </strong>
-                    </p>
-                    <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
-                      {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
-                    </Button>
+                    <div className={styles.upgradeFooter}>
+                      <p className={styles.upgradeTotal}>
+                        Total hoje:{' '}
+                        <strong>
+                          {upgradePlan === 'monthly' ? 'R$24,90' : upgradePlan === 'annual' ? 'R$197,00' : 'Pack Playoff'}
+                        </strong>
+                      </p>
+                      <Button size="lg" onClick={startCheckout} disabled={upgradeLoading}>
+                        {upgradeLoading ? 'Abrindo checkout...' : 'Continuar para pagamento'}
+                      </Button>
+                    </div>
                   </>
                 )}
                 {upgradeError ? <p className={styles.upgradeError}>{upgradeError}</p> : null}

@@ -451,6 +451,13 @@
   gap: 0.12rem;
 }
 
+.playerIdentityWrap {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.72rem;
+}
+
 .avatar {
   width: 2rem;
   height: 2rem;
@@ -487,12 +494,14 @@
 }
 
 .playerLineBlock {
-  text-align: right;
-  min-width: 3.4rem;
-  flex: 0 0 3.4rem;
+  text-align: left;
+  min-width: 3.45rem;
+  flex: 0 0 auto;
   display: grid;
-  justify-items: end;
+  justify-items: start;
   gap: 0.08rem;
+  padding-left: 0.72rem;
+  border-left: 1px solid color-mix(in srgb, var(--lc-border) 80%, transparent);
 }
 
 .playerLineBlock small {
@@ -511,7 +520,7 @@
 
 .playerQuickStats {
   display: none;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 0.3rem;
   flex: 1;
   min-width: 0;
@@ -544,10 +553,6 @@
   font-size: 0.92rem;
   font-family: var(--lc-font-mono);
   line-height: 1;
-}
-
-.playerQuickStatLine strong {
-  color: var(--lc-accent);
 }
 
 .detailTabsRow {
@@ -1012,14 +1017,17 @@
 }
 
 .upgradeModal {
-  width: min(100%, 42rem);
+  width: min(100%, 58rem);
   display: grid;
-  gap: 0.95rem;
+  gap: 1rem;
   position: relative;
-  border-radius: 18px;
-  border-color: color-mix(in srgb, var(--lc-border) 70%, var(--lc-accent) 30%);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%), color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%));
-  padding: 1.05rem;
+  border-radius: 22px;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 65%, var(--lc-accent) 35%);
+  background:
+    radial-gradient(circle at 88% 0%, color-mix(in srgb, var(--lc-accent) 12%, transparent), transparent 42%),
+    linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%), color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%));
+  padding: 1.25rem;
+  box-shadow: 0 24px 56px color-mix(in srgb, var(--lc-bg) 48%, transparent);
 }
 
 .upgradeClose {
@@ -1052,6 +1060,17 @@
   color: var(--lc-text);
 }
 
+.upgradeHeader {
+  display: grid;
+  gap: 0.34rem;
+  padding-right: 2.1rem;
+}
+
+.upgradeBody {
+  display: grid;
+  gap: 0.9rem;
+}
+
 .upgradePlans {
   display: grid;
   gap: 0.65rem;
@@ -1059,12 +1078,19 @@
 
 .upgradePlanBtn {
   border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
-  padding: 0.86rem 0.9rem;
+  border-radius: 16px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%), color-mix(in srgb, var(--lc-surface-elevated) 87%, var(--lc-bg) 13%));
+  padding: 0.95rem 0.94rem;
   text-align: left;
   display: grid;
-  gap: 0.25rem;
+  gap: 0.3rem;
+  position: relative;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.upgradePlanBtn:hover {
+  border-color: color-mix(in srgb, var(--lc-accent) 40%, var(--lc-border) 60%);
+  transform: translateY(-1px);
 }
 
 .upgradePlanBtn span {
@@ -1075,7 +1101,7 @@
 }
 
 .upgradePlanBtn strong {
-  font-size: 1.06rem;
+  font-size: 1.14rem;
 }
 
 .upgradePlanAnnual {
@@ -1085,26 +1111,28 @@
 
 .upgradePlanBtn small {
   color: color-mix(in srgb, var(--lc-text) 70%, var(--lc-muted) 30%);
-  font-size: 0.7rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
 }
 
 .upgradePopular {
-  justify-self: start;
+  justify-self: end;
   font-style: normal;
   color: #0b2616;
   border: 1px solid color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
   background: color-mix(in srgb, var(--lc-accent) 92%, #fff 8%);
-  padding: 0.1rem 0.35rem;
+  padding: 0.14rem 0.44rem;
   font-size: 0.6rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 800;
+  border-radius: 999px;
 }
 
 .upgradePlanBtn.isSelected {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
   background: color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent), 0 12px 24px color-mix(in srgb, var(--lc-accent) 16%, transparent);
 }
 
 .upgradePlanBtn.isSelected small {
@@ -1112,12 +1140,13 @@
 }
 
 .upgradeTotal {
-  font-size: 0.94rem;
+  font-size: 0.96rem;
   color: var(--lc-text);
-  padding: 0.75rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.76rem 0.82rem;
+  border-radius: 14px;
   background: color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%);
   border: 1px solid color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border) 62%);
+  margin: 0;
 }
 
 .upgradeTotal strong {
@@ -1134,11 +1163,12 @@
 }
 
 .upgradeField input {
-  min-height: 2.5rem;
+  min-height: 2.6rem;
   border: 1px solid var(--lc-border);
   background: color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%);
   color: var(--lc-text);
-  padding: 0 0.65rem;
+  padding: 0 0.75rem;
+  border-radius: 12px;
 }
 
 .upgradeError {
@@ -1245,7 +1275,7 @@
 .upgradeBenefits {
   border: 1px solid color-mix(in srgb, var(--lc-border) 72%, transparent);
   border-radius: 14px;
-  padding: 0.8rem 0.9rem;
+  padding: 0.85rem 0.9rem;
   background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%), color-mix(in srgb, var(--lc-surface) 98%, var(--lc-bg) 2%));
 }
 
@@ -1267,6 +1297,18 @@
 .upgradeBenefits li {
   font-size: 0.87rem;
   color: color-mix(in srgb, var(--lc-text) 85%, var(--lc-muted) 15%);
+  line-height: 1.45;
+}
+
+.upgradeSidePanel {
+  display: grid;
+  gap: 0.72rem;
+  align-content: start;
+}
+
+.upgradeFooter {
+  display: grid;
+  gap: 0.7rem;
 }
 
 html.light .chartCard {
@@ -1438,8 +1480,12 @@ html.light .upgradeTotal {
 
   .upgradeModal {
     width: 100%;
-    padding: 0.85rem;
+    padding: 0.9rem;
     gap: 0.7rem;
+  }
+
+  .upgradeHeader {
+    padding-right: 1.9rem;
   }
 
   .supportModal {
@@ -1503,19 +1549,34 @@ html.dark .lineAdjustBox strong {
 }
 
 @media (min-width: 900px) {
+  .upgradeBody {
+    grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 0.95rem;
+  }
+
   .upgradePlans {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     align-items: stretch;
   }
 
   .upgradePlanBtn {
-    min-height: 10.4rem;
+    min-height: 11.2rem;
     align-content: flex-start;
   }
 
   .upgradePlanAnnual {
     transform: translateY(-4px);
     box-shadow: 0 14px 24px color-mix(in srgb, var(--lc-accent) 24%, transparent);
+  }
+
+  .upgradeFooter {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .upgradeFooter :global(.lc-btn) {
+    min-width: 16.5rem;
   }
 }
 
@@ -1526,9 +1587,9 @@ html.dark .lineAdjustBox strong {
 
   .playerRowDesktop {
     display: grid;
-    grid-template-columns: clamp(220px, 22vw, 300px) minmax(0, 1fr) 72px;
+    grid-template-columns: clamp(260px, 28vw, 360px) minmax(0, 1fr);
     align-items: center;
-    column-gap: 0.34rem;
+    column-gap: 0.48rem;
   }
 
   .playerMain {
@@ -1539,9 +1600,6 @@ html.dark .lineAdjustBox strong {
     display: grid;
   }
 
-  .playerLineBlock {
-    display: none;
-  }
 }
 
 @media (min-width: 980px) {

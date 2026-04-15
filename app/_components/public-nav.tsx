@@ -9,7 +9,7 @@ export function PublicNav() {
         <LinhaCashLogo href="/" ariaLabel="LinhaCash home" />
         <nav className="lc-public-actions">
           <ThemeToggle compact />
-          <Link href="/signup">
+          <Link href="/login">
             <Button size="sm">Começar grátis</Button>
           </Link>
         </nav>
