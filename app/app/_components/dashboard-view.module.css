@@ -434,10 +434,12 @@
 }
 
 .playerMain {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: space-between;
+  gap: 0.72rem;
   min-width: 0;
+  width: 100%;
   flex: 1 1 auto;
 }
 
@@ -449,6 +451,14 @@
   min-width: 0;
   display: grid;
   gap: 0.12rem;
+}
+
+.playerIdentityWrap {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.58rem;
+  flex: 1 1 auto;
 }
 
 .avatar {
@@ -488,11 +498,14 @@
 
 .playerLineBlock {
   text-align: right;
-  min-width: 3.4rem;
-  flex: 0 0 3.4rem;
+  min-width: 3.6rem;
+  flex: 0 0 3.6rem;
   display: grid;
   justify-items: end;
+  align-items: end;
   gap: 0.08rem;
+  padding-left: 0.38rem;
+  white-space: nowrap;
 }
 
 .playerLineBlock small {
@@ -507,47 +520,6 @@
   font-family: var(--lc-font-mono);
   color: var(--lc-accent);
   font-size: 1.24rem;
-}
-
-.playerQuickStats {
-  display: none;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 0.3rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.playerQuickStats span {
-  display: grid;
-  gap: 0.08rem;
-  min-height: 1.7rem;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid color-mix(in srgb, var(--lc-border) 84%, transparent);
-  background: color-mix(in srgb, var(--lc-surface-elevated) 80%, var(--lc-bg) 20%);
-  padding: 0.24rem 0.32rem;
-  text-align: center;
-  align-content: center;
-  justify-items: center;
-}
-
-.playerQuickStats span small {
-  color: color-mix(in srgb, var(--lc-muted) 90%, #a3abb7 10%);
-  font-size: 0.56rem;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  font-weight: 800;
-}
-
-.playerQuickStats span strong {
-  color: var(--lc-text);
-  font-size: 0.92rem;
-  font-family: var(--lc-font-mono);
-  line-height: 1;
-}
-
-.playerQuickStatLine strong {
-  color: var(--lc-accent);
 }
 
 .detailTabsRow {
@@ -1005,106 +977,238 @@
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: color-mix(in srgb, var(--lc-bg) 70%, black 30%);
-  display: grid;
-  place-items: center;
-  padding: 1rem;
+  background: color-mix(in srgb, var(--lc-bg) 78%, black 22%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
 }
 
 .upgradeModal {
-  width: min(100%, 42rem);
+  width: min(100%, 34rem);
+  max-height: min(92vh, 52rem);
   display: grid;
-  gap: 0.95rem;
+  gap: 0;
   position: relative;
-  border-radius: 18px;
-  border-color: color-mix(in srgb, var(--lc-border) 70%, var(--lc-accent) 30%);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 95%, var(--lc-bg) 5%), color-mix(in srgb, var(--lc-surface-elevated) 90%, var(--lc-bg) 10%));
-  padding: 1.05rem;
+  border-radius: 8px 8px 0 0;
+  border: 1px solid color-mix(in srgb, var(--lc-border) 58%, transparent);
+  background:
+    radial-gradient(circle at 8% 0%, color-mix(in srgb, var(--lc-accent) 11%, transparent), transparent 40%),
+    linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 94%, var(--lc-bg) 6%), color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%));
+  box-shadow: 0 -8px 20px color-mix(in srgb, black 24%, transparent);
+  overflow: hidden;
+  animation: upgradeSheetInMobile 220ms ease-out;
 }
 
 .upgradeClose {
   position: absolute;
-  top: 0.6rem;
-  right: 0.6rem;
-  width: 1.85rem;
-  height: 1.85rem;
+  top: 0.84rem;
+  right: 0.84rem;
+  width: 2rem;
+  height: 2rem;
   border: 1px solid var(--lc-border);
-  background: var(--lc-surface-elevated);
+  background: color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%);
   display: grid;
   place-items: center;
+  z-index: 2;
 }
 
 .upgradeKicker {
   color: var(--lc-accent);
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   text-transform: uppercase;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.12em;
   font-weight: 800;
 }
 
 .upgradeSubtitle {
   color: var(--lc-muted);
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.83rem;
+  line-height: 1.56;
 }
 
 .upgradeSubtitle strong {
   color: var(--lc-text);
 }
 
-.upgradePlans {
+.upgradeSheet {
   display: grid;
-  gap: 0.65rem;
+  min-height: 0;
+}
+
+.upgradeSheetHeader {
+  display: grid;
+  gap: 0.42rem;
+  padding: 1.25rem 1.25rem 0.6rem;
+  border-bottom: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 92%, var(--lc-bg) 8%), color-mix(in srgb, var(--lc-surface) 100%, transparent) 80%);
+}
+
+.upgradeSheetHeader h3 {
+  max-width: 100%;
+  font-size: clamp(2rem, 6.5vw, 2.4rem);
+  letter-spacing: -0.02em;
+  line-height: 1.04;
+  font-weight: 900;
+}
+
+.upgradeSheetBody {
+  display: grid;
+  gap: 1.7rem;
+  padding: 0.5rem 1.25rem 1.2rem;
+  overflow-y: auto;
+  min-height: 0;
+  scrollbar-width: none;
+}
+
+.upgradeSheetBody::-webkit-scrollbar {
+  display: none;
+}
+
+.upgradePlansRow {
+  display: grid;
+  gap: 1rem;
+}
+
+.upgradePriceHighlight {
+  display: grid;
+  gap: 0.46rem;
+  border: 0;
+  padding: 0.12rem 0;
+  background: transparent;
+}
+
+.upgradePriceHighlight small {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lc-muted);
+  font-weight: 800;
+}
+
+.upgradePriceHighlight strong {
+  font-size: 2.05rem;
+  line-height: 0.98;
+  font-family: var(--lc-font-mono);
+}
+
+.upgradePriceHighlight p {
+  margin: 0;
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--lc-text) 78%, var(--lc-muted) 22%);
+}
+
+.upgradePlanSelector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.upgradePlanChip {
+  border: 0;
+  background: transparent;
+  min-height: 2rem;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.14rem;
+  text-align: center;
+  padding: 0.22rem 0.18rem;
+  opacity: 0.65;
+  transition: opacity 0.2s ease, color 0.2s ease;
+}
+
+.upgradePlanChip span {
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+.upgradePlanChipAnnual {
+  background: transparent;
 }
 
 .upgradePlanBtn {
   border: 1px solid color-mix(in srgb, var(--lc-border) 82%, transparent);
   border-radius: 14px;
-  background: color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%);
-  padding: 0.86rem 0.9rem;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%), color-mix(in srgb, var(--lc-surface-elevated) 87%, var(--lc-bg) 13%));
+  padding: 0.92rem;
   text-align: left;
   display: grid;
-  gap: 0.25rem;
+  gap: 0.28rem;
+  position: relative;
+  transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  min-height: 8.2rem;
+  align-content: start;
+}
+
+.upgradePlanBtn:hover {
+  border-color: color-mix(in srgb, var(--lc-accent) 40%, var(--lc-border) 60%);
+  transform: translateY(-1px);
 }
 
 .upgradePlanBtn span {
-  font-size: 0.64rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.11em;
   color: var(--lc-muted);
+  font-weight: 800;
 }
 
 .upgradePlanBtn strong {
-  font-size: 1.06rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  font-family: var(--lc-font-mono);
 }
 
 .upgradePlanAnnual {
   border-color: color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%), color-mix(in srgb, var(--lc-accent) 9%, var(--lc-surface) 91%));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 19%, var(--lc-surface) 81%), color-mix(in srgb, var(--lc-accent) 11%, var(--lc-surface) 89%));
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--lc-accent) 18%, transparent);
+  min-height: 10.6rem;
+}
+
+.upgradePlanMonthly,
+.upgradePlanPlayoff {
+  min-height: 9rem;
 }
 
 .upgradePlanBtn small {
   color: color-mix(in srgb, var(--lc-text) 70%, var(--lc-muted) 30%);
   font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.upgradeSecondaryRow {
+  display: grid;
+  gap: 0.75rem;
 }
 
 .upgradePopular {
-  justify-self: start;
+  justify-self: center;
   font-style: normal;
   color: #0b2616;
-  border: 1px solid color-mix(in srgb, var(--lc-accent) 50%, var(--lc-border) 50%);
+  border: 0;
   background: color-mix(in srgb, var(--lc-accent) 92%, #fff 8%);
-  padding: 0.1rem 0.35rem;
-  font-size: 0.6rem;
+  padding: 0.14rem 0.48rem;
+  font-size: 0.52rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 800;
+  border-radius: 999px;
 }
 
 .upgradePlanBtn.isSelected {
   border-color: color-mix(in srgb, var(--lc-accent) 44%, var(--lc-border) 56%);
   background: color-mix(in srgb, var(--lc-accent) 18%, var(--lc-surface) 82%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lc-accent) 35%, transparent), 0 8px 20px color-mix(in srgb, var(--lc-accent) 18%, transparent);
+}
+
+.upgradePlanChip.isSelected {
+  opacity: 1;
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--lc-accent) 74%, transparent);
+  color: var(--lc-text);
 }
 
 .upgradePlanBtn.isSelected small {
@@ -1112,38 +1216,73 @@
 }
 
 .upgradeTotal {
-  font-size: 0.94rem;
+  font-size: 0.82rem;
   color: var(--lc-text);
-  padding: 0.75rem 0.8rem;
-  border-radius: 12px;
+  padding: 0.68rem 0.72rem;
+  border-radius: 10px;
   background: color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%);
   border: 1px solid color-mix(in srgb, var(--lc-accent) 38%, var(--lc-border) 62%);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
 }
 
 .upgradeTotal strong {
   color: var(--lc-accent);
+  font-size: 1rem;
+  font-family: var(--lc-font-mono);
 }
 
 .upgradeField {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.3rem;
   color: var(--lc-muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.05em;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .upgradeField input {
-  min-height: 2.5rem;
+  min-height: 2.6rem;
   border: 1px solid var(--lc-border);
   background: color-mix(in srgb, var(--lc-surface-elevated) 88%, var(--lc-bg) 12%);
   color: var(--lc-text);
-  padding: 0 0.65rem;
+  padding: 0 0.75rem;
+  border-radius: 10px;
+}
+
+.upgradeField input::placeholder {
+  color: color-mix(in srgb, var(--lc-muted) 90%, #8d95a3 10%);
 }
 
 .upgradeError {
   color: #ff9e9e;
   font-size: 0.82rem;
+  padding-inline: 1rem;
+  padding-bottom: 0.6rem;
+}
+
+@keyframes upgradeSheetInMobile {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes upgradeSheetInDesktop {
+  from {
+    transform: translateY(8px) scale(0.985);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
 }
 
 .supportSuccess {
@@ -1243,30 +1382,128 @@
 .infoBanner { background: color-mix(in srgb, var(--lc-surface) 83%, #0d151f 17%); }
 
 .upgradeBenefits {
-  border: 1px solid color-mix(in srgb, var(--lc-border) 72%, transparent);
-  border-radius: 14px;
-  padding: 0.8rem 0.9rem;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--lc-accent) 10%, var(--lc-surface) 90%), color-mix(in srgb, var(--lc-surface) 98%, var(--lc-bg) 2%));
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
 }
 
 .upgradeBenefits p {
   color: var(--lc-muted);
-  font-size: 0.72rem;
+  font-size: 0.64rem;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.11em;
   font-weight: 800;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.45rem;
 }
 
 .upgradeBenefits ul {
   list-style: none;
   display: grid;
-  gap: 0.24rem;
+  gap: 0.48rem;
 }
 
 .upgradeBenefits li {
-  font-size: 0.87rem;
+  font-size: 0.78rem;
   color: color-mix(in srgb, var(--lc-text) 85%, var(--lc-muted) 15%);
+  line-height: 1.4;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.upgradeBenefits li::before {
+  content: '';
+  width: 0.36rem;
+  height: 0.36rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--lc-accent) 75%, #9ce2b8 25%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--lc-accent) 16%, transparent);
+  flex: 0 0 auto;
+}
+
+.upgradeReferral {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  display: grid;
+  gap: 0.36rem;
+}
+
+.upgradeReferral p {
+  margin: 0;
+  color: color-mix(in srgb, var(--lc-muted) 88%, var(--lc-text) 12%);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+}
+
+.upgradeReferral p small {
+  font-size: 0.64rem;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--lc-text) 64%, var(--lc-muted) 36%);
+}
+
+.upgradeReferral .upgradeField {
+  gap: 0;
+}
+
+.upgradeAssistCol {
+  display: grid;
+  gap: 0.62rem;
+  align-content: start;
+}
+
+.upgradeFooter {
+  display: grid;
+  gap: 0.62rem;
+  padding: 0.9rem 1rem calc(1rem + env(safe-area-inset-bottom));
+  border-top: 0;
+  background: transparent;
+}
+
+.upgradeFooter :global(.lc-btn) {
+  min-height: 2.45rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.upgradeSupportLine {
+  margin: 0;
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--lc-muted);
+}
+
+.upgradeSecurity {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.upgradeSecurity small {
+  font-size: 0.54rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lc-muted);
+}
+
+.upgradeSecurity p {
+  margin: 0;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--lc-text) 84%, var(--lc-muted) 16%);
 }
 
 html.light .chartCard {
@@ -1286,6 +1523,25 @@ html.light .upgradeModal {
 html.light .upgradeTotal {
   background: #effbf3;
   border-color: #a9eac1;
+}
+
+html.light .upgradeReferral {
+  background: transparent;
+  border-color: transparent;
+}
+
+html.light .upgradePlanBtn {
+  background: linear-gradient(180deg, #ffffff, #f6f9fc);
+}
+
+html.light .upgradePlanAnnual {
+  background: transparent;
+  border-color: transparent;
+}
+
+html.light .upgradeSecurity {
+  background: transparent;
+  border-color: transparent;
 }
 
 .errorBox {
@@ -1438,8 +1694,25 @@ html.light .upgradeTotal {
 
   .upgradeModal {
     width: 100%;
-    padding: 0.85rem;
-    gap: 0.7rem;
+    max-width: none;
+    max-height: min(92vh, 52rem);
+  }
+
+  .upgradeSheetHeader {
+    padding-right: 1.9rem;
+  }
+
+  .upgradePlanSelector {
+    grid-template-columns: 1fr;
+  }
+
+  .upgradeFooter {
+    position: sticky;
+    bottom: -0.95rem;
+    margin-inline: -0.95rem;
+    padding: 0.72rem 0.95rem calc(0.95rem + env(safe-area-inset-bottom));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--lc-surface) 80%, transparent), color-mix(in srgb, var(--lc-surface) 96%, var(--lc-bg) 4%) 36%);
+    border-top: 0;
   }
 
   .supportModal {
@@ -1503,45 +1776,61 @@ html.dark .lineAdjustBox strong {
 }
 
 @media (min-width: 900px) {
-  .upgradePlans {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: stretch;
+  .upgradeOverlay {
+    align-items: center;
+    padding: 1rem;
   }
 
-  .upgradePlanBtn {
-    min-height: 10.4rem;
-    align-content: flex-start;
+  .upgradeModal {
+    border-radius: 8px;
+    animation: upgradeSheetInDesktop 220ms ease-out;
+    box-shadow: 0 12px 24px color-mix(in srgb, black 24%, transparent);
+    max-height: min(92vh, 46rem);
   }
 
-  .upgradePlanAnnual {
-    transform: translateY(-4px);
-    box-shadow: 0 14px 24px color-mix(in srgb, var(--lc-accent) 24%, transparent);
+  .upgradeSheetBody {
+    gap: 2.2rem;
+  }
+
+  .upgradeFooter {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    position: static;
+    margin-inline: 0;
+    padding: 0.86rem 1rem 0.95rem;
+  }
+
+  .upgradeFooter :global(.lc-btn) {
+    min-width: 18rem;
   }
 }
 
 @media (min-width: 860px) {
+  .playerList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.62rem;
+  }
+
   .playerRowMobile {
     display: none;
   }
 
   .playerRowDesktop {
-    display: grid;
-    grid-template-columns: clamp(220px, 22vw, 300px) minmax(0, 1fr) 72px;
+    display: flex;
     align-items: center;
-    column-gap: 0.34rem;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
   }
 
   .playerMain {
     width: 100%;
   }
 
-  .playerQuickStats {
-    display: grid;
+  .playerIdentityWrap {
+    gap: 0.54rem;
   }
 
-  .playerLineBlock {
-    display: none;
-  }
 }
 
 @media (min-width: 980px) {
