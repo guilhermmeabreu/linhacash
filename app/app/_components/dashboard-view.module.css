@@ -374,6 +374,55 @@
   overflow: hidden;
 }
 
+.playerRowMobile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.playerRowDesktop {
+  display: none;
+}
+
+.playerMobileLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.56rem;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.playerMobileIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+
+.playerMobileRight {
+  display: grid;
+  justify-items: end;
+  gap: 0.08rem;
+  min-width: 3.4rem;
+  flex: 0 0 auto;
+}
+
+.playerMobileRight small {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--lc-muted);
+}
+
+.playerMobileRight strong {
+  font-family: var(--lc-font-mono);
+  color: var(--lc-accent);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 .playerRow:focus-visible {
   outline: none;
 }
@@ -1282,10 +1331,6 @@ html.light .upgradeTotal {
     overflow-x: hidden;
   }
 
-  .playersView .statsTabsWrap {
-    overflow: visible;
-  }
-
   .playersTopbar h2 {
     font-size: 0.92rem;
   }
@@ -1433,14 +1478,6 @@ html.dark .lineAdjustBox strong {
     overflow: visible;
   }
 
-  .playerMain {
-    gap: 0.5rem;
-    flex: 1 1 auto;
-    min-width: 0;
-    flex-shrink: 1;
-    max-width: calc(100% - 4rem);
-  }
-
   .playerName {
     font-size: 0.94rem;
     max-width: 12.2rem;
@@ -1483,7 +1520,11 @@ html.dark .lineAdjustBox strong {
 }
 
 @media (min-width: 860px) {
-  .playerRow {
+  .playerRowMobile {
+    display: none;
+  }
+
+  .playerRowDesktop {
     display: grid;
     grid-template-columns: clamp(220px, 22vw, 300px) minmax(0, 1fr) 72px;
     align-items: center;

@@ -1074,7 +1074,7 @@ export function DashboardView() {
                 <h2>Jogadores</h2>
               </div>
 
-              <div className={styles.statsTabsWrap}>
+              <div className={styles.detailTabsRow}>
                 <TabsRoot value={selectedStat} onValueChange={handleStatChange}>
                   <div className={styles.statsTabsScroller}>
                     <TabsList className={styles.statsTabs}>
@@ -1129,7 +1129,6 @@ export function DashboardView() {
                       <div className={`${styles.playerList} technical-grid`}>
                         {players.map((player) => {
                           const line = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.line;
-                          const selectedAvg = metricsByPlayer[player.id]?.[selectedStat]?.metrics?.avg_l10;
                           return (
                             <button
                               key={player.id}
@@ -1141,28 +1140,44 @@ export function DashboardView() {
                                 setView('detail');
                               }}
                             >
-                              <div className={styles.playerMain}>
-                                <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
-                                <div className={styles.playerIdentity}>
-                                  <p className={styles.playerName}>{player.name}</p>
-                                  <p className={styles.playerMeta}>{player.position} • {player.team}</p>
+                              <div className={styles.playerRowMobile}>
+                                <div className={styles.playerMobileLeft}>
+                                  <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
+                                  <div className={styles.playerMobileIdentity}>
+                                    <p className={styles.playerName}>{player.name}</p>
+                                    <p className={styles.playerMeta}>{player.position} • {player.team}</p>
+                                  </div>
+                                </div>
+                                <div className={styles.playerMobileRight}>
+                                  <small>Line</small>
+                                  <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                 </div>
                               </div>
-                              <div className={styles.playerQuickStats}>
-                                {PLAYER_ROW_STATS.map((entry) => (
-                                  <span key={`${player.id}-${entry.label}`}>
-                                    <small>{entry.label}</small>
-                                    <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
+
+                              <div className={styles.playerRowDesktop}>
+                                <div className={styles.playerMain}>
+                                  <div className={styles.avatar}>{player.name.slice(0, 1).toUpperCase()}</div>
+                                  <div className={styles.playerIdentity}>
+                                    <p className={styles.playerName}>{player.name}</p>
+                                    <p className={styles.playerMeta}>{player.position} • {player.team}</p>
+                                  </div>
+                                </div>
+                                <div className={styles.playerQuickStats}>
+                                  {PLAYER_ROW_STATS.map((entry) => (
+                                    <span key={`${player.id}-${entry.label}`}>
+                                      <small>{entry.label}</small>
+                                      <strong>{metricsByPlayer[player.id]?.[entry.stat]?.metrics?.avg_l10?.toFixed(1) ?? '—'}</strong>
+                                    </span>
+                                  ))}
+                                  <span className={styles.playerQuickStatLine}>
+                                    <small>LINE</small>
+                                    <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
                                   </span>
-                                ))}
-                                <span className={styles.playerQuickStatLine}>
-                                  <small>LINE</small>
+                                </div>
+                                <div className={styles.playerLineBlock}>
+                                  <small>Line</small>
                                   <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
-                                </span>
-                              </div>
-                              <div className={styles.playerLineBlock}>
-                                <small>Line</small>
-                                <strong>{line ? Number(line).toFixed(1) : '—'}</strong>
+                                </div>
                               </div>
                             </button>
                           );
