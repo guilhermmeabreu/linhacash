@@ -180,16 +180,17 @@ export default function AdminPage() {
   return (
     <main className="adm-page">
       <style>{`
-        .adm-page{min-height:100vh;background:radial-gradient(circle at top right,#0f1e1a 0%,#070808 48%,#050606 100%);color:#ecf1ee;padding:24px 20px 36px;font-family:Inter,sans-serif;overflow-x:hidden}
-        .adm-shell{max-width:1260px;margin:0 auto;display:grid;gap:18px}
-        .adm-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0 14px;border-bottom:1px solid #1e2422}
-        .adm-title{font-size:24px;font-weight:800}
+        .adm-page{min-height:100vh;background:radial-gradient(circle at top right,#133126 0%,#080b0a 46%,#050606 100%);color:#ecf1ee;padding:24px 20px 36px;font-family:Inter,sans-serif;overflow-x:hidden}
+        .adm-shell{max-width:1260px;margin:0 auto;display:grid;gap:16px}
+        .adm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:16px;border:1px solid #1f2a25;border-radius:16px;background:linear-gradient(140deg,rgba(14,26,22,.95),rgba(9,14,12,.92))}
+        .adm-title{font-size:24px;font-weight:800;line-height:1.1;margin:0}
         .adm-title em{color:#00e676;font-style:normal}
+        .adm-subtitle{margin-top:8px;color:#8ea097;font-size:13px;line-height:1.45}
         .adm-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-        .adm-tabs{display:flex;gap:8px;flex-wrap:wrap}
-        .adm-tab{background:#101413;border:1px solid #26322d;color:#8ea097;padding:10px 14px;cursor:pointer;font-weight:600;font-size:13px;border-radius:10px;transition:.15s ease}
-        .adm-tab.on{border-color:#00e676;color:#00e676;background:rgba(0,230,118,.1);box-shadow:0 0 0 1px rgba(0,230,118,.15) inset}
-        .adm-card{background:linear-gradient(180deg,#0f1412 0%,#0d1110 100%);border:1px solid #1f2825;padding:18px;border-radius:14px;display:grid;gap:12px;box-shadow:0 18px 36px rgba(0,0,0,.22)}
+        .adm-tabs{display:flex;gap:8px;flex-wrap:wrap;background:#0f1412;border:1px solid #1f2a25;border-radius:14px;padding:8px}
+        .adm-tab{background:transparent;border:1px solid #26322d;color:#8ea097;padding:10px 14px;cursor:pointer;font-weight:600;font-size:13px;border-radius:10px;transition:.15s ease}
+        .adm-tab.on{border-color:#00e676;color:#00e676;background:rgba(0,230,118,.12);box-shadow:0 0 0 1px rgba(0,230,118,.15) inset}
+        .adm-card{background:linear-gradient(180deg,#101715 0%,#0d1110 100%);border:1px solid #1f2825;padding:18px;border-radius:14px;display:grid;gap:12px;box-shadow:0 18px 36px rgba(0,0,0,.2)}
         .adm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
         .adm-kpi{font-size:28px;font-weight:800;margin-top:8px}
         .adm-kpi-sm{font-size:22px;font-weight:800;margin-top:8px}
@@ -200,31 +201,31 @@ export default function AdminPage() {
         .adm-btn.alt{background:transparent;border:1px solid #32413c;color:#9cb0a7}
         .adm-btn.danger{background:transparent;border:1px solid #9b3131;color:#ff7676}
         .adm-btn.info{background:transparent;border:1px solid #2f6cd9;color:#8cb7ff}
-        .adm-btn:hover{filter:brightness(1.03)}
+        .adm-btn:hover{filter:brightness(1.05)}
         .adm-table{display:grid;gap:8px}
-        .adm-user{display:grid;grid-template-columns:minmax(0,1.45fr) repeat(4,minmax(120px,auto));gap:8px;align-items:center;background:#121715;border:1px solid #1d2824;padding:10px}
-        .adm-badge{font-size:11px;font-weight:700;padding:4px 8px}
+        .adm-user{display:grid;grid-template-columns:minmax(0,1.45fr) repeat(4,minmax(120px,auto));gap:8px;align-items:center;background:#121715;border:1px solid #1d2824;padding:12px;border-radius:12px}
+        .adm-badge{font-size:11px;font-weight:700;padding:4px 8px;border-radius:999px;width:max-content}
         .adm-badge.free{background:#1a1f1d;color:#a7b6af;border:1px solid #2b3531}
         .adm-badge.paid{background:rgba(0,230,118,.12);color:#00e676;border:1px solid rgba(0,230,118,.35)}
         .adm-badge.admin{background:rgba(49,164,255,.15);color:#7dc3ff;border:1px solid rgba(49,164,255,.45)}
-        .adm-feedback{padding:10px 12px;font-size:13px;border:1px solid}
+        .adm-feedback{padding:10px 12px;font-size:13px;border:1px solid;border-radius:10px}
         .adm-feedback.ok{border-color:#1b7f47;background:rgba(0,230,118,.1);color:#82e8b3}
         .adm-feedback.err{border-color:#913939;background:rgba(255,77,77,.1);color:#ff9c9c}
         .adm-log{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #1d2824;padding:10px 0;font-size:13px}
         .adm-log:last-child{border-bottom:none}
-        .adm-skeleton{background:linear-gradient(90deg,#17201d,#23302c,#17201d);background-size:220px 100%;animation:adm-loading 1.2s infinite ease-in-out}
+        .adm-skeleton{background:linear-gradient(90deg,#17201d,#23302c,#17201d);background-size:220px 100%;animation:adm-loading 1.2s infinite ease-in-out;border-radius:8px}
         .adm-skeleton-label{height:14px;width:52%;margin-bottom:10px}
         .adm-skeleton-value{height:34px;width:75%}
         .adm-section{display:grid;gap:10px}
         .adm-section-title{font-weight:800;font-size:16px;letter-spacing:.02em;line-height:1.25}
-        .adm-section-block{background:#0f1312;border:1px solid #1f2825;padding:16px;display:grid;gap:12px}
+        .adm-section-block{background:#0f1312;border:1px solid #1f2825;padding:16px;display:grid;gap:12px;border-radius:12px}
         .adm-main-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
         .adm-main-kpi{background:#101715;border:1px solid #274036;padding:16px;border-radius:12px}
         .adm-main-kpi .adm-muted{font-size:12px;text-transform:uppercase;letter-spacing:.04em}
         .adm-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
         .adm-pill{display:flex;justify-content:space-between;gap:12px;background:#111614;border:1px solid #1e2a25;padding:11px 13px;font-size:13px;border-radius:10px}
         .adm-toolbar{display:flex;gap:8px;flex-wrap:wrap}
-        .adm-chip{background:#121716;border:1px solid #2a3531;color:#8ea097;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer}
+        .adm-chip{background:#121716;border:1px solid #2a3531;color:#8ea097;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;border-radius:999px}
         .adm-chip.on{border-color:#00e676;color:#00e676;background:rgba(0,230,118,.12)}
         .adm-summary{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
         .adm-two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:12px}
@@ -234,8 +235,12 @@ export default function AdminPage() {
         .adm-list-label{font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:#7f958b;margin-bottom:4px}
         .adm-list-value{font-size:13px;word-break:break-word}
         .adm-scroll{overflow-x:auto}
-        .adm-ref-grid{display:grid;grid-template-columns:1.4fr auto auto auto;gap:8px;align-items:center}
-        @media (max-width: 980px){.adm-two-col,.adm-three-col,.adm-main-kpis,.adm-secondary{grid-template-columns:1fr}}
+        .adm-ref-grid{display:grid;grid-template-columns:1.4fr auto auto auto;gap:8px;align-items:center;background:#101715;border:1px solid #1e2925;padding:12px;border-radius:12px}
+        .adm-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+        .adm-strip-item{background:#0f1714;border:1px solid #1f3029;padding:10px 12px;border-radius:10px}
+        .adm-strip-label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#7e958a}
+        .adm-strip-value{font-size:18px;font-weight:800;margin-top:6px}
+        @media (max-width: 980px){.adm-two-col,.adm-three-col,.adm-main-kpis,.adm-secondary,.adm-strip{grid-template-columns:1fr}}
         @media (max-width: 1024px){
           .adm-user{grid-template-columns:minmax(0,1fr) repeat(2,minmax(130px,1fr))}
           .adm-user .adm-badge{justify-self:start}
@@ -247,7 +252,7 @@ export default function AdminPage() {
           .adm-head{flex-direction:column;align-items:flex-start}
           .adm-row{width:100%}
           .adm-row .adm-btn,.adm-row .adm-input{flex:1 1 180px}
-        .adm-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+          .adm-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
           .adm-tab{white-space:nowrap}
           .adm-user{grid-template-columns:1fr}
           .adm-user > *{min-width:0}
@@ -264,19 +269,25 @@ export default function AdminPage() {
           .adm-input{min-width:0;width:100%}
           .adm-row .adm-btn{width:100%}
           .adm-pill{flex-direction:column;align-items:flex-start}
-          .adm-badge{width:max-content}
           .adm-list-row{grid-template-columns:1fr}
         }
         @keyframes adm-loading{0%{background-position:-220px 0}100%{background-position:220px 0}}
       `}</style>
       <div className="adm-shell">
         <header className="adm-head">
-          <h1 className="adm-title">Linha<em>Cash</em> Admin</h1>
+          <div><h1 className="adm-title">Linha<em>Cash</em> Admin</h1><p className="adm-subtitle">Operações, crescimento, referrals e sincronização em um painel único.</p></div>
           <div className="adm-row">
             <button className="adm-btn alt" onClick={handleRefresh}>Atualizar</button>
             <button className="adm-btn alt" onClick={handleLogout}>Sair</button>
           </div>
         </header>
+
+        <div className="adm-strip">
+          <div className="adm-strip-item"><div className="adm-strip-label">Usuários</div><div className="adm-strip-value">{stats?.total_users ?? '—'}</div></div>
+          <div className="adm-strip-item"><div className="adm-strip-label">Pro pago</div><div className="adm-strip-value">{stats?.pro_paid_users ?? '—'}</div></div>
+          <div className="adm-strip-item"><div className="adm-strip-label">Receita estimada</div><div className="adm-strip-value">R$ {(stats?.estimated_monthly_revenue_brl ?? 0).toLocaleString('pt-BR')}</div></div>
+          <div className="adm-strip-item"><div className="adm-strip-label">Comissão pendente</div><div className="adm-strip-value">R$ {(stats?.total_affiliate_commission_pending_brl ?? 0).toLocaleString('pt-BR')}</div></div>
+        </div>
 
         <div className="adm-tabs">
           {TABS.map((item) => (
