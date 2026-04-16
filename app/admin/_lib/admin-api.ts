@@ -50,6 +50,9 @@ export interface Stats {
   pro_paid_users: number;
   pro_admin_users: number;
   free_users: number;
+  paid_monthly_users: number;
+  paid_annual_users: number;
+  paid_playoff_users: number;
   total_games: number;
   total_players: number;
   estimated_monthly_revenue_brl: number;
