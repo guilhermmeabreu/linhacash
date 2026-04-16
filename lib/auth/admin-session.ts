@@ -4,18 +4,21 @@ import { AuthenticationError } from '@/lib/http/errors';
 
 const COOKIE_NAME = process.env.NODE_ENV === 'production' ? '__Host-lc_admin_session' : 'lc_admin_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
-const memoryStore = new Map<string, { expiresAt: number; email: string; ipHash: string | null; uaHash: string }>();
 
-function getStoreMode() {
-  return process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN ? 'redis' : 'memory';
+type AdminSessionPayload = {
+  sid: string;
+  email: string;
+  exp: number;
+  ipHash: string | null;
+  uaHash: string | null;
+};
+
+function nowSeconds() {
+  return Math.floor(Date.now() / 1000);
 }
 
-function now() {
-  return Date.now();
-}
-
-function hash(v: string) {
-  return crypto.createHash('sha256').update(v).digest('hex');
+function hash(value: string) {
+  return crypto.createHash('sha256').update(value).digest('hex');
 }
 
 function requestIp(req: Request) {
@@ -30,97 +33,139 @@ function shouldBindAdminSessionToIp() {
   return process.env.ADMIN_SESSION_BIND_IP === 'true';
 }
 
+function shouldBindAdminSessionToUa() {
+  return process.env.ADMIN_SESSION_BIND_UA === 'true';
+}
+
 function readCookie(req: Request, cookieName: string): string | null {
   const raw = req.headers.get('cookie') || '';
-  const found = raw.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${cookieName}=`));
+  const found = raw
+    .split(';')
+    .map((part) => part.trim())
+    .find((part) => part.startsWith(`${cookieName}=`));
   return found ? decodeURIComponent(found.split('=').slice(1).join('=')) : null;
 }
-async function persistSession(sessionId: string, email: string, ip: string, ua: string) {
-  const expiresAt = now() + SESSION_TTL_SECONDS * 1000;
-  const normalizedIp = ip && ip !== 'unknown' ? ip : null;
-  const payload = { expiresAt, email, ipHash: normalizedIp ? hash(normalizedIp) : null, uaHash: hash(ua) };
-  if (getStoreMode() === 'redis') {
-    const url = process.env.UPSTASH_REDIS_REST_URL!;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
-    await fetch(`${url}/set/${encodeURIComponent(`admin:sess:${sessionId}`)}/${encodeURIComponent(JSON.stringify(payload))}?EX=${SESSION_TTL_SECONDS}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    return;
-  }
-  memoryStore.set(sessionId, payload);
+
+function encodeBase64Url(value: string) {
+  return Buffer.from(value, 'utf8').toString('base64url');
 }
 
-async function readSession(sessionId: string) {
-  if (getStoreMode() === 'redis') {
-    const url = process.env.UPSTASH_REDIS_REST_URL!;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
-    const response = await fetch(`${url}/get/${encodeURIComponent(`admin:sess:${sessionId}`)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    const data = await response.json();
-    if (!data.result) return null;
-    return JSON.parse(data.result as string) as { expiresAt: number; email: string; ipHash: string | null; uaHash: string };
-  }
-  const found = memoryStore.get(sessionId);
-  if (!found) return null;
-  if (now() > found.expiresAt) {
-    memoryStore.delete(sessionId);
+function decodeBase64Url(value: string) {
+  return Buffer.from(value, 'base64url').toString('utf8');
+}
+
+function getAdminSessionSecret() {
+  const configured = process.env.ADMIN_SESSION_SECRET?.trim();
+  if (configured) return configured;
+
+  const fallback = `${process.env.ADMIN_PASSWORD || ''}:${process.env.SUPABASE_SERVICE_KEY || ''}`.trim();
+  if (fallback && fallback !== ':') return fallback;
+
+  if (process.env.NODE_ENV !== 'production') return 'linhacash-dev-admin-session-secret';
+  throw new AuthenticationError('Admin session secret not configured');
+}
+
+function signPayload(payloadBase64Url: string) {
+  return crypto.createHmac('sha256', getAdminSessionSecret()).update(payloadBase64Url).digest('base64url');
+}
+
+function serializeSession(payload: AdminSessionPayload) {
+  const encodedPayload = encodeBase64Url(JSON.stringify(payload));
+  const signature = signPayload(encodedPayload);
+  return `${encodedPayload}.${signature}`;
+}
+
+function parseSession(token: string): AdminSessionPayload | null {
+  const [encodedPayload, signature] = token.split('.');
+  if (!encodedPayload || !signature) return null;
+
+  const expected = signPayload(encodedPayload);
+  const expectedBuffer = Buffer.from(expected, 'utf8');
+  const signatureBuffer = Buffer.from(signature, 'utf8');
+  if (expectedBuffer.length !== signatureBuffer.length || !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)) {
     return null;
   }
-  return found;
-}
 
-async function deleteSession(sessionId: string) {
-  if (getStoreMode() === 'redis') {
-    const url = process.env.UPSTASH_REDIS_REST_URL!;
-    const token = process.env.UPSTASH_REDIS_REST_TOKEN!;
-    await fetch(`${url}/del/${encodeURIComponent(`admin:sess:${sessionId}`)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: 'no-store',
-    });
-    return;
+  try {
+    const parsed = JSON.parse(decodeBase64Url(encodedPayload)) as Partial<AdminSessionPayload>;
+    if (
+      typeof parsed.sid !== 'string' ||
+      typeof parsed.email !== 'string' ||
+      typeof parsed.exp !== 'number' ||
+      (parsed.ipHash !== null && parsed.ipHash !== undefined && typeof parsed.ipHash !== 'string') ||
+      (parsed.uaHash !== null && parsed.uaHash !== undefined && typeof parsed.uaHash !== 'string')
+    ) {
+      return null;
+    }
+
+    return {
+      sid: parsed.sid,
+      email: parsed.email,
+      exp: parsed.exp,
+      ipHash: parsed.ipHash ?? null,
+      uaHash: parsed.uaHash ?? null,
+    };
+  } catch {
+    return null;
   }
-  memoryStore.delete(sessionId);
 }
 
 export async function createAdminSession(response: NextResponse, req: Request, email: string) {
-  const sessionId = crypto.randomBytes(48).toString('hex');
-  await persistSession(sessionId, email, requestIp(req), requestUa(req));
+  const ip = requestIp(req);
+  const ua = requestUa(req);
+  const payload: AdminSessionPayload = {
+    sid: crypto.randomBytes(32).toString('hex'),
+    email,
+    exp: nowSeconds() + SESSION_TTL_SECONDS,
+    ipHash: ip && ip !== 'unknown' ? hash(ip) : null,
+    uaHash: ua && ua !== 'unknown' ? hash(ua) : null,
+  };
 
   response.cookies.set({
     name: COOKIE_NAME,
-    value: sessionId,
+    value: serializeSession(payload),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',
     path: '/',
     maxAge: SESSION_TTL_SECONDS,
   });
 }
 
 export async function requireAdminSession(req: Request) {
-  const sessionId = readCookie(req, COOKIE_NAME);
-  if (!sessionId) throw new AuthenticationError();
+  const token = readCookie(req, COOKIE_NAME);
+  if (!token) throw new AuthenticationError();
 
-  const session = await readSession(sessionId);
-  if (!session) throw new AuthenticationError();
-
-  const currentIp = requestIp(req);
-  const shouldValidateIp = shouldBindAdminSessionToIp() && Boolean(session.ipHash) && currentIp !== 'unknown';
-  const isValidIp = shouldValidateIp ? session.ipHash === hash(currentIp) : true;
-  const isValidUa = session.uaHash === hash(requestUa(req));
-  if (!isValidIp || !isValidUa) {
-    await deleteSession(sessionId);
+  const session = parseSession(token);
+  if (!session || session.exp <= nowSeconds()) {
     throw new AuthenticationError();
   }
 
-  return { email: session.email, sessionId };
+  if (shouldBindAdminSessionToIp() && session.ipHash) {
+    const currentIp = requestIp(req);
+    if (currentIp !== 'unknown' && session.ipHash !== hash(currentIp)) {
+      throw new AuthenticationError();
+    }
+  }
+
+  if (shouldBindAdminSessionToUa() && session.uaHash) {
+    const ua = requestUa(req);
+    if (ua !== 'unknown' && session.uaHash !== hash(ua)) {
+      throw new AuthenticationError();
+    }
+  }
+
+  return { email: session.email, sessionId: session.sid };
 }
 
-export async function destroyAdminSession(req: Request, response: NextResponse) {
-  const sessionId = readCookie(req, COOKIE_NAME);
-  if (sessionId) await deleteSession(sessionId);
-  response.cookies.set({ name: COOKIE_NAME, value: '', httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict', path: '/', maxAge: 0 });
+export async function destroyAdminSession(_req: Request, response: NextResponse) {
+  response.cookies.set({
+    name: COOKIE_NAME,
+    value: '',
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
 }
