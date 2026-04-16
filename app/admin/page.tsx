@@ -13,6 +13,8 @@ const TABS: Array<{ key: AdminTab; label: string }> = [
   { key: 'sync', label: 'Sincronização' },
 ];
 
+const brl = (value: number | undefined) => `R$ ${(value ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
 const PlanBadge = memo(function PlanBadge({ user }: { user: Profile }) {
   if (user.billing?.isManualPro) return <span className="adm-badge admin">PRO ADMIN</span>;
   if (user.billing?.isPaidPro) return <span className="adm-badge paid">PRO PAGO</span>;
@@ -217,13 +219,13 @@ export default function AdminPage() {
         .adm-skeleton-label{height:14px;width:52%;margin-bottom:10px}
         .adm-skeleton-value{height:34px;width:75%}
         .adm-section{display:grid;gap:10px}
-        .adm-section-title{font-weight:800;font-size:16px;letter-spacing:.02em;line-height:1.25}
-        .adm-section-block{background:#0f1312;border:1px solid #1f2825;padding:16px;display:grid;gap:12px;border-radius:12px}
+        .adm-section-title{font-weight:900;font-size:18px;letter-spacing:.02em;line-height:1.25;margin:4px 0}
+        .adm-section-block{background:linear-gradient(180deg,#0f1513 0%,#0d1210 100%);border:1px solid #24322c;padding:18px;display:grid;gap:14px;border-radius:14px}
         .adm-main-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-        .adm-main-kpi{background:#101715;border:1px solid #274036;padding:16px;border-radius:12px}
+        .adm-main-kpi{background:linear-gradient(180deg,#111b17 0%,#0d1512 100%);border:1px solid #2b463b;padding:18px;border-radius:14px}
         .adm-main-kpi .adm-muted{font-size:12px;text-transform:uppercase;letter-spacing:.04em}
-        .adm-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-        .adm-pill{display:flex;justify-content:space-between;gap:12px;background:#111614;border:1px solid #1e2a25;padding:11px 13px;font-size:13px;border-radius:10px}
+        .adm-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+        .adm-pill{display:flex;justify-content:space-between;gap:12px;background:#111816;border:1px solid #26352e;padding:12px 14px;font-size:13px;border-radius:12px}
         .adm-toolbar{display:flex;gap:8px;flex-wrap:wrap}
         .adm-chip{background:#121716;border:1px solid #2a3531;color:#8ea097;padding:8px 10px;font-size:12px;font-weight:700;cursor:pointer;border-radius:999px}
         .adm-chip.on{border-color:#00e676;color:#00e676;background:rgba(0,230,118,.12)}
@@ -237,10 +239,19 @@ export default function AdminPage() {
         .adm-scroll{overflow-x:auto}
         .adm-ref-grid{display:grid;grid-template-columns:1.4fr auto auto auto;gap:8px;align-items:center;background:#101715;border:1px solid #1e2925;padding:12px;border-radius:12px}
         .adm-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-        .adm-strip-item{background:#0f1714;border:1px solid #1f3029;padding:10px 12px;border-radius:10px}
+        .adm-strip-item{background:linear-gradient(180deg,#11201a 0%,#0e1714 100%);border:1px solid #284238;padding:12px 14px;border-radius:12px}
         .adm-strip-label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:#7e958a}
-        .adm-strip-value{font-size:18px;font-weight:800;margin-top:6px}
-        @media (max-width: 980px){.adm-two-col,.adm-three-col,.adm-main-kpis,.adm-secondary,.adm-strip{grid-template-columns:1fr}}
+        .adm-strip-value{font-size:21px;font-weight:900;margin-top:8px}
+        .adm-grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+        .adm-kpi-card{background:#111816;border:1px solid #26382f;padding:14px;border-radius:12px;display:grid;gap:8px}
+        .adm-kpi-card strong{font-size:20px;line-height:1.1}
+        .adm-kpi-card .adm-muted{font-size:12px}
+        .adm-status{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+        .adm-status.good{color:#00e676;background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.42)}
+        .adm-status.warn{color:#ffd166;background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.42)}
+        .adm-status.bad{color:#ff7b7b;background:rgba(255,123,123,.14);border:1px solid rgba(255,123,123,.45)}
+        .adm-status.neutral{color:#9db2a8;background:#121816;border:1px solid #2a3a33}
+        @media (max-width: 980px){.adm-two-col,.adm-three-col,.adm-main-kpis,.adm-secondary,.adm-strip,.adm-grid-4{grid-template-columns:1fr}}
         @media (max-width: 1024px){
           .adm-user{grid-template-columns:minmax(0,1fr) repeat(2,minmax(130px,1fr))}
           .adm-user .adm-badge{justify-self:start}
@@ -285,8 +296,8 @@ export default function AdminPage() {
         <div className="adm-strip">
           <div className="adm-strip-item"><div className="adm-strip-label">Usuários</div><div className="adm-strip-value">{stats?.total_users ?? '—'}</div></div>
           <div className="adm-strip-item"><div className="adm-strip-label">Pro pago</div><div className="adm-strip-value">{stats?.pro_paid_users ?? '—'}</div></div>
-          <div className="adm-strip-item"><div className="adm-strip-label">Receita estimada</div><div className="adm-strip-value">R$ {(stats?.estimated_monthly_revenue_brl ?? 0).toLocaleString('pt-BR')}</div></div>
-          <div className="adm-strip-item"><div className="adm-strip-label">Comissão pendente</div><div className="adm-strip-value">R$ {(stats?.total_affiliate_commission_pending_brl ?? 0).toLocaleString('pt-BR')}</div></div>
+          <div className="adm-strip-item"><div className="adm-strip-label">MRR estimado</div><div className="adm-strip-value">{brl(stats?.estimated_monthly_recurring_revenue_brl)}</div></div>
+          <div className="adm-strip-item"><div className="adm-strip-label">Receita líquida</div><div className="adm-strip-value">{brl(stats?.net_revenue_brl)}</div></div>
         </div>
 
         <div className="adm-tabs">
@@ -310,15 +321,67 @@ export default function AdminPage() {
               <button className={`adm-chip ${showSecondary ? 'on' : ''}`} onClick={() => setShowSecondary((value) => !value)}>Detalhes secundários</button>
             </div>
 
-            <div className="adm-section-title">Visão geral</div>
+            <div className="adm-section-title">Top KPIs</div>
             <div className="adm-main-kpis">
               <div className="adm-main-kpi"><div className="adm-muted">Total de usuários</div><div className="adm-kpi-main">{stats.total_users}</div></div>
               <div className="adm-main-kpi"><div className="adm-muted">Usuários Pro pagos</div><div className="adm-kpi-main">{stats.pro_paid_users}</div></div>
-              <div className="adm-main-kpi"><div className="adm-muted">Receita mensal estimada</div><div className="adm-kpi-main">R$ {stats.estimated_monthly_revenue_brl.toLocaleString('pt-BR')}</div></div>
+              <div className="adm-main-kpi"><div className="adm-muted">Receita recorrente mensal (estimada)</div><div className="adm-kpi-main">{brl(stats.estimated_monthly_recurring_revenue_brl)}</div></div>
+              <div className="adm-main-kpi"><div className="adm-muted">Receita líquida (estimada)</div><div className="adm-kpi-main">{brl(stats.net_revenue_brl)}</div></div>
             </div>
             <div className="adm-secondary">
               <div className="adm-pill"><span>Usuários grátis</span><strong>{stats.free_users}</strong></div>
               <div className="adm-pill"><span>Usuários Pro admin</span><strong>{stats.pro_admin_users}</strong></div>
+              <div className="adm-pill"><span>Plano mensal ativo</span><strong>{stats.paid_monthly_users}</strong></div>
+              <div className="adm-pill"><span>Plano anual ativo</span><strong>{stats.paid_annual_users}</strong></div>
+              <div className="adm-pill"><span>Plano playoff ativo</span><strong>{stats.paid_playoff_users}</strong></div>
+            </div>
+
+            <div className="adm-section-title">Financeiro</div>
+            <div className="adm-section-block">
+              <div className="adm-grid-4">
+                <div className="adm-kpi-card"><span className="adm-muted">Receita bruta</span><strong>{brl(stats.gross_revenue_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Taxas Stripe (estimadas)</span><strong>{brl(stats.estimated_stripe_fees_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Comissões de afiliados (estimadas)</span><strong>{brl(stats.estimated_affiliate_commissions_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Receita líquida</span><strong>{brl(stats.net_revenue_brl)}</strong></div>
+              </div>
+              <div className="adm-grid-4">
+                <div className="adm-kpi-card"><span className="adm-muted">Caixa mensal coletado</span><strong>{brl(stats.monthly_cash_collected_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Caixa anual coletado</span><strong>{brl(stats.annual_cash_collected_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Receita playoff</span><strong>{brl(stats.playoff_revenue_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">MRR estimado</span><strong>{brl(stats.estimated_monthly_recurring_revenue_brl)}</strong></div>
+              </div>
+            </div>
+
+            <div className="adm-section-title">Afiliados e indicações</div>
+            <div className="adm-section-block">
+              <div className="adm-grid-4">
+                <div className="adm-kpi-card"><span className="adm-muted">Conversões pagas</span><strong>{stats.affiliate_paid_conversions}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Comissão pendente</span><strong>{brl(stats.total_affiliate_commission_pending_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Comissão earned</span><strong>{brl(stats.total_affiliate_commission_earned_brl)}</strong></div>
+                <div className="adm-kpi-card"><span className="adm-muted">Comissão paga</span><strong>{brl(stats.total_affiliate_commission_paid_brl)}</strong></div>
+              </div>
+              <div className="adm-two-col">
+                <div>
+                  <div className="adm-section-title" style={{ fontSize: 14 }}>Top códigos por conversão</div>
+                  {(stats.top_referral_codes_by_conversion || []).map((item) => (
+                    <div className="adm-log" key={`conv-${item.code}`}>
+                      <span>{item.code}</span>
+                      <strong>{item.conversions}</strong>
+                    </div>
+                  ))}
+                  {(stats.top_referral_codes_by_conversion || []).length === 0 && <p className="adm-muted">Sem conversões registradas.</p>}
+                </div>
+                <div>
+                  <div className="adm-section-title" style={{ fontSize: 14 }}>Top códigos por comissão</div>
+                  {(stats.top_referral_codes_by_commission_amount || []).map((item) => (
+                    <div className="adm-log" key={`amount-${item.code}`}>
+                      <span>{item.code}</span>
+                      <strong>{brl(item.commission_amount_brl)}</strong>
+                    </div>
+                  ))}
+                  {(stats.top_referral_codes_by_commission_amount || []).length === 0 && <p className="adm-muted">Sem comissões registradas.</p>}
+                </div>
+              </div>
             </div>
 
             {(dashboardFocus === 'all' || dashboardFocus === 'growth') && (
@@ -382,7 +445,17 @@ export default function AdminPage() {
                 <div className="adm-muted">Status da última sincronização</div>
                 <div className="adm-kpi-sm">{operationsInsights?.latestSyncStatus || 'N/A'}</div>
                 <p className="adm-muted">{operationsInsights?.latestSyncTimestamp ? new Date(operationsInsights.latestSyncTimestamp).toLocaleString('pt-BR') : 'Sem horário registrado'}</p>
-                <p className="adm-muted">{operationsInsights?.syncFreshnessLabel || 'Sem dados de sincronização'}</p>
+                <span className={`adm-status ${
+                  operationsInsights?.syncFreshness === 'fresh'
+                    ? 'good'
+                    : operationsInsights?.syncFreshness === 'stale'
+                      ? 'warn'
+                      : operationsInsights?.syncFreshness === 'critical'
+                        ? 'bad'
+                        : 'neutral'
+                }`}>
+                  {operationsInsights?.syncFreshnessLabel || 'Sem dados de sincronização'}
+                </span>
                 </div>
                 <div>
                 <div className="adm-section-title" style={{ fontSize: 14 }}>Últimas 5 sincronizações</div>

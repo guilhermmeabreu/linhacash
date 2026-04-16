@@ -11,6 +11,9 @@ import { buildRequestContext, logRouteError, logSecurityEvent } from '@/lib/obse
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_KEY!);
 const MONTHLY_PRO_PRICE_BRL = 24.9;
 const ANNUAL_PRO_PRICE_BRL = 197;
+const PLAYOFF_PRICE_BRL = 29.9;
+const STRIPE_NATIONAL_PERCENT = 0.0399;
+const STRIPE_NATIONAL_FIXED_BRL = 0.39;
 const ADMIN_OVERVIEW_TTL_MS = 30_000;
 
 type AdminProfileRow = BillingProfileRow & {
@@ -71,6 +74,10 @@ function toRecentAction(event: EventRow) {
   };
 }
 
+function roundMoney(value: number): number {
+  return Number(value.toFixed(2));
+}
+
 export async function GET(req: Request) {
   const origin = req.headers.get('origin') || undefined;
   const context = buildRequestContext(req, { route: '/api/admin/overview' });
@@ -122,6 +129,11 @@ export async function GET(req: Request) {
       const paidAnnualUsers = billingStates.filter((billing) => billing.isPaidPro && billing.paidPlanType === 'annual').length;
       const paidPlayoffUsers = billingStates.filter((billing) => billing.isPaidPro && billing.paidPlanType === 'playoff').length;
       const estimatedMonthlyRecurringRevenue = (paidMonthlyUsers * MONTHLY_PRO_PRICE_BRL) + (paidAnnualUsers * (ANNUAL_PRO_PRICE_BRL / 12));
+      const monthlyCashCollected = paidMonthlyUsers * MONTHLY_PRO_PRICE_BRL;
+      const annualCashCollected = paidAnnualUsers * ANNUAL_PRO_PRICE_BRL;
+      const playoffRevenue = paidPlayoffUsers * PLAYOFF_PRICE_BRL;
+      const paidTransactions = paidMonthlyUsers + paidAnnualUsers + paidPlayoffUsers;
+      const grossRevenue = monthlyCashCollected + annualCashCollected + playoffRevenue;
       const recentCancellations = users
         .filter((row) => row.cancelled_at || (row.billing.planStatus === 'cancelled' && row.billing.billingUpdatedAt))
         .slice(0, 8)
@@ -166,7 +178,28 @@ export async function GET(req: Request) {
       const commissionsPending = commissions
         .filter((item) => item.commission_status === 'pending')
         .reduce((sum, item) => sum + Number(item.commission_amount || 0), 0);
-      const affiliateDrivenPaidConversions = commissions.filter((item) => item.commission_status === 'earned' || item.commission_status === 'paid').length;
+      const totalAffiliateCommissions = commissions.reduce((sum, item) => sum + Number(item.commission_amount || 0), 0);
+      const affiliateDrivenPaidConversions = commissions.length;
+      const estimatedStripeFees = (grossRevenue * STRIPE_NATIONAL_PERCENT) + (paidTransactions * STRIPE_NATIONAL_FIXED_BRL);
+      const netRevenue = grossRevenue - estimatedStripeFees - totalAffiliateCommissions;
+      const topReferralCodesByConversion = [...commissions
+        .reduce((acc, item) => {
+          acc.set(item.code, (acc.get(item.code) || 0) + 1);
+          return acc;
+        }, new Map<string, number>())
+        .entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([code, conversions]) => ({ code, conversions }));
+      const topReferralCodesByCommissionAmount = [...commissions
+        .reduce((acc, item) => {
+          acc.set(item.code, (acc.get(item.code) || 0) + Number(item.commission_amount || 0));
+          return acc;
+        }, new Map<string, number>())
+        .entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5)
+        .map(([code, commission_amount_brl]) => ({ code, commission_amount_brl: roundMoney(commission_amount_brl) }));
 
       return {
         stats: {
@@ -180,11 +213,21 @@ export async function GET(req: Request) {
           paid_playoff_users: paidPlayoffUsers,
           total_games: gamesResult.count || 0,
           total_players: playersResult.count || 0,
-          estimated_monthly_revenue_brl: Number(estimatedMonthlyRecurringRevenue.toFixed(2)),
-          total_affiliate_commission_paid_brl: Number(commissionsPaid.toFixed(2)),
-          total_affiliate_commission_earned_brl: Number(commissionsEarned.toFixed(2)),
-          total_affiliate_commission_pending_brl: Number(commissionsPending.toFixed(2)),
+          estimated_monthly_revenue_brl: roundMoney(estimatedMonthlyRecurringRevenue),
+          estimated_monthly_recurring_revenue_brl: roundMoney(estimatedMonthlyRecurringRevenue),
+          monthly_cash_collected_brl: roundMoney(monthlyCashCollected),
+          annual_cash_collected_brl: roundMoney(annualCashCollected),
+          playoff_revenue_brl: roundMoney(playoffRevenue),
+          gross_revenue_brl: roundMoney(grossRevenue),
+          estimated_stripe_fees_brl: roundMoney(estimatedStripeFees),
+          estimated_affiliate_commissions_brl: roundMoney(totalAffiliateCommissions),
+          net_revenue_brl: roundMoney(netRevenue),
+          total_affiliate_commission_paid_brl: roundMoney(commissionsPaid),
+          total_affiliate_commission_earned_brl: roundMoney(commissionsEarned),
+          total_affiliate_commission_pending_brl: roundMoney(commissionsPending),
           affiliate_paid_conversions: affiliateDrivenPaidConversions,
+          top_referral_codes_by_conversion: topReferralCodesByConversion,
+          top_referral_codes_by_commission_amount: topReferralCodesByCommissionAmount,
           recent_signups: users.slice(0, 10),
           new_users_today: countSince(users, 1),
           new_users_7d: countSince(users, 7),
