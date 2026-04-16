@@ -67,6 +67,14 @@ export async function POST(req: Request) {
     if (action === 'login') {
     const { email, password } = body;
     if (!email || !password) return errorResponse('Email e senha obrigatórios');
+    const namespace = deploymentNamespace();
+    const emailHash = hashEmail(String(email));
+    const byIp = await rateLimitDetailed(`auth:login:ip:${namespace}:${ip}`, 12, 10 * 60_000);
+    const byEmail = await rateLimitDetailed(`auth:login:email:${namespace}:${emailHash}`, 10, 10 * 60_000);
+    if (!byIp.allowed || !byEmail.allowed) {
+      logSecurityEvent('auth_failed', { ...context, action, reason: 'rate_limited' });
+      return errorResponse('Muitas tentativas. Tente novamente em alguns minutos.', 429);
+    }
 
     // Rate limit: 5 tentativas por IP e por email em 15 min
     const allowed = await loginRateLimit(ip, email);

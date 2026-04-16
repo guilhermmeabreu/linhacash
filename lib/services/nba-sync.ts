@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { invalidateCacheByPrefix } from '@/lib/cache/memory-cache';
 import { nbaMockProvider, type ApiSportsGame, type ApiSportsPlayer, type ApiSportsPlayerStat } from '@/lib/mock/nbaMock';
+import { upstashAvailable, upstashDeleteIfValueMatches, upstashSetNxEx } from '@/lib/upstash-rest';
 
 type SyncStatus = 'running' | 'success' | 'error' | 'skipped';
 
@@ -26,6 +27,7 @@ const BASE_URL = 'https://v2.nba.api-sports.io';
 const RUNNING_STATUSES = new Set(['running', 'in_progress']);
 const LOCK_WINDOW_MS = 15 * 60_000;
 const SYNC_TIMEOUT_MS = 8 * 60_000;
+const REDIS_SYNC_LOCK_KEY = 'lock:nba_sync';
 const DATE_WINDOW_PAST_DAYS = 2;
 const DATE_WINDOW_FUTURE_DAYS = 3;
 const MOCK_MAX_TEAMS = 4;
@@ -474,6 +476,30 @@ export async function runNbaSyncJob(): Promise<SyncSummary> {
 
   inProcessRun = true;
   const startedAt = nowIso();
+  const lockValue = `${startedAt}:${Math.random().toString(36).slice(2)}`;
+  const lockTtlSeconds = Math.ceil((SYNC_TIMEOUT_MS + 2 * 60_000) / 1000);
+  let distributedLockAcquired = false;
+
+  if (upstashAvailable()) {
+    const lockState = await upstashSetNxEx(REDIS_SYNC_LOCK_KEY, lockValue, lockTtlSeconds);
+    if (lockState === 'locked') {
+      const finishedAt = nowIso();
+      inProcessRun = false;
+      return {
+        status: 'skipped',
+        message: 'Sync skipped because another sync lock is active.',
+        gamesSynced: 0,
+        teamsSynced: 0,
+        playersSynced: 0,
+        playerStatsSynced: 0,
+        errors: [],
+        startedAt,
+        finishedAt,
+      };
+    }
+    distributedLockAcquired = lockState === 'acquired';
+  }
+
   const supabase = getSupabaseAdmin();
   const now = new Date();
   const syncLogColumns = await detectTableColumns(supabase, 'sync_logs');
@@ -556,6 +582,9 @@ export async function runNbaSyncJob(): Promise<SyncSummary> {
       finishedAt,
     };
   } finally {
+    if (distributedLockAcquired) {
+      await upstashDeleteIfValueMatches(REDIS_SYNC_LOCK_KEY, lockValue);
+    }
     inProcessRun = false;
   }
 }

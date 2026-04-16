@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminSession, destroyAdminSession } from '@/lib/auth/admin-session';
 import { AppError, AuthenticationError } from '@/lib/http/errors';
 import { fail, internalError, ok, options } from '@/lib/http/responses';
-import { getIP, rateLimit } from '@/lib/rate-limit';
+import { getIP, rateLimitDetailed } from '@/lib/rate-limit';
 import { validateAdminLogin } from '@/lib/validators/auth-validator';
 import { auditLog } from '@/lib/services/audit-log-service';
 import { timingSafeEqualString } from '@/lib/auth/secure-compare';
@@ -22,7 +22,8 @@ export async function POST(req: Request) {
     assertJsonRequest(req);
 
     const ip = getIP(req);
-    if (!(await rateLimit(`admin:login:${ip}`, 5, 15 * 60_000))) {
+    const rate = await rateLimitDetailed(`admin:login:${ip}`, 6, 15 * 60_000);
+    if (!rate.allowed) {
       return fail(new AppError('RATE_LIMIT_ERROR', 429, 'Too many login attempts'), origin);
     }
 
