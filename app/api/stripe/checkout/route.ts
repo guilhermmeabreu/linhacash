@@ -75,7 +75,8 @@ export async function POST(req: Request) {
     const user = await requireAuthenticatedUser(req);
     userId = user.id;
     const ip = getIP(req);
-    const rate = await rateLimitDetailed(`stripe:checkout:${user.id}:${ip}`, 8, 60_000);
+    const actorKey = user.id ? `user:${user.id}` : `ip:${ip}`;
+    const rate = await rateLimitDetailed(`stripe:checkout:${actorKey}`, 8, 60_000);
     if (!rate.allowed) {
       logSecurityEvent('route_rate_limited', { ...context, userId: user.id, retryAfterSeconds: rate.retryAfterSeconds });
       return fail(new AppError('RATE_LIMIT_ERROR', 429, 'Too many stripe checkout attempts'), origin);

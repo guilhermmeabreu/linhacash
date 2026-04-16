@@ -30,7 +30,7 @@ export async function GET(req: Request) {
     const gameId = searchParams.get('gameId');
     if (!gameId || !/^\d+$/.test(gameId)) return errorResponse('gameId inválido');
 
-    const result = await getCachedValue(`players:${gameId}:${session.plan}`, 5 * 60_000, async () => {
+    const result = await getCachedValue(`players:${gameId}:${session.plan}`, 120_000, async () => {
       const { data: game, error: gameError } = await supabase
         .from('games')
         .select('id, home_team_id, away_team_id, game_date')
