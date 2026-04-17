@@ -370,16 +370,26 @@ async function hasRunningSync(supabase: SupabaseClient, columns: Set<string>, no
   return (count || 0) > 0;
 }
 
-async function upsertPlayerMetrics(supabase: SupabaseClient, playerId: number, metricColumns: Set<string>) {
-  const { data: stats } = await supabase
-    .from('player_stats')
-    .select('points,rebounds,assists,three_pointers,fgm,fga,minutes,game_date,steals,blocks,fg2a,fg3a,three_pa')
-    .eq('player_id', playerId)
-    .order('game_date', { ascending: false })
-    .limit(120);
+type PlayerStatMetricsRow = {
+  player_id: number | null;
+  points: number | null;
+  rebounds: number | null;
+  assists: number | null;
+  three_pointers: number | null;
+  fgm: number | null;
+  fga: number | null;
+  steals: number | null;
+  blocks: number | null;
+  fg2a: number | null;
+  fg3a: number | null;
+  three_pa: number | null;
+};
 
-  if (!stats?.length) return;
-
+function buildPlayerMetricPayloads(
+  playerId: number,
+  stats: PlayerStatMetricsRow[],
+  metricColumns: Set<string>
+) {
   const metricMap: Record<string, number[]> = {
     points: stats.map((row) => toNumber(row.points)),
     rebounds: stats.map((row) => toNumber(row.rebounds)),
@@ -393,25 +403,72 @@ async function upsertPlayerMetrics(supabase: SupabaseClient, playerId: number, m
     fg3a: stats.map((row) => toNumber(row.fg3a || row.three_pa)),
   };
 
-  for (const [stat, values] of Object.entries(metricMap)) {
-    const payload = pickColumns(
-      {
-        player_id: playerId,
-        stat,
-        avg_l5: avg(values.slice(0, 5)),
-        avg_l10: avg(values.slice(0, 10)),
-        avg_l20: avg(values.slice(0, 20)),
-        avg_l30: avg(values.slice(0, 30)),
-        avg_season: avg(values),
-        updated_at: nowIso(),
-      },
-      metricColumns
-    );
+  const updatedAt = nowIso();
+  return Object.entries(metricMap).map(([stat, values]) => pickColumns(
+    {
+      player_id: playerId,
+      stat,
+      avg_l5: avg(values.slice(0, 5)),
+      avg_l10: avg(values.slice(0, 10)),
+      avg_l20: avg(values.slice(0, 20)),
+      avg_l30: avg(values.slice(0, 30)),
+      avg_season: avg(values),
+      updated_at: updatedAt,
+    },
+    metricColumns
+  ));
+}
 
-    await supabase.from('player_metrics').upsert(
-      payload,
-      { onConflict: 'player_id,stat' }
-    );
+async function recomputePlayerMetrics(
+  supabase: SupabaseClient,
+  playerIds: Iterable<number>,
+  metricColumns: Set<string>
+) {
+  const uniquePlayerIds = [...new Set([...playerIds].filter((playerId) => Number.isInteger(playerId) && playerId > 0))];
+  if (!uniquePlayerIds.length) return;
+
+  const playerStatsMap = new Map<number, PlayerStatMetricsRow[]>();
+  const chunkSize = 200;
+
+  for (let index = 0; index < uniquePlayerIds.length; index += chunkSize) {
+    const chunk = uniquePlayerIds.slice(index, index + chunkSize);
+    const { data: statsRows, error } = await supabase
+      .from('player_stats')
+      .select('player_id,points,rebounds,assists,three_pointers,fgm,fga,game_date,steals,blocks,fg2a,fg3a,three_pa')
+      .in('player_id', chunk)
+      .order('player_id', { ascending: true })
+      .order('game_date', { ascending: false });
+
+    if (error) {
+      throw new Error(`player_stats read failed while recomputing metrics: ${error.message}`);
+    }
+
+    for (const rawRow of (statsRows || []) as PlayerStatMetricsRow[]) {
+      const playerId = toNumber(rawRow.player_id);
+      if (!playerId) continue;
+      const rows = playerStatsMap.get(playerId) ?? [];
+      if (rows.length < 120) {
+        rows.push(rawRow);
+        playerStatsMap.set(playerId, rows);
+      }
+    }
+  }
+
+  const metricUpserts: Array<Record<string, unknown>> = [];
+  for (const playerId of uniquePlayerIds) {
+    const stats = playerStatsMap.get(playerId) || [];
+    if (!stats.length) continue;
+    metricUpserts.push(...buildPlayerMetricPayloads(playerId, stats, metricColumns));
+  }
+
+  if (!metricUpserts.length) return;
+
+  for (let index = 0; index < metricUpserts.length; index += 500) {
+    const chunk = metricUpserts.slice(index, index + 500);
+    const { error } = await supabase.from('player_metrics').upsert(chunk, { onConflict: 'player_id,stat' });
+    if (error) {
+      throw new Error(`player_metrics upsert failed: ${error.message}`);
+    }
   }
 }
 
@@ -591,6 +648,9 @@ async function runSyncCore(
       }
 
       playerStatsSynced += statsRows.length;
+      for (const row of statsRows) {
+        metricPlayerIds.add(row.player_id);
+      }
     }
   } else {
     const selectedGameIds = [...uniqueGameMap.keys()].filter((gameId) => {
@@ -686,11 +746,9 @@ async function runSyncCore(
     }
   }
 
-  if (!isMock) {
+  if (metricPlayerIds.size > 0) {
     const metricColumns = await detectTableColumns(supabase, 'player_metrics');
-    for (const playerId of metricPlayerIds) {
-      await upsertPlayerMetrics(supabase, playerId, metricColumns);
-    }
+    await recomputePlayerMetrics(supabase, metricPlayerIds, metricColumns);
   }
 
   invalidateCacheByPrefix('games:');
@@ -700,7 +758,7 @@ async function runSyncCore(
 
   return {
     status: 'success',
-    message: `Sync (${apiProvider.source}, ${syncMode}) finished with ${normalizedGames.length} games, ${playersSynced} players and ${playerStatsSynced} player_stats upserted.${isMock ? ' Mock mode uses reduced team/player/stat volume and skips player_metrics writes.' : ''}`,
+    message: `Sync (${apiProvider.source}, ${syncMode}) finished with ${normalizedGames.length} games, ${playersSynced} players and ${playerStatsSynced} player_stats upserted.`,
     gamesSynced: normalizedGames.length,
     teamsSynced: selectedTeamIds.length,
     playersSynced,
