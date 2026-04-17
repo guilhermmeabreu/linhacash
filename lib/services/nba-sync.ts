@@ -1,7 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { invalidateCacheByPrefix } from '@/lib/cache/memory-cache';
 import { nbaMockProvider, type ApiSportsGame, type ApiSportsPlayer, type ApiSportsPlayerStat } from '@/lib/mock/nbaMock';
-import { upstashAvailable, upstashDeleteIfValueMatches, upstashGet, upstashSetNxEx, upstashTtl } from '@/lib/upstash-rest';
 
 type SyncStatus = 'running' | 'success' | 'error' | 'skipped';
 
@@ -39,8 +38,6 @@ const BASE_URL = 'https://v2.nba.api-sports.io';
 const RUNNING_STATUSES = new Set(['running', 'in_progress']);
 const LOCK_WINDOW_MS = 15 * 60_000;
 const SYNC_TIMEOUT_MS = 8 * 60_000;
-const STALE_LOCK_RECOVERY_THRESHOLD_MS = LOCK_WINDOW_MS;
-const REDIS_SYNC_LOCK_KEY = 'lock:nba_sync';
 const DATE_WINDOW_PAST_DAYS = 2;
 const DATE_WINDOW_FUTURE_DAYS = 3;
 const MOCK_MAX_TEAMS = 4;
@@ -213,44 +210,6 @@ function avg(values: number[]): number {
   return Number((values.reduce((acc, value) => acc + value, 0) / values.length).toFixed(1));
 }
 
-
-function parseLockStartedAt(lockValue: string | null): number | null {
-  if (!lockValue) return null;
-  const [startedAt] = lockValue.split(':');
-  if (!startedAt) return null;
-
-  const timestamp = Date.parse(startedAt);
-  return Number.isFinite(timestamp) ? timestamp : null;
-}
-
-async function tryRecoverStaleDistributedLock(lockValue: string): Promise<'recovered' | 'missing' | 'not_recovered'> {
-  const currentLockValue = await upstashGet(REDIS_SYNC_LOCK_KEY);
-  if (!currentLockValue) return 'missing';
-
-  const ttlSeconds = await upstashTtl(REDIS_SYNC_LOCK_KEY);
-  const lockHasExpiry = typeof ttlSeconds === 'number' && ttlSeconds > 0;
-
-  const lockStartedAt = parseLockStartedAt(currentLockValue);
-  if (lockHasExpiry) {
-    if (!lockStartedAt) return 'not_recovered';
-    const lockAge = Date.now() - lockStartedAt;
-    if (lockAge < STALE_LOCK_RECOVERY_THRESHOLD_MS) return 'not_recovered';
-  } else if (!lockStartedAt) {
-    // Legacy/manual lock value without timestamp and without expiry.
-    // It cannot be age-validated, so recover it as stale to avoid permanent skip.
-  } else {
-    const lockAge = Date.now() - lockStartedAt;
-    if (lockAge < STALE_LOCK_RECOVERY_THRESHOLD_MS) return 'not_recovered';
-  }
-
-  if (lockHasExpiry) {
-    return 'not_recovered';
-  }
-
-  await upstashDeleteIfValueMatches(REDIS_SYNC_LOCK_KEY, currentLockValue);
-  const retryState = await upstashSetNxEx(REDIS_SYNC_LOCK_KEY, lockValue, Math.ceil((SYNC_TIMEOUT_MS + 2 * 60_000) / 1000));
-  return retryState === 'acquired' ? 'recovered' : 'not_recovered';
-}
 
 async function detectTableColumns(supabase: SupabaseClient, table: string): Promise<Set<string>> {
   const { data, error } = await supabase
@@ -570,72 +529,8 @@ export async function runNbaSyncJob(options: RunNbaSyncOptions = {}): Promise<Sy
 
   inProcessRun = true;
   const startedAt = nowIso();
-  const lockValue = `${startedAt}:${Math.random().toString(36).slice(2)}`;
-  const lockTtlSeconds = Math.ceil((SYNC_TIMEOUT_MS + 2 * 60_000) / 1000);
-  let distributedLockAcquired = false;
-  let distributedLockState: 'acquired' | 'locked' | 'unavailable' | null = null;
+  const distributedLockState: 'acquired' | 'locked' | 'unavailable' | null = 'unavailable';
   let hasRunningSyncResult: boolean | null = null;
-
-  if (upstashAvailable()) {
-    const lockState = await upstashSetNxEx(REDIS_SYNC_LOCK_KEY, lockValue, lockTtlSeconds);
-    distributedLockState = lockState;
-    if (lockState === 'locked') {
-      const recoveryResult = await tryRecoverStaleDistributedLock(lockValue);
-      if (recoveryResult === 'missing') {
-        const retryLockState = await upstashSetNxEx(REDIS_SYNC_LOCK_KEY, lockValue, lockTtlSeconds);
-        distributedLockState = retryLockState;
-        if (retryLockState === 'acquired') {
-          distributedLockAcquired = true;
-        } else {
-          const finishedAt = nowIso();
-          inProcessRun = false;
-          return {
-            status: 'skipped',
-            message: 'Sync skipped because another sync lock is active.',
-            gamesSynced: 0,
-            teamsSynced: 0,
-            playersSynced: 0,
-            playerStatsSynced: 0,
-            errors: [],
-            startedAt,
-            finishedAt,
-            debug: {
-              ...debugBase,
-              hasRunningSync: hasRunningSyncResult,
-              inProcessRunAlready: false,
-              distributedLock: distributedLockState,
-            },
-          };
-        }
-      } else if (recoveryResult !== 'recovered') {
-        const finishedAt = nowIso();
-        inProcessRun = false;
-        return {
-          status: 'skipped',
-          message: 'Sync skipped because another sync lock is active.',
-          gamesSynced: 0,
-          teamsSynced: 0,
-          playersSynced: 0,
-          playerStatsSynced: 0,
-          errors: [],
-          startedAt,
-          finishedAt,
-          debug: {
-            ...debugBase,
-            hasRunningSync: hasRunningSyncResult,
-            inProcessRunAlready: false,
-            distributedLock: distributedLockState,
-          },
-        };
-      } else {
-        distributedLockAcquired = true;
-      }
-    } else {
-      distributedLockAcquired = lockState === 'acquired';
-    }
-  } else {
-    distributedLockState = 'unavailable';
-  }
 
   const supabase = getSupabaseAdmin();
   const now = new Date();
@@ -747,9 +642,6 @@ export async function runNbaSyncJob(options: RunNbaSyncOptions = {}): Promise<Sy
       },
     };
   } finally {
-    if (distributedLockAcquired) {
-      await upstashDeleteIfValueMatches(REDIS_SYNC_LOCK_KEY, lockValue);
-    }
     inProcessRun = false;
   }
 }
