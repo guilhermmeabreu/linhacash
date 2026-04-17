@@ -277,7 +277,7 @@ function pickColumns<T extends Record<string, unknown>>(payload: T, columns: Set
 async function createSyncLog(
   supabase: SupabaseClient,
   columns: Set<string>,
-  payload: { jobType: string; status: SyncStatus; message: string; startedAt: string }
+  payload: { jobType: string; status: SyncStatus; message: string; startedAt: string; log?: string }
 ): Promise<SyncLogRecord | null> {
   const row = pickColumns(
     {
@@ -286,7 +286,7 @@ async function createSyncLog(
       message: payload.message,
       started_at: payload.startedAt,
       created_at: payload.startedAt,
-      log: payload.message,
+      log: payload.log ?? payload.message,
     },
     columns
   );
@@ -675,11 +675,16 @@ export async function runNbaSyncJob(options: RunNbaSyncOptions = {}): Promise<Sy
       return skippedSummary;
     }
 
+    const startLogContext = JSON.stringify({
+      requestId: debugBase.requestId,
+      routeSource: debugBase.routeSource,
+    });
     const log = await createSyncLog(supabase, syncLogColumns, {
       jobType: 'nba_incremental_sync',
       status: 'running',
       message: 'Sync started',
       startedAt,
+      log: `Sync started ${startLogContext}`,
     });
     logId = log?.id ?? null;
 
