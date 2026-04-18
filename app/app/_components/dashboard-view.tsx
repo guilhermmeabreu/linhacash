@@ -251,10 +251,6 @@ function resolveMetricsWindow(split: Split): MetricsWindow {
   return 'SEASON';
 }
 
-function isSeasonLikeSplit(split: Split) {
-  return split === 'Season' || split === '24/25';
-}
-
 function resolveH2HOpponent(game: Game | null, player: Player | null): string | null {
   if (!game || !player) return null;
   if (player.team_id === game.home_team_id) return game.away_team;
@@ -275,6 +271,8 @@ function buildMetricsScope(split: Split, game: Game | null, player: Player | nul
 function buildMetricsCacheKey(playerId: number, stat: Stat, scopeKey: string) {
   return `${playerId}:${stat}:${scopeKey}`;
 }
+
+const SPLIT_CARD_ORDER: Split[] = ['Season', 'H2H', 'L5', 'L10', 'L20', 'L30', '24/25'];
 
 export function DashboardView() {
   const router = useRouter();
@@ -390,6 +388,10 @@ export function DashboardView() {
   const selectedMetricsScope = useMemo(
     () => buildMetricsScope(selectedSplit, selectedGame, selectedPlayer),
     [selectedGame, selectedPlayer, selectedSplit],
+  );
+  const splitScopes = useMemo(
+    () => Object.fromEntries(SPLITS.map((split) => [split, buildMetricsScope(split, selectedGame, selectedPlayer)])) as Record<Split, ReturnType<typeof buildMetricsScope>>,
+    [selectedGame, selectedPlayer],
   );
   const selectedMetricsKey = selectedPlayerId
     ? buildMetricsCacheKey(selectedPlayerId, selectedStat, selectedMetricsScope.scopeKey)
@@ -771,6 +773,18 @@ export function DashboardView() {
   ]);
 
   useEffect(() => {
+    if (!selectedPlayerId || marketLocked || view !== 'detail') return;
+    const timer = window.setTimeout(() => {
+      SPLITS.forEach((split) => {
+        const scope = splitScopes[split];
+        if (!scope) return;
+        void loadMetricsForPlayer(selectedPlayerId, selectedStat, { scope });
+      });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadMetricsForPlayer, marketLocked, selectedPlayerId, selectedStat, splitScopes, view]);
+
+  useEffect(() => {
     if (view !== 'players' || marketLocked) return;
     const hotPlayers = players.slice(0, 12);
     if (!hotPlayers.length) return;
@@ -1015,36 +1029,16 @@ export function DashboardView() {
       return { ...sample, tone, label };
     });
     const splitMetrics: PlayerDetailSplitMetric[] = SPLITS.map((split) => {
-      const metrics = payload?.metrics;
-      const averageBySplit: Record<'24/25' | 'L5' | 'L10' | 'L20' | 'L30' | 'Season', number | null | undefined> = {
-        '24/25': metrics?.avg_season,
-        L5: metrics?.avg_l5,
-        L10: metrics?.avg_l10,
-        L20: metrics?.avg_l20,
-        L30: metrics?.avg_l30,
-        Season: metrics?.avg_season,
-      };
-      const selectedHitRate = Number(metrics?.selected_hit_rate);
-      const selectedSampleSize = Number(metrics?.sample_size);
-      const hasSelectedHitRate = Number.isFinite(selectedHitRate) && selectedSampleSize > 0;
-      const selectedHits = hasSelectedHitRate ? Math.round((selectedHitRate / 100) * selectedSampleSize) : null;
-      const selectedSplitMatchesCard = split === selectedSplit
-        || (isSeasonLikeSplit(split) && isSeasonLikeSplit(selectedSplit));
-      const selectedNote = hasSelectedHitRate && selectedHits !== null
-        ? (isSeasonLikeSplit(split) ? `${Math.round(selectedHitRate)}% (${selectedHits}/${selectedSampleSize})` : `${selectedHits}/${selectedSampleSize}`)
-        : null;
-      const rawAverage = averageBySplit[split as keyof typeof averageBySplit];
-      const averageValue = Number(rawAverage);
-      if (Number.isFinite(averageValue)) {
-        const seasonSampleSize = Number(metrics?.season_sample_size);
-        const note = (selectedSplitMatchesCard ? selectedNote : null)
-          ?? ((split === 'Season' || split === '24/25') && Number.isFinite(seasonSampleSize) && seasonSampleSize > 0
-            ? `0/${seasonSampleSize}`
-            : 'Sem dados');
-        return { label: split, value: averageValue.toFixed(1), note };
-      }
-      if (split === 'H2H' && selectedSplit === 'H2H' && hasSelectedHitRate && selectedHits !== null) {
-        return { label: split, value: `${Math.round(selectedHitRate)}%`, note: `${selectedHits}/${selectedSampleSize}` };
+      if (!selectedPlayerId) return { label: split, value: '—', note: 'Sem dados' };
+      const scope = splitScopes[split];
+      const cacheKey = buildMetricsCacheKey(selectedPlayerId, selectedStat, scope.scopeKey);
+      const splitPayload = metricsBySelection[cacheKey];
+      const metrics = splitPayload?.metrics;
+      const hitRate = Number(metrics?.selected_hit_rate);
+      const sampleSize = Number(metrics?.sample_size);
+      if (Number.isFinite(hitRate) && Number.isFinite(sampleSize) && sampleSize > 0) {
+        const hits = Math.round((hitRate / 100) * sampleSize);
+        return { label: split, value: `${Math.round(hitRate)}%`, note: `${hits}/${sampleSize}` };
       }
       return { label: split, value: '—', note: 'Sem dados' };
     });
@@ -1052,15 +1046,8 @@ export function DashboardView() {
     splitMetrics.forEach((metric) => {
       summaryMetricMap[metric.label] = metric;
     });
-    const summaryMetrics: PlayerDetailSplitMetric[] = [
-      summaryMetricMap.Season ?? { label: 'Season', value: '—', note: 'Sem dados' },
-      summaryMetricMap.H2H ?? { label: 'H2H', value: '—', note: 'Sem dados' },
-      summaryMetricMap.L5 ?? { label: 'L5', value: '—', note: 'Sem dados' },
-      summaryMetricMap.L10 ?? { label: 'L10', value: '—', note: 'Sem dados' },
-      summaryMetricMap.L20 ?? { label: 'L20', value: '—', note: 'Sem dados' },
-      summaryMetricMap.L30 ?? { label: 'L30', value: '—', note: 'Sem dados' },
-      summaryMetricMap['24/25'] ?? { label: '24/25', value: '—', note: 'Sem dados' },
-    ];
+    const summaryMetrics: PlayerDetailSplitMetric[] = SPLIT_CARD_ORDER.map((split) =>
+      summaryMetricMap[split] ?? { label: split, value: '—', note: 'Sem dados' });
     return {
       allGames: scopedGames,
       games,
@@ -1071,7 +1058,7 @@ export function DashboardView() {
       metrics: payload?.metrics ?? null,
       splitMetrics,
     };
-  }, [lineAdjustment, selectedMetricsResource, selectedPlayer, selectedSplit]);
+  }, [lineAdjustment, metricsBySelection, selectedMetricsResource, selectedPlayer, selectedPlayerId, selectedStat, splitScopes]);
 
   const topTitle = useMemo(() => {
     if (view === 'profile') return 'Meu Perfil';
