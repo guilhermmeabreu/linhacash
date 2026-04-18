@@ -291,7 +291,7 @@ function PlayerAvatar({ playerName }: PlayerAvatarProps) {
   );
 }
 
-const SPLIT_CARD_ORDER: Split[] = ['Season', 'H2H', 'L5', 'L10', 'L20', 'L30'];
+const SPLIT_CARD_ORDER: Split[] = ['Season', 'L5', 'L10', 'L20', 'L30', 'H2H'];
 const PLAYERS_CACHE_TTL_MS = 5 * 60 * 1000;
 const METRICS_CACHE_TTL_MS = 3 * 60 * 1000;
 
