@@ -226,13 +226,69 @@ function normalizePlayer(player: ApiSportsPlayer, teamId: number, teamName: stri
   };
 }
 
-function normalizePlayerStat(playerId: number, stat: ApiSportsPlayerStat, fallbackGameDate: string | null = null) {
+type OpponentContext = {
+  playerTeamId?: number | null;
+  homeTeamId?: number | null;
+  awayTeamId?: number | null;
+  homeTeamName?: string | null;
+  awayTeamName?: string | null;
+};
+
+function resolveOpponentFromGameContext(
+  stat: ApiSportsPlayerStat,
+  opponentContext?: OpponentContext
+): { opponent: string; isHome: boolean | null } {
+  const playerTeamId = toNumber(opponentContext?.playerTeamId);
+  const homeTeamId = toNumber(opponentContext?.homeTeamId);
+  const awayTeamId = toNumber(opponentContext?.awayTeamId);
+  const homeTeamName = opponentContext?.homeTeamName || '';
+  const awayTeamName = opponentContext?.awayTeamName || '';
+  const statTeamName = stat.team?.name || '';
+  const statTeamId = toNumber((stat as { team?: { id?: number | null } }).team?.id);
+
+  if (playerTeamId > 0 && homeTeamId > 0 && awayTeamId > 0) {
+    if (playerTeamId === homeTeamId) {
+      return { opponent: awayTeamName, isHome: true };
+    }
+    if (playerTeamId === awayTeamId) {
+      return { opponent: homeTeamName, isHome: false };
+    }
+  }
+
+  if (statTeamId > 0 && homeTeamId > 0 && awayTeamId > 0) {
+    if (statTeamId === homeTeamId) {
+      return { opponent: awayTeamName, isHome: true };
+    }
+    if (statTeamId === awayTeamId) {
+      return { opponent: homeTeamName, isHome: false };
+    }
+  }
+
+  if (statTeamName && homeTeamName && awayTeamName) {
+    if (statTeamName === homeTeamName) {
+      return { opponent: awayTeamName, isHome: true };
+    }
+    if (statTeamName === awayTeamName) {
+      return { opponent: homeTeamName, isHome: false };
+    }
+  }
+
+  return { opponent: statTeamName, isHome: null };
+}
+
+function normalizePlayerStat(
+  playerId: number,
+  stat: ApiSportsPlayerStat,
+  fallbackGameDate: string | null = null,
+  opponentContext?: OpponentContext
+) {
+  const opponentInfo = resolveOpponentFromGameContext(stat, opponentContext);
   return {
     player_id: playerId,
     game_id: toNumber(stat.game?.id) || null,
     game_date: stat.game?.date ? stat.game.date.slice(0, 10) : fallbackGameDate,
-    opponent: stat.team?.name || '',
-    is_home: null,
+    opponent: opponentInfo.opponent,
+    is_home: opponentInfo.isHome,
     points: toNumber(stat.points),
     rebounds: toNumber(stat.totReb),
     assists: toNumber(stat.assists),
@@ -631,9 +687,10 @@ async function runSyncCore(
 
   const uniqueSyncedApiIds = [...new Set(syncedPlayerApiIds)];
   const { data: allPlayerRows } = uniqueSyncedApiIds.length
-    ? await supabase.from('players').select('id,api_id').in('api_id', uniqueSyncedApiIds)
-    : { data: [] as Array<{ id: number; api_id: number }> };
+    ? await supabase.from('players').select('id,api_id,team_id').in('api_id', uniqueSyncedApiIds)
+    : { data: [] as Array<{ id: number; api_id: number; team_id: number | null }> };
   const playerIdByApi = new Map<number, number>((allPlayerRows || []).map((row) => [toNumber(row.api_id), toNumber(row.id)]));
+  const playerTeamIdByApi = new Map<number, number>((allPlayerRows || []).map((row) => [toNumber(row.api_id), toNumber(row.team_id)]));
   const metricPlayerIds = new Set<number>();
 
   if (isMock) {
@@ -649,7 +706,11 @@ async function runSyncCore(
       }
 
       const statsRows = statsRaw
-        .map((stat) => normalizePlayerStat(internalPlayerId, stat, null))
+        .map((stat) =>
+          normalizePlayerStat(internalPlayerId, stat, null, {
+            playerTeamId: playerTeamIdByApi.get(apiId) ?? null,
+          })
+        )
         .filter((row) => row.game_id && row.game_date)
         .slice(0, isMock ? MOCK_MAX_PLAYER_STATS : 30);
 
@@ -697,6 +758,11 @@ async function runSyncCore(
     for (const gameId of selectedGameIds) {
       const statsRaw = await apiProvider.getPlayerStatisticsByGame(gameId, statsSeason, signal);
       const fallbackGameDate = uniqueGameMap.get(gameId)?.day ?? null;
+      const gameDetails = uniqueGameMap.get(gameId)?.game;
+      const homeTeamId = toNumber(gameDetails?.teams?.home?.id) || null;
+      const awayTeamId = toNumber(gameDetails?.teams?.visitors?.id) || null;
+      const homeTeamName = gameDetails?.teams?.home?.name || '';
+      const awayTeamName = gameDetails?.teams?.visitors?.name || '';
       
       if (!isMock && !loggedFirstRealGameStatsDebug) {
         const firstDebugStat = statsRaw[0] as
@@ -720,7 +786,13 @@ async function runSyncCore(
           if (!internalPlayerId) {
             return null;
           }
-          return normalizePlayerStat(internalPlayerId, stat, fallbackGameDate);
+          return normalizePlayerStat(internalPlayerId, stat, fallbackGameDate, {
+            playerTeamId: playerTeamIdByApi.get(statPlayerApiId) ?? null,
+            homeTeamId,
+            awayTeamId,
+            homeTeamName,
+            awayTeamName,
+          });
         })
         .filter((row): row is ReturnType<typeof normalizePlayerStat> => Boolean(row?.game_id && row.game_date));
 
