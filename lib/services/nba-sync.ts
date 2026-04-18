@@ -241,11 +241,12 @@ function resolveOpponentFromGameContext(
   const playerTeamId = toNumber(opponentContext?.playerTeamId);
   const homeTeamId = toNumber(opponentContext?.homeTeamId);
   const awayTeamId = toNumber(opponentContext?.awayTeamId);
-  const homeTeamName = opponentContext?.homeTeamName || '';
-  const awayTeamName = opponentContext?.awayTeamName || '';
-  const statTeamName = stat.team?.name || '';
+  const homeTeamName = (opponentContext?.homeTeamName || '').trim();
+  const awayTeamName = (opponentContext?.awayTeamName || '').trim();
+  const statTeamName = (stat.team?.name || '').trim();
   const statTeamId = toNumber((stat as { team?: { id?: number | null } }).team?.id);
 
+  // 1) Best source: player's known internal team against game home/away ids
   if (playerTeamId > 0 && homeTeamId > 0 && awayTeamId > 0) {
     if (playerTeamId === homeTeamId) {
       return { opponent: awayTeamName, isHome: true };
@@ -255,6 +256,7 @@ function resolveOpponentFromGameContext(
     }
   }
 
+  // 2) Fallback: team id returned by stat payload
   if (statTeamId > 0 && homeTeamId > 0 && awayTeamId > 0) {
     if (statTeamId === homeTeamId) {
       return { opponent: awayTeamName, isHome: true };
@@ -264,6 +266,7 @@ function resolveOpponentFromGameContext(
     }
   }
 
+  // 3) Fallback: team name returned by stat payload
   if (statTeamName && homeTeamName && awayTeamName) {
     if (statTeamName === homeTeamName) {
       return { opponent: awayTeamName, isHome: true };
@@ -273,7 +276,9 @@ function resolveOpponentFromGameContext(
     }
   }
 
-  return { opponent: statTeamName, isHome: null };
+  // 4) Safe failure mode:
+  // never use the player's own team as opponent
+  return { opponent: '', isHome: null };
 }
 
 function normalizePlayerStat(
