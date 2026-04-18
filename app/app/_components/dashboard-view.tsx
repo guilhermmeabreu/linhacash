@@ -77,7 +77,7 @@ const PLAYER_ROW_STATS = [
 ] as const;
 
 type Stat = (typeof STATS)[number];
-const SPLITS = ['24/25', 'L5', 'L10', 'L20', 'L30', 'Season', 'H2H'] as const;
+const SPLITS = ['L5', 'L10', 'L20', 'L30', 'Season', 'H2H'] as const;
 type Split = (typeof SPLITS)[number];
 type MetricsWindow = 'L5' | 'L10' | 'L20' | 'L30' | 'SEASON' | 'CURRENT_SEASON' | 'PREV_SEASON';
 
@@ -249,7 +249,6 @@ function isLockedStat(stat: Stat, plan: Plan) {
 function resolveMetricsWindow(split: Split): MetricsWindow {
   if (split === 'L5' || split === 'L10' || split === 'L20' || split === 'L30') return split;
   if (split === 'Season') return 'CURRENT_SEASON';
-  if (split === '24/25') return 'PREV_SEASON';
   return 'SEASON';
 }
 
@@ -290,7 +289,7 @@ function buildMetricsScope(split: Split, game: Game | null, player: Player | nul
   const window = resolveMetricsWindow(split);
   const opponent = split === 'H2H' ? resolveH2HOpponent(game, player) : null;
   const safeLineContext = Number.isFinite(lineContext) ? Number(lineContext.toFixed(1)) : 0;
-  const scopeKey = `${split}:${opponent?.toLowerCase() || 'all'}`;
+  const scopeKey = `${split}:${window}:${opponent?.trim().toLowerCase() || 'all'}`;
   return { split, window, opponent, lineContext: safeLineContext, scopeKey };
 }
 
@@ -298,7 +297,7 @@ function buildMetricsCacheKey(playerId: number, stat: Stat, scopeKey: string) {
   return `${playerId}:${stat}:${scopeKey}`;
 }
 
-const SPLIT_CARD_ORDER: Split[] = ['Season', 'H2H', 'L5', 'L10', 'L20', 'L30', '24/25'];
+const SPLIT_CARD_ORDER: Split[] = ['Season', 'H2H', 'L5', 'L10', 'L20', 'L30'];
 
 export function DashboardView() {
   const router = useRouter();
@@ -1040,10 +1039,15 @@ export function DashboardView() {
   const getSplitPctClassName = useCallback((value: string) => {
     const pct = Number.parseInt(value.replace('%', ''), 10);
     if (!Number.isFinite(pct)) return '';
-    if (pct >= 80) return styles.splitPctHigh;
-    if (pct >= 50) return styles.splitPctMid;
+    if (pct >= 50) return styles.splitPctHigh;
     return styles.splitPctLow;
   }, []);
+
+  const showChartValueLabels = useMemo(() => {
+    if (selectedSplit === 'Season') return false;
+    if (!isDesktopCheckoutViewport && selectedSplit === 'L30') return false;
+    return true;
+  }, [isDesktopCheckoutViewport, selectedSplit]);
 
   const playerDetailModel = useMemo(() => {
     if (!selectedPlayer) return null;
@@ -1503,7 +1507,9 @@ export function DashboardView() {
                                       : 28
                               }
                             >
-                              <LabelList dataKey="value" position="insideBottom" offset={14} fill="#000000" fontSize={10} />
+                              {showChartValueLabels ? (
+                                <LabelList dataKey="value" position="insideBottom" offset={14} fill="#000000" fontSize={10} />
+                              ) : null}
                               {playerDetailModel.bars.map((bar, index) => (
                                 <Cell
                                   key={`${bar.label}-${index}`}
