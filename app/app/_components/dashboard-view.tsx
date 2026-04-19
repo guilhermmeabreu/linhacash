@@ -231,8 +231,13 @@ function shortTeamName(name: string) {
     .toUpperCase();
 }
 
-function formatTodayLabel() {
-  return new Date().toLocaleDateString('pt-BR', {
+function formatVisibleDashboardDayLabel(dayKey: string) {
+  const parsed = parseCalendarDate(dayKey);
+  if (!parsed) return '';
+
+  const labelDate = new Date(Date.UTC(parsed.year, parsed.month - 1, parsed.day, 12, 0, 0));
+  return labelDate.toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -445,6 +450,7 @@ export function DashboardView() {
   const [lineAdjustment, setLineAdjustment] = useState(0);
 
   const [games, setGames] = useState<Game[]>([]);
+  const [visibleDashboardDayKey, setVisibleDashboardDayKey] = useState<string>(() => getBrazilVisibleDashboardDayKey(new Date(), 4));
   const [playersByGame, setPlayersByGame] = useState<Record<number, Player[]>>({});
   const [playersStatusByGame, setPlayersStatusByGame] = useState<Record<number, ResourceStatus>>({});
   const [playersErrorByGame, setPlayersErrorByGame] = useState<Record<number, string | null>>({});
@@ -867,6 +873,7 @@ export function DashboardView() {
 
     const nextGames = Array.isArray(result.data.games) ? result.data.games : [];
     const todayKey = getBrazilVisibleDashboardDayKey(new Date(), 4);
+    setVisibleDashboardDayKey(todayKey);
     const gamesForDashboardDay = nextGames.filter((game) => {
       const gameDateTime = buildGameDateTime(game);
       if (!gameDateTime) return false;
@@ -1357,7 +1364,7 @@ export function DashboardView() {
         <div className={styles.dashboardCanvas}>
           {view === 'games' && !showDesktopCheckoutView ? (
             <section className={`${styles.gamesView} ${styles.viewPanel}`}>
-              <p className={styles.gamesDateLine}>Hoje · {formatTodayLabel()}</p>
+              <p className={styles.gamesDateLine}>Hoje · {formatVisibleDashboardDayLabel(visibleDashboardDayKey)}</p>
               {gamesStatus === 'loading' ? (
                 <Surface className={styles.statePanelInline}><p className={styles.stateText}>Carregando jogos...</p></Surface>
               ) : null}
