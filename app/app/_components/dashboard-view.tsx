@@ -238,6 +238,35 @@ function formatTodayLabel() {
   });
 }
 
+function parseCalendarDate(value: string | null | undefined): { year: number; month: number; day: number } | null {
+  if (!value) return null;
+  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return null;
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return { year, month, day };
+}
+
+function formatCalendarDateLabel(value: string | null | undefined): string {
+  const parsed = parseCalendarDate(value);
+  if (!parsed) return '—';
+  return `${String(parsed.day).padStart(2, '0')}/${String(parsed.month).padStart(2, '0')}`;
+}
+
+function compareCalendarDateDesc(a: string | null | undefined, b: string | null | undefined): number {
+  const parsedA = parseCalendarDate(a);
+  const parsedB = parseCalendarDate(b);
+  if (!parsedA && !parsedB) return 0;
+  if (!parsedA) return 1;
+  if (!parsedB) return -1;
+  const normalizedA = parsedA.year * 10000 + parsedA.month * 100 + parsedA.day;
+  const normalizedB = parsedB.year * 10000 + parsedB.month * 100 + parsedB.day;
+  return normalizedB - normalizedA;
+}
+
 function resolveInitialStat(value: string | null): Stat {
   return STATS.includes(value as Stat) ? (value as Stat) : 'PTS';
 }
@@ -280,9 +309,8 @@ function buildMetricsScope(split: Split, game: Game | null, player: Player | nul
   const h2hContext = split === 'H2H' ? resolveH2HOpponentContext(game, player) : null;
   const opponent = h2hContext?.opponent ?? null;
   const opponentTeamId = h2hContext?.opponentTeamId ?? null;
-  const gameId = h2hContext?.gameId ?? null;
   const scopeKey = `${split}:${window}:${opponentTeamId || 0}:${opponent?.trim().toLowerCase() || 'all'}`;
-  return { split, window, opponent, opponentTeamId, gameId, scopeKey };
+  return { split, window, opponent, opponentTeamId, gameId: null, scopeKey };
 }
 
 function buildMetricsCacheKey(playerId: number, stat: Stat, scopeKey: string) {
@@ -1083,7 +1111,8 @@ export function DashboardView() {
       date: sample.date,
       value: Number(sample.value ?? 0),
       minutes: Number(sample.minutes ?? 0),
-    }));
+    }))
+      .sort((a, b) => compareCalendarDateDesc(a.date, b.date));
     const games = scopedGames;
     const values = games.map((sample) => sample.value);
     const lineBase = Number(payload?.metrics?.line ?? payload?.metrics?.avg_l10 ?? 0);
@@ -1097,8 +1126,7 @@ export function DashboardView() {
         : null;
     const bars: PlayerDetailChartBar[] = games.slice().reverse().map((sample) => {
       const tone: ChartBarTone = sample.value >= line ? 'hit' : 'miss';
-      const date = sample.date ? new Date(sample.date) : null;
-      const label = date ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}` : '—';
+      const label = formatCalendarDateLabel(sample.date);
       return { ...sample, tone, label };
     });
     const splitMetrics: PlayerDetailSplitMetric[] = SPLITS.map((split) => {
