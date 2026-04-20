@@ -172,6 +172,17 @@ type PlayerDetailSplitMetric = {
   note: string;
 };
 
+type PlayerDetailModel = {
+  allGames: PlayerGameSample[];
+  games: PlayerGameSample[];
+  line: number;
+  average: number | null;
+  bars: PlayerDetailChartBar[];
+  summaryMetrics: PlayerDetailSplitMetric[];
+  metrics: PlayerMetrics | null;
+  splitMetrics: PlayerDetailSplitMetric[];
+};
+
 type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; status: number; message: string };
@@ -507,13 +518,7 @@ export function DashboardView() {
   const detailModelMemoryRef = useRef<{
     playerId: number;
     stat: Stat;
-    model: {
-      average: string;
-      line: number;
-      bars: PlayerDetailChartBar[];
-      summaryMetrics: PlayerDetailSplitMetric[];
-      splitMetrics: PlayerDetailSplitMetric[];
-    };
+    model: PlayerDetailModel;
   } | null>(null);
 
   const selectedGame = useMemo(
