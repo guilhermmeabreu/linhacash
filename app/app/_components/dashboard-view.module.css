@@ -1695,14 +1695,14 @@ html.light .upgradePlanBtn span {
 
 @media (max-width: 860px) {
   .playersTopbarCompact :global(.lc-topbar-subtitle) {
-    font-size: 0.58rem;
-    line-height: 0.9;
+    font-size: 0.64rem;
+    line-height: 1;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: min(40vw, 7.8rem);
+    max-width: min(52vw, 10.6rem);
   }
 
   .playersView {
