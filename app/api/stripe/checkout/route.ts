@@ -215,20 +215,14 @@ export async function POST(req: Request) {
         throw trialStateError;
       }
 
-      const stripePaymentMethodFingerprint = typeof body.stripePaymentMethodFingerprint === 'string'
-        ? body.stripePaymentMethodFingerprint.trim() || null
-        : null;
+      // Fingerprint is intentionally not accepted from client input in this rollout.
       const { error: trialUsageError } = await supabase
         .from('trial_usage')
-        .upsert({
+        .insert({
           email: user.email,
           normalized_email: normalizedEmail,
           stripe_customer_id: stripeCustomerId,
           first_user_id: user.id,
-          stripe_payment_method_fingerprint: stripePaymentMethodFingerprint,
-        }, {
-          onConflict: 'normalized_email,stripe_customer_id',
-          ignoreDuplicates: true,
         });
 
       if (trialUsageError && trialUsageError.code !== '23505') {
