@@ -479,10 +479,10 @@ textarea {
 /* Public/auth migration phase */
 .lc-public-container { width: min(100% - 2rem, 70rem); margin: 0 auto; }
 .lc-public-nav { position: sticky; top: 0; z-index: var(--lc-z-topbar); border-bottom: 1px solid color-mix(in srgb, var(--lc-border) 60%, transparent); background: color-mix(in srgb, var(--lc-bg) 82%, transparent); backdrop-filter: blur(8px); }
-.lc-public-nav .lc-public-container { min-height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: var(--lc-space-3); }
+.lc-public-nav .lc-public-container { min-height: 4.25rem; display: flex; align-items: center; justify-content: space-between; gap: clamp(1rem, 2vw, 2rem); }
 .lc-brand { display: inline-flex; align-items: center; gap: .6rem; font-weight: 800; color: var(--lc-text); text-decoration: none; }
 .lc-brand span span { color: var(--lc-accent); }
-.lc-public-actions { display: flex; align-items: center; gap: .5rem; }
+.lc-public-actions { display: flex; align-items: center; gap: .65rem; margin-left: auto; padding-left: clamp(0.6rem, 1.8vw, 1.6rem); }
 
 .lc-landing { background: radial-gradient(circle at top, color-mix(in srgb, var(--lc-accent) 9%, transparent), transparent 44%), var(--lc-bg); }
 .lc-hero {

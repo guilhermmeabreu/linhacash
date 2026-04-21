@@ -12,6 +12,12 @@ import { requireActiveReferralCode } from '@/lib/services/referral-service';
 type StripePlan = 'monthly' | 'annual' | 'playoff';
 
 type PlanPriceConfig = { envVar: 'STRIPE_PRICE_PRO_MONTHLY' | 'STRIPE_PRICE_PRO_ANNUAL' | 'STRIPE_PRICE_PLAYOFF_PACK'; priceId: string };
+type TrialProfileState = {
+  trial_eligible: boolean | null;
+  trial_used_at: string | null;
+  subscription_status: string | null;
+  subscription_started_at: string | null;
+};
 
 function getPlanPriceConfig(plan: StripePlan): PlanPriceConfig {
   if (plan === 'monthly') {
@@ -97,6 +103,31 @@ async function resolveStripeCustomerId(userId: string, email: string, name: stri
   return customer.id;
 }
 
+async function getTrialProfileState(userId: string): Promise<TrialProfileState> {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('trial_eligible,trial_used_at,subscription_status,subscription_started_at')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return {
+    trial_eligible: typeof data?.trial_eligible === 'boolean' ? data.trial_eligible : null,
+    trial_used_at: typeof data?.trial_used_at === 'string' ? data.trial_used_at : null,
+    subscription_status: typeof data?.subscription_status === 'string' ? data.subscription_status : null,
+    subscription_started_at: typeof data?.subscription_started_at === 'string' ? data.subscription_started_at : null,
+  };
+}
+
+function isMonthlyTrialEligible(profile: TrialProfileState) {
+  if (profile.trial_eligible === false) return false;
+  if (profile.trial_used_at) return false;
+  if (profile.subscription_started_at) return false;
+  if (profile.subscription_status) return false;
+  return true;
+}
+
 export async function POST(req: Request) {
   const origin = req.headers.get('origin') || undefined;
   const context = buildRequestContext(req, { route: '/api/stripe/checkout' });
@@ -133,6 +164,24 @@ export async function POST(req: Request) {
 
     const appUrl = requireEnv('NEXT_PUBLIC_APP_URL').replace(/\/$/, '');
     const stripeCustomerId = await resolveStripeCustomerId(user.id, user.email, user.name);
+    const profileTrialState = await getTrialProfileState(user.id);
+    const shouldGrantMonthlyTrial = plan === 'monthly' && isMonthlyTrialEligible(profileTrialState);
+    const trialStartedAt = shouldGrantMonthlyTrial ? new Date().toISOString() : null;
+
+    if (trialStartedAt) {
+      const { error: trialStateError } = await supabase
+        .from('profiles')
+        .update({
+          trial_used_at: trialStartedAt,
+          trial_eligible: false,
+          billing_updated_at: trialStartedAt,
+        })
+        .eq('id', user.id);
+
+      if (trialStateError) {
+        throw trialStateError;
+      }
+    }
 
     const stripe = getStripeServerClient();
     const checkout = await stripe.createCheckoutSession({
@@ -148,7 +197,12 @@ export async function POST(req: Request) {
         ...(resolvedReferralCode ? { referral_code: resolvedReferralCode } : {}),
       },
       ...(plan === 'monthly'
-        ? { subscription_data: { trial_period_days: 7, metadata: { user_id: user.id, plan } } }
+        ? {
+          subscription_data: {
+            ...(shouldGrantMonthlyTrial ? { trial_period_days: 7 } : {}),
+            metadata: { user_id: user.id, plan },
+          },
+        }
         : plan === 'annual'
           ? { subscription_data: { metadata: { user_id: user.id, plan } } }
           : {}),
