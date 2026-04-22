@@ -1,101 +1,130 @@
 # LinhaCash
 
-LinhaCash é um SaaS de análise de props da NBA para leitura pré-jogo orientada por dados. A plataforma centraliza jogos, jogadores e métricas em uma interface única para acelerar decisão e reduzir análise manual.
+LinhaCash é uma plataforma de análise de props da NBA orientada por dados. O objetivo é centralizar jogos, jogadores, tendências e métricas derivadas para reduzir trabalho manual e apoiar análises pré-jogo.
 
-## Stack real do projeto
+## Propósito da plataforma
 
-- **Frontend/App**: Next.js 16 (App Router), React 19, TypeScript
-- **Dados e auth**: Supabase (Postgres + Supabase Auth)
-- **Billing**: Stripe (checkout, portal e webhook)
-- **Infra de proteção/performance**: Upstash Redis (rate limit, lock distribuído), cache em memória como fallback
-- **Dados NBA**: API-SPORTS (pipeline de sincronização server-side)
+A plataforma foi construída para oferecer um fluxo estruturado de análise esportiva com:
+- dashboard autenticado;
+- pipeline de sincronização de dados;
+- exploração de métricas por janelas e splits;
+- controle de acesso por plano.
 
-## Estrutura principal (repositório)
+## Funcionalidades principais
 
-```text
-app/
-  api/
-    games/              # jogos do dia autenticados
-    players/            # jogadores por jogo
-    metrics/            # métricas por jogador/stat/window/split
-    sync/ + sync/run/   # execução do job de sync (cron protegido)
-    stripe/
-      checkout/         # criação de sessão Stripe
-      portal/           # portal de billing
-      webhook/          # eventos Stripe e atualização de acesso
-    billing/cancel/     # cancelamento de assinatura
-    auth/, profile/, account/, support/
-    admin/              # endpoints administrativos
-lib/
-  services/
-    nba-sync.ts         # ingestão NBA + upsert em Supabase
-    billing-service.ts  # estado de acesso (free/pro)
-    referral-service.ts # códigos de indicação
-    affiliate-commission-service.ts
-  auth/                 # autorização de usuário/admin/cron
-  stripe/               # cliente Stripe server-side
-  rate-limit.ts         # Upstash Redis + fallback memória
-  security.ts           # validação de sessão, helpers seguros
-```
+- **Pipeline NBA**: sincronização server-side de jogos, jogadores, estatísticas e métricas derivadas.
+- **Dashboard de análise**: filtros por janela (L5/L10/L20/L30/Season), split (home/away/all) e contexto por oponente.
+- **Autenticação e perfil**: fluxos de conta baseados em Supabase Auth.
+- **Assinaturas e cobrança**: checkout Stripe, portal do cliente e reconciliação de acesso por webhook.
+- **Operação administrativa**: APIs de overview, usuários, referrals, comissões e logs de sync.
+- **Controles de segurança**: validação de assinatura de webhook, rate limit, proteção de endpoints de cron e readiness checks.
 
-## Arquitetura e fluxo de dados
+## Stack técnica
 
-1. Usuário autenticado no Supabase acessa `/app`.
-2. O frontend consome rotas internas (`/api/games`, `/api/players`, `/api/metrics`) com `Authorization: Bearer`.
-3. APIs consultam Supabase com service role no servidor e aplicam sanitização/rate limit/cache.
-4. O job de sync (`/api/sync` ou `/api/sync/run`) busca dados na API-SPORTS e persiste em `games`, `players`, `player_stats` e `player_metrics`.
-5. Mudanças de assinatura são processadas pelo webhook Stripe para refletir acesso Pro em `profiles`.
+- **Framework**: Next.js 16 (App Router), React 19, TypeScript
+- **Dados/Auth**: Supabase (Postgres + Auth)
+- **Pagamentos**: Stripe
+- **Cache e rate limit**: Upstash Redis com fallback em memória
+- **Observabilidade**: Sentry
+- **UI/Estilo**: CSS Modules, estilos globais e componentes reutilizáveis
 
-## Pipeline de sincronização NBA
+## Como rodar localmente
 
-- Job protegido para cron (`requireCronRequest`) e rate limited.
-- Lock local + lock distribuído (Upstash NX EX) para evitar execução concorrente.
-- Janela de datas: **D-2 até D+3** para capturar rodada recente/próxima.
-- Upsert incremental:
-  - `games`
-  - `players`
-  - `player_stats`
-  - `player_metrics` (quando não está em mock)
-- Invalidação de cache por prefixo (`games:`, `players:`, `metrics:`, `admin:`) após sync.
-
-## Métricas e leitura de props
-
-A API de métricas suporta janelas **L5, L10, L20, L30 e SEASON**, além de filtros por **split (ALL/HOME/AWAY)** e **oponente**. No dashboard, isso é exibido em splits como **L5/L10/L20/L30, Season e H2H**.
-
-Principais mercados disponíveis no backend incluem: `PTS`, `REB`, `AST`, `3PM`, `PA`, `PR`, `PRA`, `AR`, `DD`, `TD`, `STEAL`, `BLOCKS`, `SB`, `FG2A`, `FG3A`.
-
-## Billing (Stripe)
-
-- Checkout: `/api/stripe/checkout`
-- Portal do cliente: `/api/stripe/portal`
-- Webhook: `/api/stripe/webhook`
-- Webhook (alias para produção): `/api/webhooks/stripe`
-
-Variáveis obrigatórias para produção (live):
-
-- `STRIPE_SECRET_KEY`
-- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_PRO_MONTHLY`
-- `STRIPE_PRICE_PRO_ANNUAL`
-- `STRIPE_PRICE_PLAYOFF_PACK`
-
-O webhook valida assinatura Stripe, reconcilia usuário (metadata/customer/email), atualiza estado de plano no `profiles` e trata atribuição de referral/comissão quando aplicável.
-
-## Segurança (base)
-
-- Autenticação por token Supabase em rotas protegidas.
-- Controles por plano (free/pro) em métricas e experiência do dashboard.
-- Rate limiting por IP/usuário (Upstash com fallback local).
-- Proteção de endpoints internos de sync via segredo de cron.
-- Verificação de assinatura no webhook Stripe.
-- Chaves sensíveis usadas no servidor (ex.: `SUPABASE_SERVICE_KEY`, segredos Stripe/Upstash), sem exposição em respostas públicas.
-
-## Execução local
+### 1) Instalar dependências
 
 ```bash
 npm install
+```
+
+### 2) Configurar variáveis de ambiente
+
+Crie um `.env.local` com base em `docs/env.mock.example` e preencha com os seus próprios valores.
+
+### 3) Iniciar o servidor de desenvolvimento
+
+```bash
 npm run dev
 ```
 
-Variáveis de ambiente obrigatórias e integrações são lidas em runtime no backend (Supabase, Stripe, API-SPORTS, Upstash, segredos de cron/webhook).
+### 4) Checks opcionais
+
+```bash
+npm run lint
+npm run security:preflight
+```
+
+## Variáveis de ambiente
+
+Não commite segredos reais. Use placeholders localmente e configure segredos reais apenas no provedor de deploy.
+
+Variáveis típicas deste projeto:
+
+- **Supabase**
+  - `NEXT_PUBLIC_SUPABASE_URL`
+  - `SUPABASE_SERVICE_KEY`
+- **Auth/Segurança**
+  - `JWT_SECRET`
+  - `ADMIN_SESSION_SECRET`
+  - `ADMIN_TOTP_SECRET`
+  - `ENCRYPTION_KEY`
+  - `CRON_SECRET`
+- **Stripe**
+  - `STRIPE_SECRET_KEY`
+  - `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
+  - `STRIPE_WEBHOOK_SECRET`
+  - `STRIPE_PRICE_PRO_MONTHLY`
+  - `STRIPE_PRICE_PRO_ANNUAL`
+  - `STRIPE_PRICE_PLAYOFF_PACK`
+- **Dados/Infra**
+  - `NBA_API_KEY`
+  - `UPSTASH_REDIS_REST_URL`
+  - `UPSTASH_REDIS_REST_TOKEN`
+
+Consulte `docs/env.mock.example` como template seguro.
+
+## Deploy (visão geral)
+
+A arquitetura de deploy considera:
+
+- **Vercel** para app Next.js e rotas de API;
+- **Supabase** para banco de dados e autenticação;
+- **Stripe** para checkout, assinaturas e webhooks.
+
+Em produção, configure variáveis no ambiente de deploy (não no Git) e valide segredos de webhook antes de liberar tráfego.
+
+## Estrutura do repositório (alto nível)
+
+```text
+app/
+  api/                 # Rotas server-side (auth, dados, billing, admin, sync, webhooks)
+  app/                 # Área autenticada
+  login|signup|...     # Páginas públicas (auth/legal)
+components/            # Componentes reutilizáveis de layout/auth/ui
+lib/                   # Serviços centrais (sync, billing, segurança, auth, repositórios)
+docs/                  # Documentação operacional e exemplos de ambiente
+scripts/               # Scripts utilitários e de segurança
+public/                # Assets estáticos
+```
+
+## Status e roadmap
+
+### Status atual
+- Projeto em desenvolvimento ativo.
+- Fluxos principais de dados, autenticação, cobrança e administração já implementados.
+
+### Roadmap (alto nível)
+- Melhorar cobertura de testes automatizados.
+- Evoluir observabilidade e hardening operacional.
+- Continuar polimento de UX nos fluxos de análise e operação.
+
+## Nota de segurança
+
+- Não exponha service keys, webhook secrets ou tokens privados em issues/PRs.
+- Faça rotação imediata de credenciais em caso de exposição acidental.
+- Mantenha `.env*` fora do Git e use gerenciadores de segredo no deploy.
+
+Se você identificar um problema de segurança, reporte de forma privada aos mantenedores.
+
+## Disclaimer
+
+LinhaCash é uma plataforma de análise de dados. **Não é** casa de apostas, bookmaker ou operadora de apostas.
