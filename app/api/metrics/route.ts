@@ -408,7 +408,7 @@ function hitRate(values: number[], line: number): number {
 }
 
 function resolveLineForStat(stat: string, rawLine: number): number {
-  const minimumLine = BINARY_OUTCOME_STATS.has(stat) ? 0.5 : 0;
+  const minimumLine = BINARY_OUTCOME_STATS.has(stat) ? 1 : 0;
   if (!Number.isFinite(rawLine)) return minimumLine;
   return Math.max(minimumLine, Number(rawLine.toFixed(1)));
 }

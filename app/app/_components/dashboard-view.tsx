@@ -252,7 +252,11 @@ function isBinaryLineStat(stat: Stat) {
 }
 
 function getMinimumLineForStat(stat: Stat) {
-  return isBinaryLineStat(stat) ? 0.5 : 0;
+  return isBinaryLineStat(stat) ? 1 : 0;
+}
+
+function isLineAdjustable(stat: Stat) {
+  return !isBinaryLineStat(stat);
 }
 
 function sanitizeLineForStat(stat: Stat, value: number) {
@@ -263,7 +267,7 @@ function sanitizeLineForStat(stat: Stat, value: number) {
 
 function formatLineLabel(stat: Stat, value: number | null | undefined) {
   const safeValue = sanitizeLineForStat(stat, Number(value ?? getMinimumLineForStat(stat)));
-  return isBinaryLineStat(stat) ? `${safeValue.toFixed(1)}+` : safeValue.toFixed(1);
+  return safeValue.toFixed(1);
 }
 
 const TEAM_LOGO_FALLBACK_BY_KEY: Record<string, string> = {
@@ -1910,30 +1914,36 @@ export function DashboardView() {
                   </div>
                 </div>
                 <div className={`${styles.lineAdjustBox} ${styles.lineAdjustDesktop}`}>
-                  <p>Ajustar linha</p>
-                  <div className={styles.lineAdjustControls}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!lineContextKey || !effectivePlayerDetailModel) return;
-                        const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line - 0.5);
-                        setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
-                      }}
-                    >
-                      <Minus size={16} />
-                    </button>
-                    <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (!lineContextKey || !effectivePlayerDetailModel) return;
-                        const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line + 0.5);
-                        setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
-                      }}
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
+                  <p>{isLineAdjustable(selectedStat) ? 'Ajustar linha' : 'Linha'}</p>
+                  {isLineAdjustable(selectedStat) ? (
+                    <div className={styles.lineAdjustControls}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!lineContextKey || !effectivePlayerDetailModel) return;
+                          const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line - 0.5);
+                          setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
+                        }}
+                      >
+                        <Minus size={16} />
+                      </button>
+                      <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!lineContextKey || !effectivePlayerDetailModel) return;
+                          const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line + 0.5);
+                          setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
+                        }}
+                      >
+                        <Plus size={16} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className={styles.lineAdjustControls}>
+                      <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2071,30 +2081,36 @@ export function DashboardView() {
                   </TabsRoot>
 
                   <div className={`${styles.lineAdjustBox} ${styles.lineAdjustMobile}`}>
-                    <p>Ajustar linha</p>
-                    <div className={styles.lineAdjustControls}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!lineContextKey || !effectivePlayerDetailModel) return;
-                          const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line - 0.5);
-                          setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
-                        }}
-                      >
-                        <Minus size={16} />
-                      </button>
-                      <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (!lineContextKey || !effectivePlayerDetailModel) return;
-                          const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line + 0.5);
-                          setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
-                        }}
-                      >
-                        <Plus size={16} />
-                      </button>
-                    </div>
+                    <p>{isLineAdjustable(selectedStat) ? 'Ajustar linha' : 'Linha'}</p>
+                    {isLineAdjustable(selectedStat) ? (
+                      <div className={styles.lineAdjustControls}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!lineContextKey || !effectivePlayerDetailModel) return;
+                            const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line - 0.5);
+                            setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
+                          }}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!lineContextKey || !effectivePlayerDetailModel) return;
+                            const nextValue = sanitizeLineForStat(selectedStat, effectivePlayerDetailModel.line + 0.5);
+                            setManualLineByContext((prev) => ({ ...prev, [lineContextKey]: nextValue }));
+                          }}
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className={styles.lineAdjustControls}>
+                        <strong>{formatLineLabel(selectedStat, effectivePlayerDetailModel?.line)}</strong>
+                      </div>
+                    )}
                   </div>
                 </>
               ) : null}
