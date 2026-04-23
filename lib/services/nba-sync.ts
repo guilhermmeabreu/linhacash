@@ -639,10 +639,11 @@ async function recomputePlayerMetrics(
     const chunk = uniquePlayerIds.slice(index, index + chunkSize);
     const { data: statsRows, error } = await supabase
       .from('player_stats')
-      .select('player_id,points,rebounds,assists,three_pointers,fgm,fga,game_date,steals,blocks,fg2a,fg3a,three_pa')
+      .select('player_id,game_id,points,rebounds,assists,three_pointers,fgm,fga,game_date,steals,blocks,fg2a,fg3a,three_pa')
       .in('player_id', chunk)
       .order('player_id', { ascending: true })
-      .order('game_date', { ascending: false });
+      .order('game_date', { ascending: false })
+      .order('game_id', { ascending: false });
 
     if (error) {
       throw new Error(`player_stats read failed while recomputing metrics: ${error.message}`);
@@ -675,6 +676,40 @@ async function recomputePlayerMetrics(
       throw new Error(`player_metrics upsert failed: ${error.message}`);
     }
   }
+}
+
+
+async function recomputeAllPlayerMetricsFromStats(supabase: SupabaseClient) {
+  const metricColumns = await detectTableColumns(supabase, 'player_metrics');
+  const playerIds = new Set<number>();
+  const pageSize = 1000;
+
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase
+      .from('player_stats')
+      .select('player_id')
+      .order('player_id', { ascending: true })
+      .range(offset, offset + pageSize - 1);
+
+    if (error) {
+      throw new Error(`player_stats read failed while loading ids for full metrics recompute: ${error.message}`);
+    }
+
+    const rows = data || [];
+    for (const row of rows as Array<{ player_id: number | null }>) {
+      const playerId = toNumber(row.player_id);
+      if (playerId > 0) {
+        playerIds.add(playerId);
+      }
+    }
+
+    if (rows.length < pageSize) {
+      break;
+    }
+  }
+
+  if (!playerIds.size) return;
+  await recomputePlayerMetrics(supabase, playerIds, metricColumns);
 }
 
 async function runSyncCore(
@@ -1015,6 +1050,7 @@ async function runSyncCore(
   invalidateCacheByPrefix('games:');
   invalidateCacheByPrefix('players:');
   invalidateCacheByPrefix('metrics:');
+  invalidateCacheByPrefix('metrics-base:');
   invalidateCacheByPrefix('admin:');
 
   return {
@@ -1151,6 +1187,14 @@ export async function runNbaSyncJob(options: RunNbaSyncOptions = {}): Promise<Sy
       partial = await runSyncCore(supabase, controller.signal, syncMode, options.bootstrapTeamIds ?? []);
     } finally {
       clearTimeout(timeoutHandle);
+    }
+
+    if (partial.status === 'success') {
+      await recomputeAllPlayerMetricsFromStats(supabase);
+      invalidateCacheByPrefix('games:');
+      invalidateCacheByPrefix('players:');
+      invalidateCacheByPrefix('metrics:');
+      invalidateCacheByPrefix('metrics-base:');
     }
 
     const finishedAt = nowIso();
