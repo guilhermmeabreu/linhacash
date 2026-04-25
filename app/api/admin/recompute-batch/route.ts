@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { requireSyncExecutionAccess } from '@/lib/auth/authorization';
-import { getSupabaseAdmin } from '@/lib/supabase-admin';
 import { AppError, ValidationError } from '@/lib/http/errors';
 import { fail, internalError, options } from '@/lib/http/responses';
 import { buildRequestContext, logRouteError } from '@/lib/observability';
@@ -15,6 +15,19 @@ type RecomputeBatchPayload = {
 };
 
 const PLAYER_CHUNK_SIZE = 25;
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_KEY;
+
+  if (!url || !key) {
+    throw new Error('Supabase service credentials are missing');
+  }
+
+  return createClient(url, key, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
+}
 
 function sanitizePlayerIds(input: Iterable<number>): number[] {
   return [...new Set([...input].filter((playerId) => Number.isInteger(playerId) && playerId > 0))];
