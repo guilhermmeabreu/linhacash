@@ -21,8 +21,9 @@ type SaoPauloParts = {
 
 const SAO_PAULO_TIMEZONE = 'America/Sao_Paulo';
 const DASHBOARD_CUTOFF_HOUR = 4;
-const WINDOW_START_MINUTE = 13 * 60;
-const WINDOW_END_MINUTE = 40;
+const SLATE_START_HOUR = 6;
+const SLATE_END_HOUR = 5;
+const SLATE_END_MINUTE = 59;
 
 function getSaoPauloDateParts(date: Date): SaoPauloParts | null {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -89,26 +90,40 @@ function parseGameTime(gameTime: string | null | undefined): Date | null {
   return parsed;
 }
 
-function isInVisibleSlateWindow(gameTime: string | null | undefined, visibleDayKey: string): boolean {
-  const parsed = parseGameTime(gameTime);
-  if (!parsed) return false;
-
-  const local = getSaoPauloDateParts(parsed);
-  if (!local) return false;
-
+function buildSlateWindow(visibleDayKey: string) {
+  const slateStart = `${visibleDayKey} ${String(SLATE_START_HOUR).padStart(2, '0')}:00`;
   const nextDayKey = plusDays(visibleDayKey, 1);
-  const gameDayKey = toCalendarKey(local.year, local.month, local.day);
-  const minutes = local.hour * 60 + local.minute;
+  const slateEnd = `${nextDayKey} ${String(SLATE_END_HOUR).padStart(2, '0')}:${String(SLATE_END_MINUTE).padStart(2, '0')}`;
 
-  if (gameDayKey === visibleDayKey) {
-    return minutes >= WINDOW_START_MINUTE;
+  return { slateStart, slateEnd, nextDayKey };
+}
+
+function isInSlateWindow(
+  gameTime: string | null | undefined,
+  gameDate: string | null | undefined,
+  visibleDayKey: string,
+  nextDayKey: string
+): boolean {
+  const parsed = parseGameTime(gameTime);
+  if (parsed) {
+    const local = getSaoPauloDateParts(parsed);
+    if (!local) return false;
+
+    const gameDayKey = toCalendarKey(local.year, local.month, local.day);
+    const minutes = local.hour * 60 + local.minute;
+
+    if (gameDayKey === visibleDayKey) {
+      return minutes >= SLATE_START_HOUR * 60;
+    }
+
+    if (gameDayKey === nextDayKey) {
+      return minutes <= SLATE_END_HOUR * 60 + SLATE_END_MINUTE;
+    }
+
+    return false;
   }
 
-  if (gameDayKey === nextDayKey) {
-    return minutes <= WINDOW_END_MINUTE;
-  }
-
-  return false;
+  return gameDate === visibleDayKey || gameDate === nextDayKey;
 }
 
 // GET /api/games — slate visível do dashboard (regra BRT)
@@ -128,13 +143,14 @@ export async function GET(req: Request) {
   }
 
   const visibleDay = resolveVisibleDashboardDayKey(new Date(), DASHBOARD_CUTOFF_HOUR);
-  const nextDay = plusDays(visibleDay, 1);
+  const { slateStart, slateEnd, nextDayKey } = buildSlateWindow(visibleDay);
+  const cacheKey = `games:slate:${slateStart}:${slateEnd}`;
 
-  const result = await getCachedValue(`games:${visibleDay}:cutoff-${DASHBOARD_CUTOFF_HOUR}`, 30_000, async () => {
+  const result = await getCachedValue(cacheKey, 30_000, async () => {
     const { data: games, error } = await supabase
       .from('games')
       .select('id, game_date, home_team, away_team, home_team_id, away_team_id, home_logo, away_logo, game_time, status')
-      .in('game_date', [visibleDay, nextDay])
+      .in('game_date', [visibleDay, nextDayKey])
       .order('game_time');
 
     if (error) {
@@ -142,7 +158,7 @@ export async function GET(req: Request) {
     }
 
     return (games || [])
-      .filter((game) => isInVisibleSlateWindow(game.game_time, visibleDay))
+      .filter((game) => isInSlateWindow(game.game_time, game.game_date, visibleDay, nextDayKey))
       .map(sanitizeGame);
   }).catch((error) => {
     logRouteError('/api/games', context.requestId, error, { status: 500, provider: 'supabase', userId: session.userId || null });
@@ -154,11 +170,13 @@ export async function GET(req: Request) {
   logHotPathRead('/api/games', {
     requestId: context.requestId,
     userId: session.userId || null,
-    cacheKey: `games:${visibleDay}:cutoff-${DASHBOARD_CUTOFF_HOUR}`,
+    cacheKey,
     cacheTtlMs: 30_000,
     durationMs: Date.now() - startedAt,
     rowCount: result.length,
     visibleDay,
+    slateStart,
+    slateEnd,
   });
 
   return okResponse({ games: result, date: visibleDay });
